@@ -17,19 +17,18 @@ import torch.nn as nn
 import torchvision.transforms as T
 from PIL import Image, ImageOps
 
-# ─── BiSeNet (face-parsing.PyTorch, 19-class CelebAMask-HQ compatible) ────────
+# ─── BiSeNet (face-parsing.PyTorch 체크포인트 키 구조 호환) ───────────────────────
 
 class _ConvBnRelu(nn.Module):
     def __init__(self, in_ch, out_ch, ks=3, stride=1, pad=1, dilation=1):
         super().__init__()
-        self.layers = nn.Sequential(
-            nn.Conv2d(in_ch, out_ch, ks, stride=stride, padding=pad,
-                      dilation=dilation, bias=False),
-            nn.BatchNorm2d(out_ch),
-            nn.ReLU(inplace=True),
-        )
+        self.conv = nn.Conv2d(in_ch, out_ch, ks, stride=stride, padding=pad,
+                              dilation=dilation, bias=False)
+        self.bn = nn.BatchNorm2d(out_ch)
+        self.relu = nn.ReLU(inplace=True)
+
     def forward(self, x):
-        return self.layers(x)
+        return self.relu(self.bn(self.conv(x)))
 
 
 class _AttentionRefinementModule(nn.Module):
@@ -89,28 +88,21 @@ class _ContextPath(nn.Module):
     def __init__(self):
         super().__init__()
         import torchvision.models as tvm
-        resnet = tvm.resnet18(weights=None)
-        self.conv1 = resnet.conv1
-        self.bn1 = resnet.bn1
-        self.relu = resnet.relu
-        self.maxpool = resnet.maxpool
-        self.layer1 = resnet.layer1
-        self.layer2 = resnet.layer2
-        self.layer3 = resnet.layer3
-        self.layer4 = resnet.layer4
+        # 체크포인트가 self.resnet 서브모듈로 저장되어 있어야 키가 일치함
+        self.resnet = tvm.resnet18(weights=None)
         self.arm16 = _AttentionRefinementModule(256, 128)
         self.arm32 = _AttentionRefinementModule(512, 128)
         self.conv_head32 = _ConvBnRelu(128, 128)
         self.conv_head16 = _ConvBnRelu(128, 128)
-        self.conv_avg = _ConvBnRelu(512, 128)
+        self.conv_avg = _ConvBnRelu(512, 128, ks=1, pad=0)
 
     def forward(self, x):
-        x = self.relu(self.bn1(self.conv1(x)))
-        x = self.maxpool(x)
-        x = self.layer1(x)
-        feat8 = self.layer2(x)
-        feat16 = self.layer3(feat8)
-        feat32 = self.layer4(feat16)
+        x = self.resnet.relu(self.resnet.bn1(self.resnet.conv1(x)))
+        x = self.resnet.maxpool(x)
+        x = self.resnet.layer1(x)
+        feat8 = self.resnet.layer2(x)
+        feat16 = self.resnet.layer3(feat8)
+        feat32 = self.resnet.layer4(feat16)
         avg = self.conv_avg(feat32.mean(dim=(2, 3), keepdim=True))
         feat32_arm = self.arm32(feat32)
         feat32_sum = feat32_arm + avg
@@ -153,7 +145,6 @@ class BiSeNet(nn.Module):
 
 # ─── 설정 ──────────────────────────────────────────────────────────────────────
 
-# 남길 CelebAMask-HQ 라벨: skin(1), l_ear(7), r_ear(8), nose(10), neck(14)
 SKIN_LABELS = {1, 7, 8, 10, 14}
 GRAY_VALUE = 128 / 255.0
 
@@ -171,7 +162,7 @@ _BISENET_INPUT = T.Compose([
 ])
 
 
-# ─── 모델 로더 (경로별 캐시) ────────────────────────────────────────────────────
+# ─── 모델 로더 ─────────────────────────────────────────────────────────────────
 
 @lru_cache(maxsize=4)
 def _load_bisenet(ckpt_path: str) -> BiSeNet:
@@ -197,28 +188,16 @@ def preprocess_face_image(
     bisenet_ckpt: str,
 ) -> torch.Tensor:
     """
-    Parameters
-    ----------
-    image_bytes  : 원본 이미지 바이트
-    bisenet_ckpt : BiSeNet 체크포인트 경로 (.pth)
-
-    Returns
-    -------
-    torch.Tensor  shape (1, 3, 224, 224), ImageNet 정규화 완료
-
-    Raises
-    ------
-    ValueError : 얼굴이 검출되지 않은 경우
+    Returns (1, 3, 224, 224) tensor, ImageNet 정규화 완료.
+    Raises ValueError if no face detected.
     """
-    # 1. 이미지 로드
     image = Image.open(BytesIO(image_bytes))
     image = ImageOps.exif_transpose(image).convert("RGB")
 
-    # 2. MTCNN 얼굴 검출 + 20% margin crop
     mtcnn = _load_mtcnn()
     boxes, _ = mtcnn.detect(image)
     if boxes is None or len(boxes) == 0:
-        raise ValueError("얼굴을 검출하지 못했습니다. 정면 사진을 사용해주세요.")
+        raise ValueError("얼굴을 검출하지 못했습니다.")
 
     x1, y1, x2, y2 = boxes[0]
     w, h = x2 - x1, y2 - y1
@@ -229,7 +208,6 @@ def preprocess_face_image(
     y2 = min(image.height, y2 + h * margin)
     face = image.crop((int(x1), int(y1), int(x2), int(y2)))
 
-    # 3. BiSeNet 피부 마스킹
     bisenet = _load_bisenet(bisenet_ckpt)
     inp = _BISENET_INPUT(face).unsqueeze(0)
     with torch.no_grad():
@@ -241,6 +219,4 @@ def preprocess_face_image(
     face_masked = np.where(skin_mask[:, :, None], face_np, GRAY_VALUE)
     face_pil = Image.fromarray((face_masked * 255).astype(np.uint8))
 
-    # 4. Resize 256 → CenterCrop 224 → ImageNet 정규화
-    tensor = _NORMALIZE(face_pil).unsqueeze(0)  # (1, 3, 224, 224)
-    return tensor
+    return _NORMALIZE(face_pil).unsqueeze(0)

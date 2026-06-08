@@ -9,6 +9,8 @@ __pycache__/
 *.docx
 
 backend/generated/*.png
+backend/models/*.pth
+backend/models/*.pt
 backend/data/chroma/
 backend/data/kfashion/
 backend/data/recommendation_eval*.json

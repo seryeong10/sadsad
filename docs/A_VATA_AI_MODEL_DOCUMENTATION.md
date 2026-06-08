@@ -1,6 +1,6 @@
 # A-VATA 퍼스널컬러 AI 모델 — 통합 기술 문서
 
-작성일: 2026-06-08  
+작성일: 2026-06-08 | 최종 수정: 2026-06-08  
 대상: 모델 개발자, 앱 개발자, 기술 검토자
 
 ---
@@ -42,8 +42,14 @@ A-VATA는 Flutter(프론트엔드) + FastAPI(백엔드)로 구성된 모바일 �
     ↓
 [personal_color_model.py] predict_personal_color()
     ↓
-우선순위 1: EfficientNet-B0 (HuggingFace)
-우선순위 2: RandomForest 폴백 (sklearn)
+MTCNN 얼굴 검출 + 20% margin crop
+    ↓
+BiSeNet 피부 마스킹 (79999_iter.pth)  ← 현재 활성화됨
+  skin/ear/nose/neck 유지, 나머지 → 회색(128)
+    ↓
+EfficientNet-B0 추론 (HuggingFace) + TTA
+    ↓ 실패 시
+RandomForest 폴백 (sklearn)
     ↓
 {type, label, recommended_colors, palette, confidence, probabilities}
     ↓  JSON 응답
@@ -182,8 +188,14 @@ MARGIN = 0.20
 
 ### 4.3 BiSeNet 피부 마스킹
 
-**모델:** BiSeNet (face-parsing.PyTorch), CelebAMask-HQ 19-class  
-**체크포인트:** `lib/face_parsing/res/cp/79999_iter.pth` (53MB)
+**모델:** BiSeNet (face-parsing.PyTorch, MIT License), CelebAMask-HQ 19-class  
+**체크포인트:** `backend/models/79999_iter.pth` (53MB, git 미추적)
+
+**실제 아키텍처 (79999_iter.pth 기준):**  
+체크포인트를 직접 분석한 결과, 이 체크포인트는 SpatialPath 없이 ContextPath 두 출력만 사용한다.
+- `feat_cp16` (128ch, 1/8 scale) + `feat_cp32` (128ch, 1/16 scale) → concat 256ch → FFM
+- FFM convblk: 1×1 conv (원본 face-parsing.PyTorch SpatialPath 버전과 상이)
+- `cp.resnet.fc.*` 미포함 (forward에서 미사용, `strict=False`로 로드)
 
 **19개 클래스 중 피부로 유지하는 클래스:**
 
@@ -295,48 +307,50 @@ Resize((512, 512)) → ToTensor → Normalize(
 
 ## 6. 현재 앱 추론 파이프라인
 
-### 6.1 추론 흐름 (BISENET_CKPT_PATH 미설정 시, 현재 기본 동작)
+### 6.1 현재 추론 흐름 (BiSeNet 활성화, 학습 전처리 완전 일치)
+
+> `.env`에 `BISENET_CKPT_PATH=models/79999_iter.pth` 설정됨 — **현재 기본 동작**
 
 ```
 [입력] image_bytes (multipart upload)
     ↓
 ImageOps.exif_transpose(image).convert("RGB")
     ↓
-MTCNN 얼굴 검출 (facenet-pytorch)
-  → boxes, _ = mtcnn.detect(image)
-  → 얼굴 미검출 시: 원본 이미지 그대로 사용 (폴백)
-  → 20% margin 적용 crop
+face_preprocess.preprocess_face_image(image_bytes, bisenet_ckpt)
+  → MTCNN 얼굴 검출 (facenet-pytorch), 20% margin crop
+  → BiSeNet 512×512 face parsing (79999_iter.pth)
+  → 피부 마스크: skin(1)/ear(7,8)/nose(10)/neck(14) 유지, 나머지 → 회색(128)
+  → Resize(256) → CenterCrop(224) → ToTensor → Normalize
+  → 반환: (1, 3, 224, 224) tensor
     ↓
-TTA (Test Time Augmentation) — 원본 + 수평 반전 평균
-  t_orig: Resize(256) → CenterCrop(224) → ToTensor → Normalize
-  t_flip: 동일 transform (hflip 적용 버전)
+TTA — t_orig(BiSeNet 마스킹) + t_flip(원본 crop hflip) 평균
     ↓
-EfficientNet-B0 forward (HuggingFace 다운로드 체크포인트)
+EfficientNet-B0 forward (HuggingFace: personal_color_korean_tuned_v2.pt)
   logits = (model(t_orig) + model(t_flip)) / 2
   probs = softmax(logits)
     ↓
 [출력] label, confidence, probabilities dict
 ```
 
-### 6.2 추론 흐름 (BISENET_CKPT_PATH 설정 시, 완전 일치 모드)
+서버 로그 확인:
+```
+[personal_color] torch 사용 → EfficientNet-B0 추론 시작
+[personal_color] BiSeNet 피부 마스킹 활성화: models/79999_iter.pth
+```
+
+### 6.2 BiSeNet 미설정 시 추론 흐름 (BISENET_CKPT_PATH 없는 경우)
 
 ```
 [입력] image_bytes
     ↓
-face_preprocess.preprocess_face_image(image_bytes, bisenet_ckpt)
-  → MTCNN crop (20% margin)
-  → BiSeNet 512×512 parsing
-  → 피부 마스크 적용 (skin/ear/nose/neck 유지, 나머지 → 회색 128)
-  → Resize(256) → CenterCrop(224) → Normalize
-  → 반환: (1, 3, 224, 224) tensor
+MTCNN 얼굴 검출, 20% margin crop
     ↓
-TTA — t_orig(BiSeNet 마스킹) + t_flip(원본 crop hflip)
+TTA — Resize(256) → CenterCrop(224) → Normalize (원본 + hflip)
     ↓
 EfficientNet-B0 forward
-  logits = (model(t_orig) + model(t_flip)) / 2
 ```
 
-> `BISENET_CKPT_PATH` 환경변수에 BiSeNet 체크포인트 `.pth` 파일 경로를 지정하면 학습 시와 동일한 전처리가 적용된다.
+> BiSeNet 없이도 EfficientNet은 정상 동작하지만, 학습 전처리와 불일치로 정확도가 다소 낮을 수 있다.
 
 ### 6.3 폴백 체인
 
@@ -355,8 +369,12 @@ RandomForest: sklearn Pipeline (StandardScaler + RandomForestClassifier 700 tree
 **로그로 확인 방법:**
 
 ```
-# EfficientNet 경로
+# BiSeNet + EfficientNet 정상 동작 (현재 상태)
 [personal_color] torch 사용 → EfficientNet-B0 추론 시작
+[personal_color] BiSeNet 피부 마스킹 활성화: models/79999_iter.pth
+
+# BiSeNet 미설정 시 (경로 없거나 파일 없을 때)
+[personal_color] BiSeNet 미적용 (BISENET_CKPT_PATH=..., exists=False)
 
 # 폴백 발생 시
 [personal_color] EfficientNet 실패 → RandomForest 폴백: <오류 내용>
@@ -414,18 +432,19 @@ for key in ("model_state_dict", "state_dict", "model"):
 
 ## 7. 학습 전처리 vs 추론 전처리 비교
 
-| 단계 | 학습 시 | 앱 추론 시 (기본) | 앱 추론 시 (BiSeNet 활성화) |
+| 단계 | 학습 시 | 앱 추론 시 (현재, BiSeNet ON) | 앱 추론 시 (BiSeNet OFF) |
 |---|---|---|---|
 | 얼굴 검출 | MTCNN (keep_all=True, confidence 최고 선택) | MTCNN (keep_all=False) | MTCNN (keep_all=False) |
 | Margin | 20% | 20% | 20% |
-| BiSeNet 마스킹 | ✅ 적용 (512×512) | ❌ 미적용 | ✅ 적용 (512×512) |
-| 피부 외 영역 | 회색(128) | 그대로 포함 | 회색(128) |
+| BiSeNet 마스킹 | ✅ 적용 (512×512) | ✅ 적용 (512×512) | ❌ 미적용 |
+| 피부 외 영역 | 회색(128) | 회색(128) | 그대로 포함 |
 | Resize | 256 → CenterCrop 224 | 256 → CenterCrop 224 | 256 → CenterCrop 224 |
 | Normalize | ImageNet 통계 | ImageNet 통계 | ImageNet 통계 |
-| TTA | 6-crop (평가 시) | 원본 + hflip 평균 | 원본(BiSeNet) + hflip 평균 |
-| 전처리 일치도 | — | **부분 불일치** | **완전 일치** |
+| TTA | 6-crop (평가 시) | 원본(BiSeNet) + hflip 평균 | 원본 + hflip 평균 |
+| 전처리 일치도 | — | **완전 일치** ✅ | 부분 불일치 |
 
-> **현재 기본 상태는 BiSeNet 마스킹 없이 동작한다.** 학습 시 전처리와 완전히 일치하려면 `BISENET_CKPT_PATH` 환경변수 설정이 필요하다. BiSeNet 체크포인트 파일(`79999_iter.pth`, 53MB)은 face-parsing.PyTorch 레포에서 별도 다운로드해야 한다.
+> **현재 `BISENET_CKPT_PATH=models/79999_iter.pth` 설정으로 학습 전처리와 완전히 일치하는 상태로 동작 중이다.**  
+> BiSeNet 체크포인트(`79999_iter.pth`)는 git에 포함되지 않으므로 새 환경 세팅 시 별도 다운로드 필요.
 
 ---
 
@@ -516,14 +535,11 @@ summer_cool ↔ winter_cool   (같은 쿨톤, 명도/대비 차이)
 
 ### 9.4 현재 앱에서 실제 모델 동작 확인 방법
 
-서버 터미널 로그에서 아래 메시지 확인:
+서버 터미널 로그에서 아래 메시지 확인 (현재 정상 상태):
 
-```bash
-# EfficientNet 정상 동작 확인
+```
 [personal_color] torch 사용 → EfficientNet-B0 추론 시작
-
-# 폴백 발생 여부 확인
-[personal_color] EfficientNet 실패 → RandomForest 폴백: <이유>
+[personal_color] BiSeNet 피부 마스킹 활성화: models/79999_iter.pth
 ```
 
 curl 테스트:
@@ -532,6 +548,7 @@ curl 테스트:
 curl -s -X POST http://localhost:8000/analyze-personal-color \
   -F "file=@/path/to/face.jpg" \
   -F "gender=female" | python3 -m json.tool | grep analysis_method
+# 기대 출력: "analysis_method": "efficientnet_b0_huggingface"
 ```
 
 ---
@@ -540,12 +557,12 @@ curl -s -X POST http://localhost:8000/analyze-personal-color \
 
 ### 단기 (데이터 없이 가능)
 
-| 방법 | 기대 효과 | 설명 |
-|---|---|---|
-| BiSeNet 활성화 | ~1-2%p 향상 예상 | `BISENET_CKPT_PATH` 설정 + `79999_iter.pth` 배포 |
-| 6-crop TTA | +0.5~1%p | 현재 2-crop(orig+flip) → 6-crop으로 확장 |
-| 2단계 분류 (warm/cool → 세부) | 구조적 혼동 해결 | autumn/spring 혼동 직접 해결 |
-| Focal loss | 어려운 샘플 집중 | autumn_warm 성능 개선 |
+| 방법 | 기대 효과 | 설명 | 상태 |
+|---|---|---|---|
+| BiSeNet 활성화 | ~1-2%p 향상 예상 | `BISENET_CKPT_PATH` 설정 + `79999_iter.pth` 배포 | ✅ **완료** |
+| 6-crop TTA | +0.5~1%p | 현재 2-crop(orig+flip) → 6-crop으로 확장 | 미적용 |
+| 2단계 분류 (warm/cool → 세부) | 구조적 혼동 해결 | autumn/spring 혼동 직접 해결 | 미적용 |
+| Focal loss | 어려운 샘플 집중 | autumn_warm 성능 개선 | 미적용 |
 
 ### 중장기 (데이터 확보 필요)
 

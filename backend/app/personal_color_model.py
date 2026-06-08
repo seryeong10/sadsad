@@ -1,8 +1,11 @@
 import argparse
 import json
 import math
+import os
 import re
 import unicodedata
+from functools import lru_cache
+from io import BytesIO
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -16,6 +19,21 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from app.personal_color_palette import get_personal_color_palette
+
+try:
+    import torch
+    import torchvision.transforms as T
+    from torchvision.transforms import functional as TF
+    import timm
+    from huggingface_hub import hf_hub_download
+    from facenet_pytorch import MTCNN
+    _TORCH_AVAILABLE = True
+except ImportError:
+    _TORCH_AVAILABLE = False
+
+DEEP_MODEL_REPO = "jiwoonkim00/personal-color-classifier"
+DEEP_MODEL_FILE = "personal_color_korean_tuned_v2.pt"
+DEEP_CLASS_NAMES = ["spring_warm", "summer_cool", "autumn_warm", "winter_cool"]
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 DEFAULT_DATASET_DIR = Path("/Users/seryeong/Desktop/퍼스널 ")
@@ -242,13 +260,80 @@ def _train_rows(
     }
 
 
-def predict_personal_color(image_bytes: bytes, gender: str = "") -> dict:
+@lru_cache(maxsize=1)
+def _load_deep_model():
+    model_path = hf_hub_download(repo_id=DEEP_MODEL_REPO, filename=DEEP_MODEL_FILE)
+    model = timm.create_model("efficientnet_b0.ra_in1k", pretrained=False, num_classes=4)
+    state = torch.load(model_path, map_location="cpu", weights_only=False)
+    if isinstance(state, dict):
+        for key in ("model_state_dict", "state_dict", "model"):
+            if key in state:
+                state = state[key]
+                break
+    model.load_state_dict(state)
+    model.eval()
+    return model
+
+
+@lru_cache(maxsize=1)
+def _load_mtcnn():
+    return MTCNN(keep_all=False, device="cpu")
+
+
+def _mtcnn_face_crop(image: Image.Image, margin: float = 0.2) -> Image.Image:
+    mtcnn = _load_mtcnn()
+    boxes, _ = mtcnn.detect(image)
+    if boxes is None or len(boxes) == 0:
+        return image
+    x1, y1, x2, y2 = boxes[0]
+    w, h = x2 - x1, y2 - y1
+    x1 = max(0, x1 - w * margin)
+    y1 = max(0, y1 - h * margin)
+    x2 = min(image.width, x2 + w * margin)
+    y2 = min(image.height, y2 + h * margin)
+    return image.crop((int(x1), int(y1), int(x2), int(y2)))
+
+
+def _predict_deep(image_bytes: bytes) -> tuple[str, float, dict]:
+    from app.face_preprocess import preprocess_face_image, _NORMALIZE
+    from torchvision.transforms import functional as TF_func
+
+    model = _load_deep_model()
+    bisenet_ckpt = os.getenv("BISENET_CKPT_PATH", "")
+
+    if bisenet_ckpt and Path(bisenet_ckpt).exists():
+        t_orig = preprocess_face_image(image_bytes, bisenet_ckpt)
+        image = Image.open(BytesIO(image_bytes))
+        image = ImageOps.exif_transpose(image).convert("RGB")
+        image = _mtcnn_face_crop(image, margin=0.2)
+        t_flip = _NORMALIZE(TF_func.hflip(image)).unsqueeze(0)
+    else:
+        image = Image.open(BytesIO(image_bytes))
+        image = ImageOps.exif_transpose(image).convert("RGB")
+        image = _mtcnn_face_crop(image, margin=0.2)
+        transform = T.Compose([
+            T.Resize(256),
+            T.CenterCrop(224),
+            T.ToTensor(),
+            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+        t_orig = transform(image).unsqueeze(0)
+        t_flip = transform(TF.hflip(image)).unsqueeze(0)
+
+    with torch.no_grad():
+        logits = (model(t_orig) + model(t_flip)) / 2
+        probs = torch.softmax(logits, dim=1)[0].tolist()
+    probabilities = {cls: float(p) for cls, p in zip(DEEP_CLASS_NAMES, probs)}
+    label = max(probabilities, key=probabilities.get)
+    return label, probabilities[label], probabilities
+
+
+def _predict_sklearn(image_bytes: bytes, gender: str) -> tuple[str, float, dict]:
     model_path = _model_path_for_gender(gender)
     if not model_path.exists():
         raise FileNotFoundError(
             f"퍼스널 컬러 모델이 없습니다. 먼저 학습을 실행하세요: {model_path}"
         )
-
     model = joblib.load(model_path)
     features = extract_features_from_bytes(image_bytes, gender=gender).reshape(1, -1)
     label = str(model.predict(features)[0])
@@ -257,11 +342,25 @@ def predict_personal_color(image_bytes: bytes, gender: str = "") -> dict:
     if hasattr(model, "predict_proba"):
         classes = list(model.classes_)
         proba = model.predict_proba(features)[0]
-        probabilities = {
-            str(class_name): float(probability)
-            for class_name, probability in zip(classes, proba)
-        }
+        probabilities = {str(c): float(p) for c, p in zip(classes, proba)}
         confidence = probabilities.get(label, 0.0)
+    return label, confidence, probabilities
+
+
+def predict_personal_color(image_bytes: bytes, gender: str = "") -> dict:
+    analysis_method = "efficientnet_b0_huggingface"
+    if _TORCH_AVAILABLE:
+        try:
+            print("[personal_color] torch 사용 → EfficientNet-B0 추론 시작")
+            label, confidence, probabilities = _predict_deep(image_bytes)
+        except Exception as e:
+            print(f"[personal_color] EfficientNet 실패 → RandomForest 폴백: {e}")
+            label, confidence, probabilities = _predict_sklearn(image_bytes, gender)
+            analysis_method = "skin_color_features_random_forest_by_gender"
+    else:
+        print("[personal_color] torch 없음 → RandomForest 사용")
+        label, confidence, probabilities = _predict_sklearn(image_bytes, gender)
+        analysis_method = "skin_color_features_random_forest_by_gender"
 
     result = COLOR_RESULTS[label]
     palette = get_personal_color_palette(label, gender=gender)
@@ -278,8 +377,7 @@ def predict_personal_color(image_bytes: bytes, gender: str = "") -> dict:
         "avoid_colors": palette["avoid"],
         "confidence": round(confidence, 3),
         "probabilities": probabilities,
-        "analysis_method": "skin_color_features_random_forest_by_gender",
-        "model_path": str(model_path),
+        "analysis_method": analysis_method,
     }
 
 

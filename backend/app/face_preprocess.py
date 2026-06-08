@@ -17,7 +17,12 @@ import torch.nn as nn
 import torchvision.transforms as T
 from PIL import Image, ImageOps
 
-# ─── BiSeNet (face-parsing.PyTorch 체크포인트 키 구조 호환) ───────────────────────
+# ─── BiSeNet (face-parsing.PyTorch 79999_iter.pth 체크포인트 호환) ─────────────
+# 체크포인트 구조:
+#   - cp.*: ContextPath (resnet18 backbone, arm, conv_head, conv_avg)
+#   - ffm.*: FeatureFusionModule (입력 256ch = feat_cp16(128) + feat_cp32(128))
+#   - conv_out*: BiSeNetOutput
+#   - sp.* 없음 (SpatialPath 미포함 checkpoint)
 
 class _ConvBnRelu(nn.Module):
     def __init__(self, in_ch, out_ch, ks=3, stride=1, pad=1, dilation=1):
@@ -49,14 +54,15 @@ class _AttentionRefinementModule(nn.Module):
 class _FeatureFusionModule(nn.Module):
     def __init__(self, in_ch, out_ch):
         super().__init__()
-        self.convblk = _ConvBnRelu(in_ch, out_ch)
+        # 체크포인트의 convblk는 1×1 conv
+        self.convblk = _ConvBnRelu(in_ch, out_ch, ks=1, pad=0)
         self.conv1 = nn.Conv2d(out_ch, out_ch // 4, 1, bias=False)
         self.conv2 = nn.Conv2d(out_ch // 4, out_ch, 1, bias=False)
         self.relu = nn.ReLU(inplace=True)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, sp, cp):
-        fcat = torch.cat([sp, cp], dim=1)
+    def forward(self, x1, x2):
+        fcat = torch.cat([x1, x2], dim=1)
         feat = self.convblk(fcat)
         atten = feat.mean(dim=(2, 3), keepdim=True)
         atten = self.sigmoid(self.conv2(self.relu(self.conv1(atten))))
@@ -73,22 +79,11 @@ class _BiSeNetOutput(nn.Module):
         return self.conv_out(self.conv(x))
 
 
-class _SpatialPath(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.conv1 = _ConvBnRelu(3, 64, stride=2)
-        self.conv2 = _ConvBnRelu(64, 128, stride=2)
-        self.conv3 = _ConvBnRelu(128, 256, stride=2)
-
-    def forward(self, x):
-        return self.conv3(self.conv2(self.conv1(x)))
-
-
 class _ContextPath(nn.Module):
     def __init__(self):
         super().__init__()
         import torchvision.models as tvm
-        # 체크포인트가 self.resnet 서브모듈로 저장되어 있어야 키가 일치함
+        # self.resnet 으로 저장해야 체크포인트 키 cp.resnet.* 와 일치
         self.resnet = tvm.resnet18(weights=None)
         self.arm16 = _AttentionRefinementModule(256, 128)
         self.arm32 = _AttentionRefinementModule(512, 128)
@@ -116,22 +111,27 @@ class _ContextPath(nn.Module):
 
 
 class BiSeNet(nn.Module):
-    """face-parsing.PyTorch 호환 BiSeNet (19-class CelebAMask-HQ)"""
+    """
+    face-parsing.PyTorch 79999_iter.pth 호환 BiSeNet (19-class).
+    체크포인트에 SpatialPath(sp.*) 없음 → cp 두 출력을 FFM에 직접 입력.
+    """
 
     def __init__(self, n_classes: int = 19):
         super().__init__()
         self.cp = _ContextPath()
-        self.ffm = _FeatureFusionModule(256 + 128, 256)
+        # feat_cp16(128) + feat_cp32(128) = 256ch 입력
+        self.ffm = _FeatureFusionModule(128 + 128, 256)
         self.conv_out = _BiSeNetOutput(256, 256, n_classes)
         self.conv_out16 = _BiSeNetOutput(128, 64, n_classes)
         self.conv_out32 = _BiSeNetOutput(128, 64, n_classes)
-        self.sp = _SpatialPath()
 
     def forward(self, x):
         h, w = x.shape[2:]
         feat_cp16, feat_cp32 = self.cp(x)
-        feat_sp = self.sp(x)
-        feat_fuse = self.ffm(feat_sp, feat_cp16)
+        feat_cp32_up = nn.functional.interpolate(
+            feat_cp32, size=feat_cp16.shape[2:], mode='nearest'
+        )
+        feat_fuse = self.ffm(feat_cp16, feat_cp32_up)
         out = self.conv_out(feat_fuse)
         out = nn.functional.interpolate(out, size=(h, w), mode='bilinear', align_corners=False)
         if self.training:
@@ -170,7 +170,14 @@ def _load_bisenet(ckpt_path: str) -> BiSeNet:
     state = torch.load(ckpt_path, map_location="cpu", weights_only=False)
     if isinstance(state, dict) and "state_dict" in state:
         state = state["state_dict"]
-    model.load_state_dict(state)
+    # strict=False: cp.resnet.fc.* 는 체크포인트에 없지만 forward에서 사용 안 함
+    missing, unexpected = model.load_state_dict(state, strict=False)
+    if unexpected:
+        print(f"[BiSeNet] unexpected keys: {unexpected[:3]}...")
+    if missing:
+        non_fc = [k for k in missing if 'fc' not in k]
+        if non_fc:
+            print(f"[BiSeNet] missing (non-fc) keys: {non_fc[:3]}...")
     model.eval()
     return model
 

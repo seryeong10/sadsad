@@ -302,12 +302,14 @@ def _predict_deep(image_bytes: bytes) -> tuple[str, float, dict]:
     bisenet_ckpt = os.getenv("BISENET_CKPT_PATH", "")
 
     if bisenet_ckpt and Path(bisenet_ckpt).exists():
+        print(f"[personal_color] BiSeNet 피부 마스킹 활성화: {bisenet_ckpt}")
         t_orig = preprocess_face_image(image_bytes, bisenet_ckpt)
         image = Image.open(BytesIO(image_bytes))
         image = ImageOps.exif_transpose(image).convert("RGB")
         image = _mtcnn_face_crop(image, margin=0.2)
         t_flip = _NORMALIZE(TF_func.hflip(image)).unsqueeze(0)
     else:
+        print(f"[personal_color] BiSeNet 미적용 (BISENET_CKPT_PATH={bisenet_ckpt!r}, exists={Path(bisenet_ckpt).exists() if bisenet_ckpt else 'N/A'})")
         image = Image.open(BytesIO(image_bytes))
         image = ImageOps.exif_transpose(image).convert("RGB")
         image = _mtcnn_face_crop(image, margin=0.2)

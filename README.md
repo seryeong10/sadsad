@@ -127,16 +127,26 @@ EfficientNet-B0 기반 4계절 분류 (봄웜 / 여름쿨 / 가을웜 / 겨울�
 
 **성능:** Test Accuracy **70.8%** (TTA 기준, Korean celebrity 356장 test set)
 
-**BiSeNet 체크포인트 준비 (`BISENET_CKPT_PATH` 활성화 시):**
+**BiSeNet 피부 마스킹 활성화 (선택, 권장):**
 
-BiSeNet 가중치(`79999_iter.pth`)는 [face-parsing.PyTorch](https://github.com/zllrunning/face-parsing.PyTorch) (MIT License) 프로젝트의 사전학습 체크포인트다.  
-`backend/models/` 폴더에 직접 복사해서 사용한다 (용량 53MB, git 미추적).
+학습 시 전처리와 완전히 일치시키려면 BiSeNet 체크포인트가 필요하다.  
+가중치(`79999_iter.pth`, 53MB)는 [face-parsing.PyTorch](https://github.com/zllrunning/face-parsing.PyTorch) (MIT License)의 사전학습 체크포인트다.
 
 ```bash
-# 체크포인트 다운로드 (gdown 필요)
+# 1. 체크포인트 다운로드
 pip install gdown
 gdown --id 154JgKpzCPW82qINcVieuPH3fZ2e0P812 -O backend/models/79999_iter.pth
+
+# 2. .env 에 경로 설정
+echo "BISENET_CKPT_PATH=models/79999_iter.pth" >> backend/.env
 ```
+
+설정 후 서버 재시작 시 로그에 아래 메시지가 출력되면 정상 동작:
+```
+[personal_color] BiSeNet 피부 마스킹 활성화: models/79999_iter.pth
+```
+
+> `BISENET_CKPT_PATH` 미설정 시 BiSeNet 없이 MTCNN + EfficientNet만 사용 (폴백 아님, 정상 동작).
 
 자세한 내용 → [`docs/A_VATA_AI_MODEL_DOCUMENTATION.md`](docs/A_VATA_AI_MODEL_DOCUMENTATION.md)
 

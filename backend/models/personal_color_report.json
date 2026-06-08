@@ -1,0 +1,217 @@
+{
+  "dataset_dir": "/Users/seryeong/Desktop/퍼스널 ",
+  "total_images": 378,
+  "failed_images": [],
+  "labels": {
+    "autumn_warm": 96,
+    "spring_warm": 96,
+    "summer_cool": 87,
+    "winter_cool": 99
+  },
+  "genders": {
+    "female": 195,
+    "male": 183
+  },
+  "split_method": "stratified_by_personal_color_label",
+  "overall_model": {
+    "model_path": "/Users/seryeong/capstone/backend/models/personal_color_model.joblib",
+    "split_name": "all_genders",
+    "total_images": 378,
+    "labels": {
+      "autumn_warm": 96,
+      "spring_warm": 96,
+      "summer_cool": 87,
+      "winter_cool": 99
+    },
+    "train_images": 283,
+    "test_images": 95,
+    "accuracy": 0.29473684210526313,
+    "report": {
+      "autumn_warm": {
+        "precision": 0.3103448275862069,
+        "recall": 0.375,
+        "f1-score": 0.33962264150943394,
+        "support": 24.0
+      },
+      "spring_warm": {
+        "precision": 0.14285714285714285,
+        "recall": 0.08333333333333333,
+        "f1-score": 0.10526315789473684,
+        "support": 24.0
+      },
+      "summer_cool": {
+        "precision": 0.3684210526315789,
+        "recall": 0.3181818181818182,
+        "f1-score": 0.34146341463414637,
+        "support": 22.0
+      },
+      "winter_cool": {
+        "precision": 0.30303030303030304,
+        "recall": 0.4,
+        "f1-score": 0.3448275862068966,
+        "support": 25.0
+      },
+      "accuracy": 0.29473684210526313,
+      "macro avg": {
+        "precision": 0.2811633315263079,
+        "recall": 0.2941287878787879,
+        "f1-score": 0.2827942000613034,
+        "support": 95.0
+      },
+      "weighted avg": {
+        "precision": 0.2795565055188706,
+        "recall": 0.29473684210526313,
+        "f1-score": 0.282212041713934,
+        "support": 95.0
+      }
+    }
+  },
+  "gender_models": {
+    "female": {
+      "model_path": "/Users/seryeong/capstone/backend/models/personal_color_model_female.joblib",
+      "split_name": "female_only",
+      "total_images": 195,
+      "labels": {
+        "autumn_warm": 48,
+        "spring_warm": 48,
+        "summer_cool": 48,
+        "winter_cool": 51
+      },
+      "train_images": 146,
+      "test_images": 49,
+      "accuracy": 0.40816326530612246,
+      "report": {
+        "autumn_warm": {
+          "precision": 0.35714285714285715,
+          "recall": 0.4166666666666667,
+          "f1-score": 0.38461538461538464,
+          "support": 12.0
+        },
+        "spring_warm": {
+          "precision": 0.7,
+          "recall": 0.5833333333333334,
+          "f1-score": 0.6363636363636364,
+          "support": 12.0
+        },
+        "summer_cool": {
+          "precision": 0.25,
+          "recall": 0.3333333333333333,
+          "f1-score": 0.2857142857142857,
+          "support": 12.0
+        },
+        "winter_cool": {
+          "precision": 0.4444444444444444,
+          "recall": 0.3076923076923077,
+          "f1-score": 0.36363636363636365,
+          "support": 13.0
+        },
+        "accuracy": 0.40816326530612246,
+        "macro avg": {
+          "precision": 0.4378968253968254,
+          "recall": 0.41025641025641024,
+          "f1-score": 0.41758241758241765,
+          "support": 49.0
+        },
+        "weighted avg": {
+          "precision": 0.4380304502753482,
+          "recall": 0.40816326530612246,
+          "f1-score": 0.41648147770596755,
+          "support": 49.0
+        }
+      }
+    },
+    "male": {
+      "model_path": "/Users/seryeong/capstone/backend/models/personal_color_model_male.joblib",
+      "split_name": "male_only",
+      "total_images": 183,
+      "labels": {
+        "autumn_warm": 48,
+        "spring_warm": 48,
+        "summer_cool": 39,
+        "winter_cool": 48
+      },
+      "train_images": 137,
+      "test_images": 46,
+      "accuracy": 0.32608695652173914,
+      "report": {
+        "autumn_warm": {
+          "precision": 0.3,
+          "recall": 0.25,
+          "f1-score": 0.2727272727272727,
+          "support": 12.0
+        },
+        "spring_warm": {
+          "precision": 0.25,
+          "recall": 0.16666666666666666,
+          "f1-score": 0.2,
+          "support": 12.0
+        },
+        "summer_cool": {
+          "precision": 0.3333333333333333,
+          "recall": 0.5,
+          "f1-score": 0.4,
+          "support": 10.0
+        },
+        "winter_cool": {
+          "precision": 0.38461538461538464,
+          "recall": 0.4166666666666667,
+          "f1-score": 0.4,
+          "support": 12.0
+        },
+        "accuracy": 0.32608695652173914,
+        "macro avg": {
+          "precision": 0.31698717948717947,
+          "recall": 0.3333333333333333,
+          "f1-score": 0.31818181818181823,
+          "support": 46.0
+        },
+        "weighted avg": {
+          "precision": 0.3162764771460424,
+          "recall": 0.32608695652173914,
+          "f1-score": 0.31462450592885377,
+          "support": 46.0
+        }
+      }
+    }
+  },
+  "accuracy": 0.29473684210526313,
+  "report": {
+    "autumn_warm": {
+      "precision": 0.3103448275862069,
+      "recall": 0.375,
+      "f1-score": 0.33962264150943394,
+      "support": 24.0
+    },
+    "spring_warm": {
+      "precision": 0.14285714285714285,
+      "recall": 0.08333333333333333,
+      "f1-score": 0.10526315789473684,
+      "support": 24.0
+    },
+    "summer_cool": {
+      "precision": 0.3684210526315789,
+      "recall": 0.3181818181818182,
+      "f1-score": 0.34146341463414637,
+      "support": 22.0
+    },
+    "winter_cool": {
+      "precision": 0.30303030303030304,
+      "recall": 0.4,
+      "f1-score": 0.3448275862068966,
+      "support": 25.0
+    },
+    "accuracy": 0.29473684210526313,
+    "macro avg": {
+      "precision": 0.2811633315263079,
+      "recall": 0.2941287878787879,
+      "f1-score": 0.2827942000613034,
+      "support": 95.0
+    },
+    "weighted avg": {
+      "precision": 0.2795565055188706,
+      "recall": 0.29473684210526313,
+      "f1-score": 0.282212041713934,
+      "support": 95.0
+    }
+  }
+}

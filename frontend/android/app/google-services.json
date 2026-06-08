@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "2314314927",
+    "project_id": "a-vata",
+    "storage_bucket": "a-vata.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2314314927:android:81b3ac3f14b7728df1e05a",
+        "android_client_info": {
+          "package_name": "com.example.a_vata"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVm1gkCNkASFQi6--OkJpU2SQElX-4ir8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

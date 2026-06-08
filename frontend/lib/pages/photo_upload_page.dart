@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../services/avatar_api_service.dart';
@@ -9,6 +11,7 @@ import '../widgets/app_button.dart';
 import 'avatar_home_page.dart';
 import 'avatar_loading_view.dart';
 import 'avatar_result_page.dart';
+import 'personal_color_page.dart';
 
 class PhotoUploadPage extends StatefulWidget {
   final String gender;
@@ -42,7 +45,7 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
   void showImageSourceSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -111,6 +114,7 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
               : AvatarResultPage(
                   gender: widget.gender,
                   imageData: resultImage,
+                  sourceFaceImage: _image!,
                 ),
         ),
       );
@@ -127,6 +131,35 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
         });
       }
     }
+  }
+
+  Future<void> analyzePersonalColorWithoutAvatar() async {
+    if (_image == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('사진을 먼저 업로드해주세요.')),
+      );
+      return;
+    }
+
+    final avatarAssetPath = widget.gender == 'female'
+        ? 'assets/avatars/female_base.png'
+        : 'assets/avatars/male_base.png';
+    final avatarBytes = await rootBundle.load(avatarAssetPath);
+    final avatarImageData =
+        'data:image/png;base64,${base64Encode(avatarBytes.buffer.asUint8List())}';
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PersonalColorLoadingPage(
+          gender: widget.gender,
+          avatarImageData: avatarImageData,
+          sourceFaceImage: _image!,
+        ),
+      ),
+    );
   }
 
   @override
@@ -164,6 +197,7 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
                         height: 230,
                         width: double.infinity,
                         decoration: BoxDecoration(
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(color: AppColors.line),
                         ),
@@ -171,7 +205,11 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
                             ? const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.camera_alt_outlined, size: 54),
+                                  Icon(
+                                    Icons.camera_alt_outlined,
+                                    size: 54,
+                                    color: AppColors.main,
+                                  ),
                                   SizedBox(height: 16),
                                   Text(
                                     '사진 선택',
@@ -221,6 +259,12 @@ class _PhotoUploadPageState extends State<PhotoUploadPage> {
                     ),
                     const Spacer(),
                     AppButton(text: '다음', onPressed: generateAvatarAndMove),
+                    const SizedBox(height: 12),
+                    AppButton(
+                      text: '아바타 없이 컬러 결과 보기',
+                      isPrimary: false,
+                      onPressed: analyzePersonalColorWithoutAvatar,
+                    ),
                   ],
                 ),
               ),

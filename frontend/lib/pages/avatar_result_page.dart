@@ -1,19 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/app_button.dart';
 import '../widgets/avatar_memory_image.dart';
-import 'avatar_home_page.dart';
 import 'photo_upload_page.dart';
+import 'personal_color_page.dart';
 
 class AvatarResultPage extends StatelessWidget {
   final String gender;
   final String imageData;
+  final File sourceFaceImage;
 
   const AvatarResultPage({
     super.key,
     required this.gender,
     required this.imageData,
+    required this.sourceFaceImage,
   });
 
   @override
@@ -22,7 +26,6 @@ class AvatarResultPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('아바타 생성 완료'),
         centerTitle: true,
-        backgroundColor: Colors.white,
         foregroundColor: AppColors.ink,
         elevation: 0,
       ),
@@ -48,9 +51,10 @@ class AvatarResultPage extends StatelessWidget {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => AvatarHomePage(
+                      builder: (_) => PersonalColorIntroPage(
                         gender: gender,
                         avatarImageData: imageData,
+                        sourceFaceImage: sourceFaceImage,
                       ),
                     ),
                   );

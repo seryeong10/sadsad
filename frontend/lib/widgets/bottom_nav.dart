@@ -24,8 +24,8 @@ class AvataBottomNav extends StatelessWidget {
     return Container(
       height: 92,
       decoration: const BoxDecoration(
-        color: Color(0xfffbf9ff),
-        border: Border(top: BorderSide(color: Color(0xfff0eef5))),
+        color: AppColors.background,
+        border: Border(top: BorderSide(color: AppColors.line)),
       ),
       child: SafeArea(
         top: false,
@@ -46,7 +46,7 @@ class AvataBottomNav extends StatelessWidget {
                       Icon(
                         selected ? item.activeIcon : item.icon,
                         size: 23,
-                        color: selected ? AppColors.ink : AppColors.muted,
+                        color: selected ? AppColors.main : AppColors.muted,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -65,7 +65,7 @@ class AvataBottomNav extends StatelessWidget {
                         width: selected ? 4 : 0,
                         height: selected ? 4 : 0,
                         decoration: const BoxDecoration(
-                          color: AppColors.ink,
+                          color: AppColors.main,
                           shape: BoxShape.circle,
                         ),
                       ),

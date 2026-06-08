@@ -6,11 +6,24 @@ __pycache__/
 
 .idea/
 *.zip
+*.docx
 
 backend/generated/*.png
+backend/data/chroma/
+backend/data/kfashion/
+backend/data/recommendation_eval*.json
+backend/naver_clothes_tagged.csv
+
+outputs/
+pdf3_preview/
+pdf4_preview/
+report_quicklook/
+tmp_pdf_preview/
+tmp_review_pdf/
 
 frontend/.dart_tool/
 frontend/build/
 frontend/.kotlin/
 frontend/android/.gradle/
 frontend/.packages
+frontend/flutter_android_current.png

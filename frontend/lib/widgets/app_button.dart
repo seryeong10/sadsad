@@ -22,11 +22,12 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           elevation: isPrimary ? 2 : 0,
-          backgroundColor: isPrimary ? AppColors.ink : Colors.white,
+          backgroundColor: isPrimary ? AppColors.main : Colors.white,
           foregroundColor: isPrimary ? Colors.white : AppColors.ink,
+          shadowColor: isPrimary ? AppColors.buttonShadow : Colors.transparent,
           side: isPrimary ? null : const BorderSide(color: AppColors.line),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
         onPressed: onPressed,

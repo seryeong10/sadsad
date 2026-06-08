@@ -14,6 +14,16 @@ class AvatarMemoryImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (imageData.startsWith('http://') || imageData.startsWith('https://')) {
+      return Center(
+        child: Image.network(
+          imageData,
+          fit: fit,
+          gaplessPlayback: true,
+        ),
+      );
+    }
+
     final base64String = imageData.split(',').last;
 
     return Center(

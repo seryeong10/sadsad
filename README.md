@@ -95,3 +95,55 @@ iOS 시뮬레이터, 데스크톱, 웹에서 실행하려면 같은 파일의 UR
 ```
 
 서버는 결과 이미지의 가장자리에서 밝은 단색 배경을 탐색해 투명 처리한 뒤 반환합니다.
+
+### K-Fashion 추천 데이터 생성
+
+AI Hub K-Fashion 경량 샘플을 `/Users/seryeong/Downloads/New_sample`에 압축 해제한 뒤 추천용 CSV를 생성합니다.
+
+```bash
+cd /Users/seryeong/capstone
+python3 backend/app/build_kfashion_dataset.py
+```
+
+생성 결과:
+
+- `backend/data/kfashion/kfashion_recommendation_data.csv`
+
+다른 위치에 샘플 데이터를 둔 경우에는 `KFASHION_SAMPLE_DIR` 환경변수로 지정합니다.
+
+```bash
+KFASHION_SAMPLE_DIR="/path/to/New_sample" python3 backend/app/build_kfashion_dataset.py
+```
+
+### ChromaDB 기반 mini RAG 추천 인덱스 생성
+
+K-Fashion CSV의 스타일/색상/핏/소재/상황/무드 태그를 설명 문장으로 바꾼 뒤 OpenAI 임베딩을 생성해 ChromaDB에 저장합니다.
+
+```bash
+cd /Users/seryeong/capstone
+source backend/.venv/bin/activate
+python3 backend/app/build_chroma_store.py --reset --limit 500
+```
+
+전체 데이터를 인덱싱하려면 `--limit` 옵션을 빼고 실행합니다.
+
+```bash
+python3 backend/app/build_chroma_store.py --reset
+```
+
+사용 환경변수:
+
+- `OPENAI_API_KEY`: 임베딩 생성용 OpenAI API 키
+- `OPENAI_EMBEDDING_MODEL`: 임베딩 모델, 기본값 `text-embedding-3-small`
+- `CHROMA_PERSIST_DIR`: ChromaDB 저장 위치, 기본값 `/Users/seryeong/capstone/backend/data/chroma`
+- `CHROMA_COLLECTION`: ChromaDB 컬렉션명, 기본값 `kfashion_style_items`
+
+### `GET /recommend-outfits`
+
+상황과 무드를 기준으로 K-Fashion 라벨 데이터에서 추천 아이템을 반환합니다.
+
+```txt
+/recommend-outfits?situation=캠퍼스&style=캐주얼&limit=8
+```
+
+응답은 추천 이미지 URL과 스타일, 아이템 종류, 카테고리, 색상, 핏, 소재, 태그 정보를 포함합니다.

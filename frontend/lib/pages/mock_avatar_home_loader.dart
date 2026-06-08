@@ -6,7 +6,12 @@ import 'package:flutter/services.dart';
 import 'avatar_home_page.dart';
 
 class MockAvatarHomeLoader extends StatelessWidget {
-  const MockAvatarHomeLoader({super.key});
+  final String gender;
+
+  const MockAvatarHomeLoader({
+    super.key,
+    this.gender = 'female',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +25,7 @@ class MockAvatarHomeLoader extends StatelessWidget {
         }
 
         return AvatarHomePage(
-          gender: 'female',
+          gender: gender,
           avatarImageData: snapshot.data!,
         );
       },
@@ -28,7 +33,10 @@ class MockAvatarHomeLoader extends StatelessWidget {
   }
 
   Future<String> _loadMockAvatar() async {
-    final bytes = await rootBundle.load('assets/avatars/female_base.png');
+    final assetPath = gender == 'male'
+        ? 'assets/avatars/male_base.png'
+        : 'assets/avatars/female_base.png';
+    final bytes = await rootBundle.load(assetPath);
     final encoded = base64Encode(bytes.buffer.asUint8List());
     return 'data:image/png;base64,$encoded';
   }

@@ -106,16 +106,19 @@ class _GenderButton extends StatelessWidget {
         height: 74,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isSelected ? AppColors.selectedBackground : Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isSelected ? AppColors.ink : AppColors.line,
-            width: isSelected ? 1.8 : 1,
+            color: isSelected ? AppColors.point : AppColors.line,
+            width: isSelected ? 1.4 : 1,
           ),
         ),
         child: Row(
           children: [
-            const Icon(Icons.person_outline, color: Color(0xff64748b)),
+            Icon(
+              Icons.person_outline,
+              color: isSelected ? AppColors.main : AppColors.muted,
+            ),
             const SizedBox(width: 18),
             Text(
               label,

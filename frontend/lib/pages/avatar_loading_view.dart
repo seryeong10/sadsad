@@ -8,7 +8,7 @@ class AvatarLoadingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColors.background,
       width: double.infinity,
       height: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -26,7 +26,7 @@ class AvatarLoadingView extends StatelessWidget {
             child: const Icon(
               Icons.auto_awesome,
               size: 62,
-              color: AppColors.ink,
+              color: AppColors.main,
             ),
           ),
           const SizedBox(height: 36),
@@ -35,7 +35,7 @@ class AvatarLoadingView extends StatelessWidget {
             height: 34,
             child: CircularProgressIndicator(
               strokeWidth: 3,
-              color: AppColors.ink,
+              color: AppColors.main,
             ),
           ),
           const SizedBox(height: 28),

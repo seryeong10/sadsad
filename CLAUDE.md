@@ -60,7 +60,36 @@ python3 backend/app/build_chroma_store.py --reset --limit 500
 
 `POST /api/recommend/products` adds a RAG layer: `style_rag_documents.py` retrieves style context from ChromaDB before building Naver search keywords.
 
-Personal color prediction uses pre-trained sklearn models stored in `backend/models/` (`personal_color_model_female.joblib`, `personal_color_model_male.joblib`).
+### Personal Color AI Model
+
+`POST /analyze-personal-color` uses a two-stage inference chain:
+1. **EfficientNet-B0** (`jiwoonkim00/personal-color-classifier` on HuggingFace, `personal_color_korean_tuned_v2.pt`) — downloaded and cached automatically on first request
+2. **RandomForest fallback** — sklearn models in `backend/models/` (`personal_color_model_female.joblib`, `personal_color_model_male.joblib`)
+
+**Preprocessing pipeline (currently active):**
+- MTCNN face detection + 20% margin crop (`facenet-pytorch`)
+- BiSeNet skin masking (`backend/models/79999_iter.pth`, 53MB, git-ignored) — activated via `BISENET_CKPT_PATH=models/79999_iter.pth` in `.env`
+- Resize(256) → CenterCrop(224) → ImageNet normalize → TTA (orig + hflip average)
+
+**CRITICAL — torch packages must be in global pyenv, NOT .venv:**
+`uvicorn` runs from `~/.pyenv/shims/uvicorn` (global pyenv), so torch/timm/facenet-pytorch must be installed globally (`pip install` outside of `.venv`). Installing only inside `.venv` means EfficientNet won't load.
+
+**BiSeNet checkpoint download (new environment setup):**
+```bash
+pip install gdown
+gdown --id 154JgKpzCPW82qINcVieuPH3fZ2e0P812 -O backend/models/79999_iter.pth
+```
+
+**Server log to verify full pipeline is active:**
+```
+[personal_color] torch 사용 → EfficientNet-B0 추론 시작
+[personal_color] BiSeNet 피부 마스킹 활성화: models/79999_iter.pth
+```
+
+**Environment Variables (personal color specific):**
+| Variable | Value | Purpose |
+|---|---|---|
+| `BISENET_CKPT_PATH` | `models/79999_iter.pth` | BiSeNet skin masking (relative to `backend/`) |
 
 Style rules are split across: `season_style_rules.py`, `skeleton_style_rules.py`, `outfit_search_rules.py`, and the JSON ruleset at `backend/models/style_recommendation_ruleset.json`.
 

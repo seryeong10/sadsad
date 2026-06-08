@@ -1,40 +1,32 @@
 # A-VATA
 
-Flutter + FastAPI 기반 아바타 얼굴 교체 MVP입니다. 사용자가 성별과 정면 사진을 선택하면, Flutter 앱이 기본 전신 아바타와 사용자 얼굴 사진을 FastAPI 서버로 전송하고 OpenAI Images edit API 결과를 앱에서 표시합니다.
+Flutter + FastAPI 기반 아바타 얼굴 교체 및 패션 추천 MVP.  
+사용자가 성별과 정면 사진을 선택하면 AI가 전신 아바타를 생성하고, 퍼스널컬러·체형 진단을 통해 맞춤 스타일을 추천합니다.
+
+> 퍼스널컬러 진단 AI 모델 상세 문서: [`docs/A_VATA_AI_MODEL_DOCUMENTATION.md`](docs/A_VATA_AI_MODEL_DOCUMENTATION.md)
+
+---
 
 ## 프로젝트 구조
 
-- `backend/`: FastAPI 서버. `/generate-avatar` 엔드포인트에서 기본 아바타 이미지와 사용자 얼굴 이미지를 받아 OpenAI 이미지 편집 API로 전달합니다.
-- `backend/assets/`: 백엔드에서 참고할 수 있는 기본 아바타 PNG 보관 위치입니다.
-- `frontend/`: Flutter 앱. 성별 선택, 사진 업로드, 아바타 생성 결과, 무드 선택, 추천 결과 화면을 포함합니다.
-- `frontend/assets/avatars/`: Flutter 앱에서 전송하는 기본 아바타 에셋입니다.
-- `frontend/lib/pages/`: Flutter 화면 단위 코드입니다.
-- `frontend/lib/services/`: 백엔드 API 통신처럼 화면 밖 기능을 담당하는 코드입니다.
-- `frontend/lib/widgets/`: 버튼, 하단 탭, 아바타 이미지 표시처럼 여러 화면에서 쓰는 공통 UI입니다.
-- `docs/styleai/`: 기획서 DOCX/PDF와 문서 다듬기 작업 파일입니다.
+```
+backend/
+  app/
+    main.py                    API 엔드포인트 전체
+    personal_color_model.py    퍼스널컬러 추론 (EfficientNet-B0 + RandomForest 폴백)
+    face_preprocess.py         BiSeNet 얼굴 피부 마스킹 전처리
+  models/                      sklearn 모델 joblib 파일
+  data/chroma/                 ChromaDB 벡터 스토어
+frontend/
+  lib/
+    pages/                     화면 단위 코드
+    services/                  백엔드 API 통신
+    widgets/                   공통 UI 컴포넌트
+  assets/avatars/              기본 아바타 이미지 (female_base.png, male_base.png)
+docs/                          AI 모델 및 전처리 기술 문서
+```
 
-## 주요 흐름
-
-1. 앱에서 성별을 선택합니다.
-2. 갤러리 또는 카메라로 정면 사진을 업로드합니다.
-3. 앱이 선택한 성별에 맞는 기본 아바타 에셋과 사용자 사진을 `/generate-avatar`로 전송합니다.
-4. 서버가 OpenAI Images edit API로 얼굴과 헤어 영역만 편집하도록 요청합니다.
-5. 서버가 반환한 base64 PNG 이미지를 생성 완료 화면에 표시합니다.
-6. 사용자가 `다음`을 누르면 사진 업로드 화면으로 다시 이동하고, 다시 생성한 아바타를 앱의 Avatar 탭 화면에 표시합니다.
-
-## 기본 아바타 이미지
-
-현재 Flutter 앱에서 사용하는 파일명은 아래와 같습니다.
-
-- `frontend/assets/avatars/male_base.png`
-- `frontend/assets/avatars/female_base.png`
-
-같은 이미지를 백엔드 보관용으로 둘 경우 아래 위치를 사용합니다.
-
-- `backend/assets/default_male.png`
-- `backend/assets/default_female.png`
-
-Flutter 에셋을 바꾸면 `frontend/pubspec.yaml`의 `assets` 항목도 함께 확인하세요.
+---
 
 ## 백엔드 실행
 
@@ -43,23 +35,42 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env
-```
-
-`.env` 또는 셸 환경에 `OPENAI_API_KEY`를 설정한 뒤 실행합니다.
-
-```bash
-export OPENAI_API_KEY="sk-..."
+cp .env.example .env   # OPENAI_API_KEY 등 입력
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-현재 백엔드는 다음 환경변수를 사용합니다.
+> **주의:** torch/timm/facenet-pytorch는 용량이 크므로 global pyenv 환경에 설치하는 것을 권장한다.  
+> `which uvicorn`이 `~/.pyenv/shims/uvicorn`을 가리키면 global 환경으로 실행되어 EfficientNet 추론이 정상 동작한다.
 
-- `OPENAI_API_KEY`: OpenAI API 키
-- `OPENAI_IMAGE_MODEL`: 이미지 편집 모델, 기본값 `gpt-image-1.5`
-- `OPENAI_IMAGE_SIZE`: 생성 이미지 크기, 기본값 `1024x1536`
-- `OPENAI_IMAGE_QUALITY`: 이미지 품질, 기본값 `medium`
-- `OPENAI_IMAGE_BACKGROUND`: 배경 처리, 기본값 `transparent`
+### 환경변수 (`.env`)
+
+| 변수 | 기본값 | 설명 |
+|---|---|---|
+| `OPENAI_API_KEY` | — | 아바타 생성 필수 |
+| `FAL_KEY` | — | 가상 피팅 (fal.ai) |
+| `MOCK_MODE` | `true` | 외부 API 없이 목 응답 반환 |
+| `OPENAI_IMAGE_MODEL` | `gpt-image-1.5` | 아바타 생성 모델 |
+| `OPENAI_IMAGE_SIZE` | `1024x1536` | 생성 이미지 크기 |
+| `OPENAI_IMAGE_QUALITY` | `high` | 이미지 품질 |
+| `BISENET_CKPT_PATH` | (미설정) | BiSeNet 체크포인트 경로 — 설정 시 피부 마스킹 전처리 활성화 |
+| `NAVER_CLIENT_ID` | — | 네이버 쇼핑 API |
+| `NAVER_CLIENT_SECRET` | — | 네이버 쇼핑 API |
+| `CHROMA_PERSIST_DIR` | `backend/data/chroma` | ChromaDB 저장 경로 |
+
+---
+
+## API 엔드포인트
+
+| 엔드포인트 | 설명 |
+|---|---|
+| `POST /generate-avatar` | 기본 아바타 + 사용자 얼굴 → base64 PNG |
+| `POST /analyze-personal-color` | 얼굴 사진 + gender → 퍼스널컬러 4계절 분류 |
+| `GET /recommend-outfits` | 상황/스타일/퍼스널컬러/체형 파라미터 → 의상 추천 |
+| `POST /api/recommend/products` | 프로필 기반 → 네이버 쇼핑 상품 |
+| `POST /virtual-try-on` | 아바타 + 의류 이미지 → 가상 피팅 (fal.ai) |
+| `GET /kfashion-options` | K-Fashion 필터 태그 목록 |
+
+---
 
 ## Flutter 실행
 
@@ -69,81 +80,74 @@ flutter pub get
 flutter run
 ```
 
-현재 앱의 API 주소는 `frontend/lib/services/avatar_api_service.dart`에 `http://10.0.2.2:8000/generate-avatar`로 설정되어 있습니다. Android 에뮬레이터에서 로컬 백엔드를 호출할 때 사용하는 주소입니다.
-
-iOS 시뮬레이터, 데스크톱, 웹에서 실행하려면 같은 파일의 URL을 실행 환경에 맞게 바꾸세요.
-
-- iOS 시뮬레이터/데스크톱: `http://127.0.0.1:8000/generate-avatar`
-- Android 에뮬레이터: `http://10.0.2.2:8000/generate-avatar`
-- 실제 기기: 같은 네트워크에 있는 개발 머신의 IP 주소 사용
-
-## API
-
-### `POST /generate-avatar`
-
-`multipart/form-data`로 두 파일을 전송합니다.
-
-- `base_avatar`: 기본 전신 아바타 PNG
-- `user_face`: 사용자 정면 얼굴 사진
-
-응답은 data URL 형태의 PNG 문자열입니다.
-
-```json
-{
-  "image": "data:image/png;base64,..."
-}
-```
-
-서버는 결과 이미지의 가장자리에서 밝은 단색 배경을 탐색해 투명 처리한 뒤 반환합니다.
-
-### K-Fashion 추천 데이터 생성
-
-AI Hub K-Fashion 경량 샘플을 `/Users/seryeong/Downloads/New_sample`에 압축 해제한 뒤 추천용 CSV를 생성합니다.
+**미리보기 플래그 (`--dart-define`):**
 
 ```bash
-cd /Users/seryeong/capstone
+flutter run --dart-define=MOCK_AVATAR_HOME=true --dart-define=MOCK_AVATAR_GENDER=female
+flutter run --dart-define=MOCK_PERSONAL_COLOR=true
+flutter run --dart-define=MOCK_SKELETON_DIAGNOSIS=true --dart-define=MOCK_SKELETON_GENDER=female
+flutter run --dart-define=MOCK_RECOMMENDATION_TEST=true
+```
+
+**API 주소** (`lib/services/avatar_api_service.dart`, `outfit_recommendation_service.dart`):
+
+| 환경 | 주소 |
+|---|---|
+| Android 에뮬레이터 | `http://10.0.2.2:8000` |
+| iOS 시뮬레이터 / 데스크톱 | `http://127.0.0.1:8000` |
+| 실제 기기 | 같은 네트워크의 개발 머신 IP |
+
+---
+
+## 앱 흐름
+
+```
+AuthPage (Firebase Auth)
+    ↓
+GenderSelectPage → PhotoUploadPage
+    ↓
+POST /generate-avatar → AvatarResultPage → AvatarHomePage
+    ↓
+MoodEntryPage → MoodPage → OutfitRecommendationPage
+```
+
+사이드 플로우: `PersonalColorPage`, `SkeletonDiagnosisPage`, `FittingFlowPage`, `CommunityPage`
+
+---
+
+## 퍼스널컬러 AI 모델
+
+EfficientNet-B0 기반 4계절 분류 (봄웜 / 여름쿨 / 가을웜 / 겨울쿨).
+
+**추론 파이프라인:**
+1. MTCNN 얼굴 검출 + 20% margin crop
+2. (선택) BiSeNet 피부 마스킹 — `BISENET_CKPT_PATH` 설정 시 활성화
+3. EfficientNet-B0 (HuggingFace: `jiwoonkim00/personal-color-classifier`) + TTA (원본 + 수평 반전 평균)
+4. 실패 시 sklearn RandomForest 폴백
+
+**성능:** Test Accuracy **70.8%** (TTA 기준, Korean celebrity 356장 test set)
+
+자세한 내용 → [`docs/A_VATA_AI_MODEL_DOCUMENTATION.md`](docs/A_VATA_AI_MODEL_DOCUMENTATION.md)
+
+---
+
+## K-Fashion 데이터 파이프라인 (최초 1회)
+
+```bash
+# K-Fashion 추천 CSV 생성
 python3 backend/app/build_kfashion_dataset.py
-```
-
-생성 결과:
-
-- `backend/data/kfashion/kfashion_recommendation_data.csv`
-
-다른 위치에 샘플 데이터를 둔 경우에는 `KFASHION_SAMPLE_DIR` 환경변수로 지정합니다.
-
-```bash
+# 다른 경로 사용 시
 KFASHION_SAMPLE_DIR="/path/to/New_sample" python3 backend/app/build_kfashion_dataset.py
-```
 
-### ChromaDB 기반 mini RAG 추천 인덱스 생성
-
-K-Fashion CSV의 스타일/색상/핏/소재/상황/무드 태그를 설명 문장으로 바꾼 뒤 OpenAI 임베딩을 생성해 ChromaDB에 저장합니다.
-
-```bash
-cd /Users/seryeong/capstone
-source backend/.venv/bin/activate
+# ChromaDB 인덱싱 (OpenAI 임베딩)
 python3 backend/app/build_chroma_store.py --reset --limit 500
 ```
 
-전체 데이터를 인덱싱하려면 `--limit` 옵션을 빼고 실행합니다.
+---
 
-```bash
-python3 backend/app/build_chroma_store.py --reset
-```
+## 기본 아바타 이미지
 
-사용 환경변수:
+- `frontend/assets/avatars/male_base.png`
+- `frontend/assets/avatars/female_base.png`
 
-- `OPENAI_API_KEY`: 임베딩 생성용 OpenAI API 키
-- `OPENAI_EMBEDDING_MODEL`: 임베딩 모델, 기본값 `text-embedding-3-small`
-- `CHROMA_PERSIST_DIR`: ChromaDB 저장 위치, 기본값 `/Users/seryeong/capstone/backend/data/chroma`
-- `CHROMA_COLLECTION`: ChromaDB 컬렉션명, 기본값 `kfashion_style_items`
-
-### `GET /recommend-outfits`
-
-상황과 무드를 기준으로 K-Fashion 라벨 데이터에서 추천 아이템을 반환합니다.
-
-```txt
-/recommend-outfits?situation=캠퍼스&style=캐주얼&limit=8
-```
-
-응답은 추천 이미지 URL과 스타일, 아이템 종류, 카테고리, 색상, 핏, 소재, 태그 정보를 포함합니다.
+에셋 변경 시 `frontend/pubspec.yaml`의 `assets` 항목도 함께 업데이트.

@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import '../models/style_profile.dart';
 
 class PersonalColorService {
-  static const String _baseUrl = 'http://10.0.2.2:8000';
+  static const String _baseUrl = 'http://54.180.152.237:8000';
 
   static Future<PersonalColorProfile> analyze({
     required File image,

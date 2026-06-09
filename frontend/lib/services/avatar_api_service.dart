@@ -35,7 +35,7 @@ class AvatarApiService {
 
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://10.0.2.2:8000/generate-avatar')
+      Uri.parse('http://54.180.152.237:8000/generate-avatar')
     );
 
     request.files.add(

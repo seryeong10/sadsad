@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # BiSeNet 체크포인트 다운로드
 RUN pip install --no-cache-dir gdown && \
     mkdir -p models && \
-    gdown --id 154JgKpzCPW82qINcVieuPH3fZ2e0P812 -O models/79999_iter.pth
+    gdown "https://drive.google.com/uc?id=154JgKpzCPW82qINcVieuPH3fZ2e0P812" -O models/79999_iter.pth
 
 COPY . .
 

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/style_profile.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_button.dart';
+import 'avatar_generation_page.dart';
 import 'avatar_home_page.dart';
+import 'body_type_selection_page.dart';
 
 const _previewAvatarData =
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII=';
@@ -29,12 +32,16 @@ class SkeletonDiagnosisIntroPage extends StatelessWidget {
   final String gender;
   final String avatarImageData;
   final PersonalColorProfile? personalColorProfile;
+  final XFile? sourceFaceImage;
+  final bool generateAvatarAfterDiagnosis;
 
   const SkeletonDiagnosisIntroPage({
     super.key,
     required this.gender,
     required this.avatarImageData,
     this.personalColorProfile,
+    this.sourceFaceImage,
+    this.generateAvatarAfterDiagnosis = false,
   });
 
   @override
@@ -42,62 +49,59 @@ class SkeletonDiagnosisIntroPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+          padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _BackButton(onPressed: () => Navigator.pop(context)),
-              const SizedBox(height: 42),
-              const Center(
-                child: Column(
-                  children: [
-                    Text(
-                      '나에게 맞는\n핏 찾기',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.ink,
-                        fontSize: 28,
-                        height: 1.22,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    SizedBox(height: 18),
-                    Text(
-                      '간단한 자가진단으로 골격 스타일을 확인하고\n추천 코디의 실루엣에 반영해요.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 14,
-                        height: 1.55,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+              Row(children: [
+                _BackButton(onPressed: () => Navigator.pop(context)),
+                const Expanded(
+                    child: Text('골격 자가진단',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: AppColors.ink,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900))),
+                const SizedBox(width: 48),
+              ]),
+              const SizedBox(height: 18),
+              const Text('내 몸의 골격 라인은\n어떤 유형일까요?',
+                  style: TextStyle(
+                      color: AppColors.ink,
+                      fontSize: 24,
+                      height: 1.25,
+                      fontWeight: FontWeight.w900)),
+              const SizedBox(height: 10),
+              const Text('몇 가지 질문으로\n나에게 어울리는 골격 유형을 알아봐요.',
+                  style: TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 13,
+                      height: 1.5,
+                      fontWeight: FontWeight.w600)),
+              const SizedBox(height: 12),
+              Expanded(
+                child: _SkeletonIntroCard(
+                  gender: gender,
+                  avatarImageData: avatarImageData,
+                  personalColorProfile: personalColorProfile,
+                  sourceFaceImage: sourceFaceImage,
+                  generateAvatarAfterDiagnosis: generateAvatarAfterDiagnosis,
                 ),
               ),
-              const SizedBox(height: 42),
-              const _SkeletonTypePreview(),
               const Spacer(),
               AppButton(
-                text: '자가진단 시작하기',
-                onPressed: () {
-                  Navigator.push(
+                text: '시작하기',
+                onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => SkeletonQuestionPage(
-                        gender: gender,
-                        avatarImageData: avatarImageData,
-                        personalColorProfile: personalColorProfile,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              AppButton(
-                text: '건너뛰기',
-                isPrimary: false,
-                onPressed: () => _openHome(context),
+                          gender: gender,
+                          avatarImageData: avatarImageData,
+                          personalColorProfile: personalColorProfile,
+                          sourceFaceImage: sourceFaceImage,
+                          generateAvatarAfterDiagnosis:
+                              generateAvatarAfterDiagnosis),
+                    )),
               ),
             ],
           ),
@@ -118,18 +122,39 @@ class SkeletonDiagnosisIntroPage extends StatelessWidget {
       ),
     );
   }
+
+  void _continueAfterDiagnosis(BuildContext context) {
+    if (generateAvatarAfterDiagnosis && sourceFaceImage != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => AvatarGenerationPage(
+            gender: gender,
+            sourceFaceImage: sourceFaceImage!,
+            personalColorProfile: personalColorProfile,
+          ),
+        ),
+      );
+      return;
+    }
+    _openHome(context);
+  }
 }
 
 class SkeletonQuestionPage extends StatefulWidget {
   final String gender;
   final String avatarImageData;
   final PersonalColorProfile? personalColorProfile;
+  final XFile? sourceFaceImage;
+  final bool generateAvatarAfterDiagnosis;
 
   const SkeletonQuestionPage({
     super.key,
     required this.gender,
     required this.avatarImageData,
     this.personalColorProfile,
+    this.sourceFaceImage,
+    this.generateAvatarAfterDiagnosis = false,
   });
 
   @override
@@ -233,6 +258,8 @@ class _SkeletonQuestionPageState extends State<SkeletonQuestionPage> {
           gender: widget.gender,
           avatarImageData: widget.avatarImageData,
           personalColorProfile: widget.personalColorProfile,
+          sourceFaceImage: widget.sourceFaceImage,
+          generateAvatarAfterDiagnosis: widget.generateAvatarAfterDiagnosis,
           skeletonType: _scoreResult(),
         ),
       ),
@@ -256,6 +283,8 @@ class SkeletonResultPage extends StatelessWidget {
   final String avatarImageData;
   final PersonalColorProfile? personalColorProfile;
   final String skeletonType;
+  final XFile? sourceFaceImage;
+  final bool generateAvatarAfterDiagnosis;
 
   const SkeletonResultPage({
     super.key,
@@ -263,6 +292,8 @@ class SkeletonResultPage extends StatelessWidget {
     required this.avatarImageData,
     required this.personalColorProfile,
     required this.skeletonType,
+    this.sourceFaceImage,
+    this.generateAvatarAfterDiagnosis = false,
   });
 
   @override
@@ -280,7 +311,7 @@ class SkeletonResultPage extends StatelessWidget {
                   _BackButton(onPressed: () => Navigator.pop(context)),
                   const Expanded(
                     child: Text(
-                      '진단 결과',
+                      '골격 진단 결과',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: AppColors.ink,
@@ -297,28 +328,29 @@ class SkeletonResultPage extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      _ResultHero(result: result, gender: gender),
-                      const SizedBox(height: 12),
-                      _ResultDetailCard(result: result),
-                      const SizedBox(height: 12),
-                      const Text(
-                        '자가진단 결과이며 취향과 착용감에 따라 달라질 수 있어요.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 11,
-                          height: 1.4,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      _SkeletonResultContent(result: result, gender: gender),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 14),
               _OliveActionButton(
-                text: '이 결과로 추천받기',
+                text: '내 체형으로 아바타 만들기  ›',
                 onPressed: () {
+                  if (generateAvatarAfterDiagnosis && sourceFaceImage != null) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BodyTypeSelectionPage(
+                          gender: gender,
+                          skeletonType: skeletonType,
+                          sourceFaceImage: sourceFaceImage!,
+                          personalColorProfile: personalColorProfile,
+                        ),
+                      ),
+                    );
+                    return;
+                  }
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -335,29 +367,247 @@ class SkeletonResultPage extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 10),
-              AppButton(
-                text: '다시 진단하기',
-                isPrimary: false,
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => SkeletonQuestionPage(
-                        gender: gender,
-                        avatarImageData: avatarImageData,
-                        personalColorProfile: personalColorProfile,
-                      ),
-                    ),
-                  );
-                },
-              ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+class _SkeletonResultContent extends StatelessWidget {
+  final _SkeletonResult result;
+  final String gender;
+
+  const _SkeletonResultContent({required this.result, required this.gender});
+
+  @override
+  Widget build(BuildContext context) {
+    final genderPrefix = gender == 'male' ? 'male' : 'female';
+    final typeSuffix = switch (result.type) {
+      'STRAIGHT' => 'straight',
+      'WAVE' => 'wave',
+      _ => 'natural',
+    };
+    final typeLabel = switch (result.type) {
+      'STRAIGHT' => '스트레이트',
+      'WAVE' => '웨이브',
+      _ => '내추럴',
+    };
+    // The result variants crop the bottom of some figures. The info variants
+    // preserve the complete illustration and its type label for all six cases.
+    final imageName = '${genderPrefix}_${typeSuffix}_info.png';
+    final imagePath = 'assets/skeleton/results/$imageName';
+    final imageAspectRatio = genderPrefix == 'male'
+        ? 1199 / 1312
+        : typeSuffix == 'natural' ? 1269 / 1240 : 1182 / 1330;
+    final resultImage = Image.asset(
+            imagePath,
+            fit: BoxFit.contain,
+            semanticLabel: '$typeLabel형 골격 진단 결과와 신체 특징',
+            errorBuilder: (_, __, ___) => const Center(
+              child: Icon(Icons.accessibility_new_rounded,
+                  size: 90, color: AppColors.main),
+            ),
+          );
+    final features = result.fitGuide
+        .split('\n')
+        .where((line) => line.trim().isNotEmpty)
+        .take(3);
+    final fitItems = switch (result.type) {
+      'STRAIGHT' => const [
+          (Icons.checkroom_outlined, '정핏'),
+          (Icons.straighten_outlined, '일자핏'),
+          (Icons.layers_outlined, '탄탄한 소재'),
+        ],
+      'WAVE' => gender == 'male'
+          ? const [
+              (Icons.checkroom_outlined, '세미슬림핏'),
+              (Icons.layers_outlined, '레이어드'),
+              (Icons.waves_outlined, '부드러운 소재'),
+            ]
+          : const [
+              (Icons.vertical_align_top_rounded, '하이웨스트'),
+              (Icons.checkroom_outlined, '짧은 상의'),
+              (Icons.waves_outlined, '부드러운 소재'),
+            ],
+      _ => const [
+          (Icons.checkroom_outlined, '오버핏'),
+          (Icons.straighten_outlined, '와이드핏'),
+          (Icons.layers_outlined, '내추럴 소재'),
+        ],
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 12),
+        Semantics(
+          header: true,
+          child: Center(child: Text('나의 골격 유형은',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppColors.ink, fontSize: 22, fontWeight: FontWeight.w900))),
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: AspectRatio(aspectRatio: imageAspectRatio, child: resultImage),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(15, 12, 15, 12),
+          decoration: BoxDecoration(
+              color: AppColors.selectedBackground,
+              borderRadius: BorderRadius.circular(16)),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const Text('주요 특징',
+                style: TextStyle(
+                    color: AppColors.ink,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900)),
+            const SizedBox(height: 8),
+            ...features.map((feature) => Padding(
+                  padding: const EdgeInsets.only(bottom: 5),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                            padding: EdgeInsets.only(top: 1),
+                            child: Icon(Icons.check_circle,
+                                color: AppColors.main, size: 14)),
+                        const SizedBox(width: 7),
+                        Expanded(
+                            child: Text(feature,
+                                style: const TextStyle(
+                                    color: AppColors.ink,
+                                    fontSize: 11,
+                                    height: 1.35,
+                                    fontWeight: FontWeight.w600))),
+                      ]),
+                )),
+          ]),
+        ),
+        const SizedBox(height: 13),
+        const Padding(
+          padding: EdgeInsets.only(left: 2),
+          child: Text('이런 핏이 잘 어울려요',
+              style: TextStyle(
+                  color: AppColors.ink,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900)),
+        ),
+        const SizedBox(height: 8),
+        Row(
+            children: fitItems
+                .map((item) => Expanded(
+                      child: Container(
+                        height: 68,
+                        margin: EdgeInsets.only(
+                            right: item == fitItems.last ? 0 : 7),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.line)),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(item.$1, color: AppColors.main, size: 23),
+                              const SizedBox(height: 4),
+                              Text(item.$2,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      color: AppColors.ink,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700)),
+                            ]),
+                      ),
+                    ))
+                .toList()),
+      ],
+    );
+  }
+}
+
+class _SkeletonIntroCard extends StatelessWidget {
+  final String gender;
+  final String avatarImageData;
+  final PersonalColorProfile? personalColorProfile;
+  final XFile? sourceFaceImage;
+  final bool generateAvatarAfterDiagnosis;
+
+  const _SkeletonIntroCard({
+    required this.gender,
+    required this.avatarImageData,
+    required this.personalColorProfile,
+    required this.sourceFaceImage,
+    required this.generateAvatarAfterDiagnosis,
+  });
+
+  @override
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: const Color(0xfff4f8ff),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xffe7effd)),
+        ),
+        child: Stack(children: [
+          Positioned(
+            right: 10,
+            top: 4,
+            width: 88,
+            height: 118,
+            child: Image.asset('assets/skeleton/dress_form_measure_tape.png',
+                fit: BoxFit.contain),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const SizedBox(height: 4),
+              const Text('골격 자가진단',
+                  style: TextStyle(
+                      color: AppColors.ink,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w900)),
+              const Spacer(),
+              const _IntroBullet(
+                  icon: Icons.check_circle_outline, text: '간단한 설문으로 확인해요'),
+              const SizedBox(height: 10),
+              const _IntroBullet(
+                  icon: Icons.access_time, text: '약 1~2분이면 완료돼요'),
+              const SizedBox(height: 10),
+              const _IntroBullet(
+                  icon: Icons.checkroom_outlined, text: '내게 맞는 골격 유형을 알려드려요'),
+              const Spacer(),
+            ]),
+          ),
+        ]),
+      );
+}
+
+class _IntroBullet extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _IntroBullet({required this.icon, required this.text});
+  @override
+  Widget build(BuildContext context) => Row(children: [
+        Icon(icon, color: AppColors.main, size: 19),
+        const SizedBox(width: 10),
+        Expanded(
+            child: Text(text,
+                style: const TextStyle(
+                    color: AppColors.ink,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600))),
+      ]);
 }
 
 class _SkeletonTypePreview extends StatelessWidget {
@@ -632,7 +882,7 @@ class _QuestionOptionCard extends StatelessWidget {
                   height: 120,
                   decoration: BoxDecoration(
                     color: AppColors.canvas,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(28),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: option.assetPath == null
@@ -680,220 +930,6 @@ class _QuestionOptionCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _ResultHero extends StatelessWidget {
-  final _SkeletonResult result;
-  final String gender;
-
-  const _ResultHero({
-    required this.result,
-    required this.gender,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isMale = gender == 'male';
-    final resultImagePath = _resultImagePath(result.type, isMale);
-
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 222),
-      padding: const EdgeInsets.fromLTRB(20, 20, 16, 18),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.selectedBackground, AppColors.canvas],
-        ),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '당신에게 가까운 골격 스타일은',
-                  style: TextStyle(
-                    color: AppColors.ink,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    _resultTitle(result.type),
-                    style: const TextStyle(
-                      color: AppColors.main,
-                      fontSize: 31,
-                      height: 1,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 124,
-            height: 208,
-            child: Image.asset(
-              resultImagePath,
-              fit: BoxFit.contain,
-              alignment: Alignment.center,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _resultImagePath(String type, bool isMale) {
-    final genderPrefix = isMale ? 'male' : 'female';
-    switch (type) {
-      case 'STRAIGHT':
-        return 'assets/skeleton/results/${genderPrefix}_straight.png';
-      case 'WAVE':
-        return 'assets/skeleton/results/${genderPrefix}_wave.png';
-      default:
-        return 'assets/skeleton/results/${genderPrefix}_natural.png';
-    }
-  }
-
-  String _resultTitle(String type) {
-    switch (type) {
-      case 'STRAIGHT':
-        return '스트레이트 타입';
-      case 'WAVE':
-        return '웨이브 타입';
-      default:
-        return '내추럴 타입';
-    }
-  }
-}
-
-class _ResultDetailCard extends StatelessWidget {
-  final _SkeletonResult result;
-
-  const _ResultDetailCard({required this.result});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.line),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '타입 키워드',
-            style: TextStyle(
-              color: AppColors.ink,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 7,
-            runSpacing: 7,
-            children: result.keywords.map((keyword) {
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.chip,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.line),
-                ),
-                child: Text(
-                  '# $keyword',
-                  style: const TextStyle(
-                    color: AppColors.ink,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 18),
-          const Divider(height: 1, color: AppColors.line),
-          const SizedBox(height: 18),
-          Text(
-            result.fitGuide,
-            style: const TextStyle(
-              color: AppColors.ink,
-              fontSize: 13,
-              height: 1.65,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 18),
-          const Divider(height: 1, color: AppColors.line),
-          const SizedBox(height: 18),
-          const Text(
-            '추천 아이템',
-            style: TextStyle(
-              color: AppColors.main,
-              fontSize: 13,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: List.generate(result.itemIcons.length, (index) {
-              final icon = result.itemIcons[index];
-              final label = result.itemLabels[index];
-              return Expanded(
-                child: Container(
-                  height: 78,
-                  margin: EdgeInsets.only(
-                    right: index == result.itemIcons.length - 1 ? 0 : 7,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.line),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(icon, color: AppColors.ink, size: 27),
-                      const SizedBox(height: 7),
-                      Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.ink,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-        ],
       ),
     );
   }
@@ -975,12 +1011,12 @@ class _OliveActionButton extends StatelessWidget {
         onPressed: enabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: AppColors.main,
+          backgroundColor: AppColors.point,
           disabledBackgroundColor: AppColors.chip,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.ink,
           disabledForegroundColor: AppColors.muted,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(28),
           ),
         ),
         child: Text(

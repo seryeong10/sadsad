@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -10,6 +9,113 @@ import '../services/style_closet_store.dart';
 import '../services/virtual_try_on_service.dart';
 import '../theme/app_colors.dart';
 import '../widgets/avatar_memory_image.dart';
+import '../widgets/outfit_image.dart';
+
+Future<void> showSavedLookFittingSheet(
+  BuildContext context, {
+  required SavedClosetLook look,
+  required String avatarImageData,
+}) async {
+  final slots = <String, OutfitItem>{};
+  for (final item in look.items) {
+    final slot = _fittingSlot(item);
+    if (['아우터', '상의', '하의'].contains(slot)) slots.putIfAbsent(slot, () => item);
+  }
+  final items = slots.values.toList()
+    ..sort(
+        (a, b) => _fittingOrderForItem(a).compareTo(_fittingOrderForItem(b)));
+  await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (sheetContext) => SafeArea(
+              child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Expanded(
+                        child: Text(look.title,
+                            style: const TextStyle(
+                                color: AppColors.ink,
+                                fontSize: 19,
+                                fontWeight: FontWeight.w900))),
+                    IconButton(
+                        tooltip: '닫기',
+                        onPressed: () => Navigator.pop(sheetContext),
+                        icon: const Icon(Icons.close))
+                  ]),
+                  const SizedBox(height: 12),
+                  if (items.isEmpty)
+                    const Text('피팅할 옷이 없어요.')
+                  else
+                    Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: items
+                            .map((item) => Expanded(
+                                child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    child: Column(children: [
+                                      AspectRatio(
+                                          aspectRatio: .85,
+                                          child: Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                  color: AppColors.canvas,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          14)),
+                                              child: _OutfitItemImage(
+                                                  item: item,
+                                                  fit: BoxFit.contain))),
+                                      const SizedBox(height: 8),
+                                      Text(_fittingSlot(item),
+                                          style: const TextStyle(
+                                              color: AppColors.main,
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w800)),
+                                      const SizedBox(height: 4),
+                                      Text(item.title,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                              fontSize: 11,
+                                              color: AppColors.ink)),
+                                    ]))))
+                            .toList()),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.main,
+                            foregroundColor: Colors.white,
+                            shape: const StadiumBorder()),
+                        onPressed: items.isEmpty
+                            ? null
+                            : () {
+                                Navigator.pop(sheetContext);
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => FittingImageReviewPage(
+                                        avatarImageData: avatarImageData,
+                                        items: List.unmodifiable(items),
+                                        stepIndex: 0)));
+                              },
+                        icon: const Icon(Icons.checkroom_outlined),
+                        label: const Text('피팅하러가기',
+                            style: TextStyle(fontWeight: FontWeight.w800))),
+                  ),
+                ]),
+          )));
+}
 
 class FittingRoomPage extends StatefulWidget {
   final String avatarImageData;
@@ -25,11 +131,16 @@ class FittingRoomPage extends StatefulWidget {
 
 class _FittingRoomPageState extends State<FittingRoomPage> {
   final List<OutfitItem> _selectedItems = [];
-  _FittingSource _source = _FittingSource.liked;
+  _FittingSource _source = _FittingSource.wardrobe;
+  String _category = '상의';
 
   List<OutfitItem> get _items => _source == _FittingSource.liked
       ? StyleClosetStore.likedItems
-      : StyleClosetStore.wardrobeItems;
+          .where((item) => _fittingSlot(item) == _category)
+          .toList()
+      : StyleClosetStore.wardrobeItems
+          .where((item) => _fittingSlot(item) == _category)
+          .toList();
 
   bool get _canFit => _selectedItems.isNotEmpty && _selectedItems.length <= 3;
 
@@ -40,13 +151,19 @@ class _FittingRoomPageState extends State<FittingRoomPage> {
       appBar: AppBar(
         title: const Text('피팅룸'),
         centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (_) => setState(() => _selectedItems.clear()),
+            itemBuilder: (_) =>
+                [const PopupMenuItem(value: 'clear', child: Text('선택 초기화'))],
+          ),
+        ],
       ),
       body: ValueListenableBuilder<int>(
         valueListenable: StyleClosetStore.revision,
         builder: (context, _, __) {
           return Column(
             children: [
-              _AvatarPreview(avatarImageData: widget.avatarImageData),
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
                 child: _SourceTabs(
@@ -54,26 +171,69 @@ class _FittingRoomPageState extends State<FittingRoomPage> {
                   onChanged: (source) {
                     setState(() {
                       _source = source;
-                      _selectedItems.clear();
                     });
                   },
                 ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 16),
+                child: Row(
+                    children: ['아우터', '상의', '하의']
+                        .map((category) => Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 3),
+                                child: ChoiceChip(
+                                  label: SizedBox(
+                                      width: double.infinity,
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                                category == '하의'
+                                                    ? Icons.straighten
+                                                    : category == '아우터'
+                                                        ? Icons.layers_outlined
+                                                        : Icons
+                                                            .checkroom_outlined,
+                                                size: 18),
+                                            const SizedBox(width: 6),
+                                            Text(category),
+                                          ])),
+                                  selected: _category == category,
+                                  showCheckmark: false,
+                                  selectedColor: const Color(0xff80b3f2),
+                                  backgroundColor: AppColors.canvas,
+                                  labelStyle: TextStyle(
+                                      color: _category == category
+                                          ? Colors.white
+                                          : AppColors.ink,
+                                      fontWeight: FontWeight.w700),
+                                  side: const BorderSide(color: AppColors.line),
+                                  shape: const StadiumBorder(),
+                                  onSelected: (_) =>
+                                      setState(() => _category = category),
+                                ),
+                              ),
+                            ))
+                        .toList()),
               ),
               Expanded(
                 child: _items.isEmpty
                     ? _EmptyState(
                         text: _source == _FittingSource.liked
-                            ? '찜목록에 저장한 상품이 아직 없어요.'
-                            : '내옷장은 옷 촬영 기능과 함께 연결될 예정이에요.',
+                            ? '위시리스트에 저장한 $_category 아이템이 없어요.\n추천 상품의 하트를 눌러 담아보세요.'
+                            : '옷장에 $_category 아이템이 없어요.\n내 옷장에서 옷을 추가해보세요.',
                       )
                     : GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 120),
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.72,
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          childAspectRatio: 1,
                         ),
                         itemCount: _items.length,
                         itemBuilder: (context, index) {
@@ -95,6 +255,7 @@ class _FittingRoomPageState extends State<FittingRoomPage> {
       bottomNavigationBar: _FittingSelectionBar(
         selectedItems: _selectedItems,
         enabled: _canFit,
+        onRemove: _toggleItem,
         onFit: () {
           Navigator.push(
             context,
@@ -121,13 +282,9 @@ class _FittingRoomPageState extends State<FittingRoomPage> {
         return;
       }
       final itemSlot = _fittingSlot(item);
-      if (_selectedItems
-          .any((selected) => _fittingSlot(selected) == itemSlot)) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$itemSlot 아이템은 하나만 선택할 수 있어요.')),
-        );
-        return;
-      }
+      if (!['상의', '아우터', '하의'].contains(itemSlot)) return;
+      _selectedItems
+          .removeWhere((selected) => _fittingSlot(selected) == itemSlot);
       if (_selectedItems.length >= 3) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('피팅 아이템은 최대 3개까지 선택할 수 있어요.')),
@@ -168,6 +325,7 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
   Rect? _cropRect;
   Size _imageBoxSize = Size.zero;
   Rect _displayedImageRect = Rect.zero;
+  bool _isCropping = false;
 
   @override
   void initState() {
@@ -179,14 +337,6 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
     try {
       final input = await VirtualTryOnService.garmentImageInput(_currentItem);
       if (!mounted) return;
-      final shouldReview = VirtualTryOnService.shouldReviewGarmentImage(
-        item: _currentItem,
-        input: input,
-      );
-      if (!shouldReview) {
-        _goToFitting(input.dataUri);
-        return;
-      }
       setState(() => _imageInput = input);
     } catch (error) {
       if (!mounted) return;
@@ -197,28 +347,39 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
   Future<void> _fitWithCrop() async {
     final input = _imageInput;
     final cropRect = _cropRect;
-    if (input == null || cropRect == null) return;
-
-    final imageRect = _displayedImageRect;
-    final scaleX = input.width / imageRect.width;
-    final scaleY = input.height / imageRect.height;
-    final imageLeft = ((cropRect.left - imageRect.left) * scaleX)
-        .clamp(0, input.width.toDouble());
-    final imageTop = ((cropRect.top - imageRect.top) * scaleY)
-        .clamp(0, input.height.toDouble());
-    final imageWidth =
-        (cropRect.width * scaleX).clamp(1, input.width.toDouble() - imageLeft);
-    final imageHeight =
-        (cropRect.height * scaleY).clamp(1, input.height.toDouble() - imageTop);
-    final cropped = await VirtualTryOnService.cropDataUri(
-      dataUri: input.dataUri,
-      left: imageLeft.toDouble(),
-      top: imageTop.toDouble(),
-      width: imageWidth.toDouble(),
-      height: imageHeight.toDouble(),
-    );
-    if (!mounted) return;
-    _goToFitting(cropped);
+    if (input == null ||
+        cropRect == null ||
+        _isCropping ||
+        _displayedImageRect.isEmpty) return;
+    setState(() => _isCropping = true);
+    try {
+      final imageRect = _displayedImageRect;
+      final scaleX = input.width / imageRect.width;
+      final scaleY = input.height / imageRect.height;
+      final imageLeft = ((cropRect.left - imageRect.left) * scaleX)
+          .clamp(0, input.width.toDouble());
+      final imageTop = ((cropRect.top - imageRect.top) * scaleY)
+          .clamp(0, input.height.toDouble());
+      final imageWidth = (cropRect.width * scaleX)
+          .clamp(1, input.width.toDouble() - imageLeft);
+      final imageHeight = (cropRect.height * scaleY)
+          .clamp(1, input.height.toDouble() - imageTop);
+      final cropped = await VirtualTryOnService.cropDataUri(
+        dataUri: input.dataUri,
+        left: imageLeft.toDouble(),
+        top: imageTop.toDouble(),
+        width: imageWidth.toDouble(),
+        height: imageHeight.toDouble(),
+      );
+      if (!mounted) return;
+      _goToFitting(cropped);
+    } catch (_) {
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('이미지를 자르지 못했어요. 영역을 다시 맞춰 시도해주세요.')));
+    } finally {
+      if (mounted) setState(() => _isCropping = false);
+    }
   }
 
   void _goToFitting(String garmentImageData) {
@@ -243,7 +404,7 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
       imageWidth: _imageInput!.width,
       imageHeight: _imageInput!.height,
     );
-    _cropRect ??= _defaultCropRect(_displayedImageRect);
+    _cropRect = _defaultCropRect(_displayedImageRect);
   }
 
   void _moveCropBox(Offset delta) {
@@ -254,17 +415,33 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
     });
   }
 
-  void _resizeCropBox(Offset delta) {
+  void _resizeCropBox(Offset delta, int corner) {
     final current = _cropRect;
     if (current == null) return;
-    const minSize = 70.0;
-    final next = Rect.fromLTWH(
-      current.left,
-      current.top,
-      math.max(minSize, current.width + delta.dx),
-      math.max(minSize, current.height + delta.dy),
-    );
-    setState(() => _cropRect = _clampRect(next));
+    final bounds = _displayedImageRect;
+    final minWidth = math.min(60.0, bounds.width);
+    final minHeight = math.min(60.0, bounds.height);
+    final left = corner == 0 || corner == 3
+        ? (current.left + delta.dx)
+            .clamp(bounds.left, current.right - minWidth)
+            .toDouble()
+        : current.left;
+    final right = corner == 1 || corner == 2
+        ? (current.right + delta.dx)
+            .clamp(current.left + minWidth, bounds.right)
+            .toDouble()
+        : current.right;
+    final top = corner == 0 || corner == 1
+        ? (current.top + delta.dy)
+            .clamp(bounds.top, current.bottom - minHeight)
+            .toDouble()
+        : current.top;
+    final bottom = corner == 2 || corner == 3
+        ? (current.bottom + delta.dy)
+            .clamp(current.top + minHeight, bounds.bottom)
+            .toDouble()
+        : current.bottom;
+    setState(() => _cropRect = Rect.fromLTRB(left, top, right, bottom));
   }
 
   Rect _clampRect(Rect rect) {
@@ -284,7 +461,7 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('피팅 이미지 확인'),
+        title: const Text('피팅 이미지 크롭'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -301,16 +478,17 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
                             constraints.maxWidth,
                             constraints.maxHeight,
                           );
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) {
-                              setState(() => _setCropBoxFromLayout(size));
-                            }
-                          });
+                          if (size != _imageBoxSize)
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if (mounted) {
+                                setState(() => _setCropBoxFromLayout(size));
+                              }
+                            });
                           final cropRect = _cropRect;
                           return Container(
                             clipBehavior: Clip.antiAlias,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: AppColors.canvas,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: AppColors.line),
                             ),
@@ -323,9 +501,15 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
                                   ),
                                 ),
                                 if (cropRect != null) ...[
+                                  Positioned.fill(
+                                      child: IgnorePointer(
+                                          child: CustomPaint(
+                                              painter: _GarmentCropPainter(
+                                                  cropRect)))),
                                   Positioned.fromRect(
                                     rect: cropRect,
                                     child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
                                       onPanUpdate: (details) =>
                                           _moveCropBox(details.delta),
                                       child: Container(
@@ -341,15 +525,25 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
                                       ),
                                     ),
                                   ),
-                                  Positioned(
-                                    left: cropRect.right - 34,
-                                    top: cropRect.bottom - 34,
-                                    child: GestureDetector(
-                                      onPanUpdate: (details) =>
-                                          _resizeCropBox(details.delta),
-                                      child: const _CropHandle(),
+                                  for (final corner in [0, 1, 2, 3])
+                                    Positioned(
+                                      left: (corner == 0 || corner == 3
+                                              ? cropRect.left
+                                              : cropRect.right) -
+                                          18,
+                                      top: (corner == 0 || corner == 1
+                                              ? cropRect.top
+                                              : cropRect.bottom) -
+                                          18,
+                                      child: GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
+                                        onPanUpdate: (details) =>
+                                            _resizeCropBox(
+                                                details.delta, corner),
+                                        child: const SizedBox(
+                                            width: 36, height: 36),
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ],
                             ),
@@ -358,16 +552,6 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    Text(
-                      '${widget.stepIndex + 1}/${widget.items.length} ${_fittingSlot(_currentItem)} 이미지예요.',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.ink,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
                     const Text(
                       '옷만 최대한 크게 들어오게 영역을 맞추면 피팅이 더 자연스러워져요.',
                       textAlign: TextAlign.center,
@@ -379,44 +563,61 @@ class _FittingImageReviewPageState extends State<FittingImageReviewPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                          color: AppColors.selectedBackground,
+                          borderRadius: BorderRadius.circular(14)),
+                      child: const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(children: [
+                              Icon(Icons.lightbulb_outline,
+                                  size: 18, color: AppColors.main),
+                              SizedBox(width: 6),
+                              Text('크롭 TIP',
+                                  style: TextStyle(
+                                      color: AppColors.main,
+                                      fontWeight: FontWeight.w800))
+                            ]),
+                            SizedBox(height: 8),
+                            Text(
+                                '• 옷이 잘 보이도록 크게 조절해 주세요.\n• 불필요한 배경을 최소화해 주세요.\n• 옷이 잘리지 않도록 여유 있게 선택해 주세요.',
+                                style: TextStyle(
+                                    color: AppColors.muted,
+                                    fontSize: 12,
+                                    height: 1.7)),
+                          ]),
+                    ),
+                    const SizedBox(height: 14),
                     SizedBox(
                       width: double.infinity,
                       height: 52,
                       child: ElevatedButton(
-                        onPressed: _fitWithCrop,
+                        onPressed: _isCropping || _cropRect == null
+                            ? null
+                            : _fitWithCrop,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.ink,
+                          backgroundColor: const Color(0xff728ee5),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(26),
                           ),
                         ),
-                        child: const Text(
-                          '이 영역으로 피팅하기',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: OutlinedButton(
-                        onPressed: () => _goToFitting(input.dataUri),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.ink,
-                          side: const BorderSide(color: AppColors.line),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          '그대로 피팅하기',
-                          style: TextStyle(fontWeight: FontWeight.w900),
-                        ),
+                        child: _isCropping
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2, color: Colors.white))
+                            : const Text(
+                                '이 영역으로 피팅하기',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
                       ),
                     ),
                   ],
@@ -510,6 +711,55 @@ class _ReviewGarmentImage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _GarmentCropPainter extends CustomPainter {
+  final Rect crop;
+  const _GarmentCropPainter(this.crop);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final mask = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(Offset.zero & size)
+      ..addRect(crop);
+    canvas.drawPath(mask, Paint()..color = const Color(0x55000000));
+    final grid = Paint()
+      ..color = const Color(0x99ffffff)
+      ..strokeWidth = 1;
+    for (var i = 1; i < 3; i++) {
+      final x = crop.left + crop.width * i / 3;
+      final y = crop.top + crop.height * i / 3;
+      canvas.drawLine(Offset(x, crop.top), Offset(x, crop.bottom), grid);
+      canvas.drawLine(Offset(crop.left, y), Offset(crop.right, y), grid);
+    }
+    canvas.drawRect(
+        crop,
+        Paint()
+          ..color = Colors.white
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1);
+    final cornerPaint = Paint()
+      ..color = const Color(0xff8da9ed)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+    for (final corner in [0, 1, 2, 3]) {
+      final x = corner == 0 || corner == 3 ? crop.left : crop.right;
+      final y = corner == 0 || corner == 1 ? crop.top : crop.bottom;
+      final dx = corner == 0 || corner == 3 ? 12.0 : -12.0;
+      final dy = corner == 0 || corner == 1 ? 12.0 : -12.0;
+      canvas.drawPath(
+          Path()
+            ..moveTo(x + dx, y)
+            ..lineTo(x, y)
+            ..lineTo(x, y + dy),
+          cornerPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GarmentCropPainter oldDelegate) =>
+      crop != oldDelegate.crop;
 }
 
 class _CropHandle extends StatelessWidget {
@@ -722,7 +972,7 @@ class _FittingLoadingPageState extends State<FittingLoadingPage> {
   }
 }
 
-class FittingResultPage extends StatelessWidget {
+class FittingResultPage extends StatefulWidget {
   final String avatarImageData;
   final List<OutfitItem> items;
   final int completedStepIndex;
@@ -735,6 +985,16 @@ class FittingResultPage extends StatelessWidget {
   });
 
   @override
+  State<FittingResultPage> createState() => _FittingResultPageState();
+}
+
+class _FittingResultPageState extends State<FittingResultPage> {
+  bool _recorded = false;
+  String get avatarImageData => widget.avatarImageData;
+  List<OutfitItem> get items => widget.items;
+  int get completedStepIndex => widget.completedStepIndex;
+
+  @override
   Widget build(BuildContext context) {
     final hasNextStep = completedStepIndex < items.length - 1;
     final currentLabel = _fittingSlot(items[completedStepIndex]);
@@ -742,7 +1002,9 @@ class FittingResultPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('피팅 결과'),
+        title: const Text(bool.fromEnvironment('MOCK_DEMO_MODE')
+            ? '데모 피팅 · 원본 아바타 미리보기'
+            : '피팅 결과'),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -771,7 +1033,9 @@ class FittingResultPage extends StatelessWidget {
               Text(
                 hasNextStep
                     ? '${completedStepIndex + 1}/${items.length} $currentLabel 피팅 결과예요.'
-                    : '피팅 결과예요.',
+                    : _recorded
+                        ? '피팅 기록에 저장했어요.'
+                        : '아직 기록하지 않았어요. 기록하기를 누르면 저장돼요.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.muted,
@@ -785,29 +1049,32 @@ class FittingResultPage extends StatelessWidget {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (hasNextStep) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => FittingImageReviewPage(
+                  onPressed: _recorded
+                      ? null
+                      : () {
+                          if (hasNextStep) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => FittingImageReviewPage(
+                                  avatarImageData: avatarImageData,
+                                  items: items,
+                                  stepIndex: completedStepIndex + 1,
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          StyleClosetStore.addFittingRecord(
                             avatarImageData: avatarImageData,
                             items: items,
-                            stepIndex: completedStepIndex + 1,
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-
-                    StyleClosetStore.addFittingRecord(
-                      avatarImageData: avatarImageData,
-                      items: items,
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('피팅기록에 저장했어요.')),
-                    );
-                  },
+                          );
+                          setState(() => _recorded = true);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('피팅기록에 저장했어요.')),
+                          );
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.ink,
                     foregroundColor: Colors.white,
@@ -816,7 +1083,11 @@ class FittingResultPage extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    hasNextStep ? '다음 순서 피팅하기' : '기록하기',
+                    hasNextStep
+                        ? '다음 순서 피팅하기'
+                        : _recorded
+                            ? '기록 완료'
+                            : '기록하기',
                     style: const TextStyle(
                         fontSize: 15, fontWeight: FontWeight.w900),
                   ),
@@ -836,7 +1107,7 @@ class WishlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _StoredItemsPage(
-      title: '찜목록',
+      title: '위시리스트',
       emptyText: '추천 코디에서 하트를 누른 상품이 여기에 모여요.',
       itemsBuilder: () => StyleClosetStore.likedItems,
     );
@@ -911,6 +1182,12 @@ String _fittingSlot(OutfitItem item) {
   final category = item.category.toLowerCase();
   final combined = '$title $itemType $category';
 
+  // Wardrobe analysis already provides a category; do not let a garment name
+  // such as "가디건" override its outerwear category.
+  if (['아우터', '상의', '하의', '원피스'].contains(item.category)) {
+    return item.category;
+  }
+
   if (_containsAny(title, ['원피스', '드레스', 'dress'])) return '원피스';
   if (_containsAny(title, ['스커트', '치마', '팬츠', '바지', '데님', '슬랙스', '하의'])) {
     return '하의';
@@ -970,24 +1247,24 @@ class _SourceTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 40,
+      height: 44,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        color: AppColors.canvas,
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.line),
       ),
       child: Row(
         children: [
           _SourceTabButton(
-            text: '찜목록',
-            selected: source == _FittingSource.liked,
-            onTap: () => onChanged(_FittingSource.liked),
-          ),
-          _SourceTabButton(
-            text: '내옷장',
+            text: '내 옷장',
             selected: source == _FittingSource.wardrobe,
             onTap: () => onChanged(_FittingSource.wardrobe),
+          ),
+          _SourceTabButton(
+            text: '위시리스트',
+            selected: source == _FittingSource.liked,
+            onTap: () => onChanged(_FittingSource.liked),
           ),
         ],
       ),
@@ -1015,17 +1292,23 @@ class _SourceTabButton extends StatelessWidget {
           duration: const Duration(milliseconds: 160),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: selected ? AppColors.main : Colors.transparent,
-            borderRadius: BorderRadius.circular(7),
+            color: selected ? AppColors.point : Colors.transparent,
+            borderRadius: BorderRadius.circular(24),
           ),
-          child: Text(
-            text,
-            style: TextStyle(
-              color: selected ? Colors.white : AppColors.ink,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(
+                text == '내 옷장'
+                    ? Icons.checkroom_outlined
+                    : Icons.favorite_border,
+                color: selected ? const Color(0xff3156bf) : AppColors.muted,
+                size: 22),
+            const SizedBox(width: 8),
+            Text(text,
+                style: TextStyle(
+                    color: selected ? const Color(0xff3156bf) : AppColors.muted,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800)),
+          ]),
         ),
       ),
     );
@@ -1061,14 +1344,24 @@ class _StoredItemsPage extends StatelessWidget {
           return GridView.builder(
             padding: const EdgeInsets.all(18),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.72,
+              crossAxisCount: 3,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1,
             ),
             itemCount: items.length,
             itemBuilder: (context, index) {
-              return _StoredItemCard(item: items[index]);
+              final item = items[index];
+              return Tooltip(
+                  message: item.title,
+                  child: Container(
+                    clipBehavior: Clip.antiAlias,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: AppColors.chip,
+                        borderRadius: BorderRadius.circular(14)),
+                    child: _OutfitItemImage(item: item, fit: BoxFit.contain),
+                  ));
             },
           );
         },
@@ -1092,24 +1385,44 @@ class _SelectableItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Stack(
-        children: [
-          _StoredItemCard(item: item),
-          Positioned(
-            top: 8,
-            right: 8,
-            child: CircleAvatar(
-              radius: 13,
-              backgroundColor: selected ? AppColors.main : Colors.white,
-              child: Icon(
-                selected ? Icons.check : Icons.add,
-                color: selected ? Colors.white : AppColors.main,
-                size: 15,
+      child: Semantics(
+          label: '${item.title}, ${_fittingSlot(item)}',
+          selected: selected,
+          button: true,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Container(
+                clipBehavior: Clip.antiAlias,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: selected
+                        ? AppColors.selectedBackground
+                        : AppColors.chip,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                        color: selected
+                            ? const Color(0xff80adff)
+                            : Colors.transparent,
+                        width: 1.5)),
+                child: _OutfitItemImage(item: item, fit: BoxFit.contain),
               ),
-            ),
-          ),
-        ],
-      ),
+              if (selected)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: CircleAvatar(
+                    radius: 13,
+                    backgroundColor: selected ? AppColors.main : Colors.white,
+                    child: Icon(
+                      selected ? Icons.check : Icons.add,
+                      color: selected ? Colors.white : AppColors.main,
+                      size: 15,
+                    ),
+                  ),
+                ),
+            ],
+          )),
     );
   }
 }
@@ -1204,11 +1517,13 @@ class _FittingSelectionBar extends StatelessWidget {
   final List<OutfitItem> selectedItems;
   final bool enabled;
   final VoidCallback onFit;
+  final ValueChanged<OutfitItem> onRemove;
 
   const _FittingSelectionBar({
     required this.selectedItems,
     required this.enabled,
     required this.onFit,
+    required this.onRemove,
   });
 
   @override
@@ -1221,28 +1536,118 @@ class _FittingSelectionBar extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(child: _SelectedThumbRow(items: selectedItems)),
-            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.line),
+                  borderRadius: BorderRadius.circular(16)),
+              child: Row(children: [
+                SizedBox(
+                    width: 76,
+                    child: Column(children: [
+                      const Text('선택한 아이템',
+                          style: TextStyle(
+                              fontSize: 11, fontWeight: FontWeight.w800)),
+                      const SizedBox(height: 8),
+                      Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 3),
+                          decoration: BoxDecoration(
+                              color: AppColors.selectedBackground,
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Text('${selectedItems.length} / 3',
+                              style: const TextStyle(
+                                  color: Color(0xff3156bf),
+                                  fontWeight: FontWeight.w800))),
+                    ])),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: Row(
+                        children: ['아우터', '상의', '하의'].map((slot) {
+                  final matches =
+                      selectedItems.where((item) => _fittingSlot(item) == slot);
+                  final item = matches.isEmpty ? null : matches.first;
+                  return Expanded(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Stack(
+                            clipBehavior: Clip.none,
+                            fit: StackFit.expand,
+                            children: [
+                              Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      color: AppColors.canvas,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          color: item == null
+                                              ? AppColors.line
+                                              : AppColors.main)),
+                                  child: item == null
+                                      ? Center(
+                                          child: Text(slot,
+                                              style: const TextStyle(
+                                                  color: AppColors.muted,
+                                                  fontSize: 10)))
+                                      : _OutfitItemImage(
+                                          item: item, fit: BoxFit.contain)),
+                              if (item != null)
+                                Positioned(
+                                    top: -7,
+                                    right: -7,
+                                    child: Semantics(
+                                        button: true,
+                                        label: '$slot 선택 해제',
+                                        child: GestureDetector(
+                                          onTap: () => onRemove(item),
+                                          child: Container(
+                                              width: 26,
+                                              height: 26,
+                                              decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  shape: BoxShape.circle,
+                                                  border: Border.all(
+                                                      color: AppColors.line)),
+                                              child: const Icon(Icons.close,
+                                                  size: 15,
+                                                  color: AppColors.main)),
+                                        ))),
+                            ])),
+                  ));
+                }).toList())),
+              ]),
+            ),
+            const SizedBox(height: 14),
             SizedBox(
-              width: 132,
-              height: 46,
+              width: double.infinity,
+              height: 48,
               child: ElevatedButton(
                 onPressed: enabled ? onFit : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.ink,
+                  backgroundColor: const Color(0xff80adf0),
                   disabledBackgroundColor: AppColors.chip,
                   foregroundColor: Colors.white,
                   disabledForegroundColor: AppColors.muted,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(26),
                   ),
                 ),
-                child: const Text(
-                  '피팅하러가기',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900),
-                ),
+                child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.checkroom_outlined, size: 22),
+                      SizedBox(width: 10),
+                      Text('피팅하러가기',
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w800)),
+                      SizedBox(width: 12),
+                      Icon(Icons.arrow_forward, size: 20),
+                    ]),
               ),
             ),
           ],
@@ -1357,13 +1762,8 @@ class _OutfitItemImage extends StatelessWidget {
       );
     }
 
-    return Image.file(
-      File(item.imageUrl),
-      width: width,
-      height: height,
-      fit: fit,
-      errorBuilder: (_, __, ___) => _fallback,
-    );
+    return OutfitImage(
+        value: item.imageUrl, width: width, height: height, fit: fit);
   }
 
   Widget get _fallback {

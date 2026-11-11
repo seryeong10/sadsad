@@ -19,55 +19,62 @@ class _GenderSelectPageState extends State<GenderSelectPage> {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 22),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                '성별 선택',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                '아바타 설정을 위해 성별을 선택해주세요',
-                style: TextStyle(color: AppColors.muted, fontSize: 14),
-              ),
-              const SizedBox(height: 40),
-              _GenderButton(
-                value: 'male',
-                label: '남자',
-                selectedValue: selectedGender,
-                onTap: _selectGender,
-              ),
-              const SizedBox(height: 14),
-              _GenderButton(
-                value: 'female',
-                label: '여자',
-                selectedValue: selectedGender,
-                onTap: _selectGender,
-              ),
+              Row(children: [
+                IconButton(
+                    onPressed: () => Navigator.maybePop(context),
+                    icon:
+                        const Icon(Icons.arrow_back_ios_new_rounded, size: 20)),
+                const Spacer(),
+              ]),
               const SizedBox(height: 24),
+              const Text('GET STARTED',
+                  style: TextStyle(
+                      color: AppColors.main,
+                      fontSize: 11,
+                      letterSpacing: 1.1,
+                      fontWeight: FontWeight.w800)),
+              const SizedBox(height: 14),
+              const Text('성별을\n선택해주세요',
+                  style: TextStyle(
+                      color: AppColors.ink,
+                      fontSize: 27,
+                      height: 1.2,
+                      fontWeight: FontWeight.w800)),
+              const SizedBox(height: 12),
+              const Text('더 정확한 맞춤 코디를 위해\n성별을 선택해주세요.',
+                  style: TextStyle(
+                      color: AppColors.muted, fontSize: 14, height: 1.5)),
+              const Spacer(),
+              Row(children: [
+                Expanded(
+                    child: _GenderCard(
+                        value: 'male',
+                        label: '남성',
+                        subtitle: '남성 스타일 추천',
+                        selectedValue: selectedGender,
+                        onTap: _selectGender)),
+                const SizedBox(width: 16),
+                Expanded(
+                    child: _GenderCard(
+                        value: 'female',
+                        label: '여성',
+                        subtitle: '여성 스타일 추천',
+                        selectedValue: selectedGender,
+                        onTap: _selectGender)),
+              ]),
+              const Spacer(flex: 2),
               AppButton(
                 text: '다음',
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => PhotoUploadPage(
-                        gender: selectedGender,
-                        opensAvatarPageAfterGenerate: false,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                '건너뛰기',
-                style: TextStyle(
-                  color: AppColors.muted,
-                  fontWeight: FontWeight.w600,
-                ),
+                        builder: (_) => PhotoUploadPage(
+                            gender: selectedGender,
+                            opensAvatarPageAfterGenerate: false))),
               ),
             ],
           ),
@@ -76,56 +83,60 @@ class _GenderSelectPageState extends State<GenderSelectPage> {
     );
   }
 
-  void _selectGender(String gender) {
-    setState(() {
-      selectedGender = gender;
-    });
-  }
+  void _selectGender(String gender) => setState(() => selectedGender = gender);
 }
 
-class _GenderButton extends StatelessWidget {
+class _GenderCard extends StatelessWidget {
   final String value;
   final String label;
+  final String subtitle;
   final String selectedValue;
   final ValueChanged<String> onTap;
 
-  const _GenderButton({
-    required this.value,
-    required this.label,
-    required this.selectedValue,
-    required this.onTap,
-  });
+  const _GenderCard(
+      {required this.value,
+      required this.label,
+      required this.subtitle,
+      required this.selectedValue,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = selectedValue == value;
-
-    return GestureDetector(
+    final selected = selectedValue == value;
+    final female = value == 'female';
+    final tint = female ? const Color(0xfff9eaf0) : const Color(0xffeaf3ff);
+    final iconColor = female ? const Color(0xffd58ca5) : AppColors.main;
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
       onTap: () => onTap(value),
-      child: Container(
-        height: 74,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        height: 156,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.selectedBackground : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? AppColors.point : AppColors.line,
-            width: isSelected ? 1.4 : 1,
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.person_outline,
-              color: isSelected ? AppColors.main : AppColors.muted,
-            ),
-            const SizedBox(width: 18),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
+            color: selected ? const Color(0xfffbfdff) : Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+                color: selected ? AppColors.point : AppColors.line,
+                width: selected ? 1.5 : 1)),
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          CircleAvatar(
+              radius: 30,
+              backgroundColor: tint,
+              child: Icon(
+                  female ? Icons.face_3_outlined : Icons.face_6_outlined,
+                  color: iconColor,
+                  size: 37)),
+          const SizedBox(height: 10),
+          Text(label,
+              style: const TextStyle(
+                  color: AppColors.ink,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700)),
+          const SizedBox(height: 4),
+          Text(subtitle,
+              style: const TextStyle(color: AppColors.muted, fontSize: 10)),
+        ]),
       ),
     );
   }

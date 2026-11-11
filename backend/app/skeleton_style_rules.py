@@ -64,7 +64,10 @@ SECTION_WEIGHTS = {
 
 def get_skeleton_style_rules(skeleton_type: str, gender: str = "") -> dict:
     gender_key = "male" if gender == "male" else "female"
-    return deepcopy(SKELETON_STYLE_RULES[gender_key][skeleton_type])
+    aliases = {"straight": "스트레이트", "wave": "웨이브", "natural": "내추럴"}
+    normalized = skeleton_type.strip()
+    normalized = aliases.get(normalized.lower(), normalized)
+    return deepcopy(SKELETON_STYLE_RULES[gender_key].get(normalized, {}))
 
 
 def score_skeleton_text(text: str, skeleton_type: str, gender: str = "") -> dict:

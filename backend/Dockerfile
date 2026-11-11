@@ -12,6 +12,9 @@ RUN pip install --no-cache-dir torch torchvision --index-url https://download.py
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Low-memory BiRefNet Lite ONNX weights; included so runtime does not download it.
+COPY models/birefnet-lite-512.onnx /app/models/birefnet-lite-512.onnx
+
 # BiSeNet 체크포인트 다운로드
 RUN pip install --no-cache-dir gdown && \
     mkdir -p models && \

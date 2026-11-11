@@ -1,23 +1,27 @@
 import os
 import base64
+import asyncio
 import csv
 import hashlib
 import json
 import random
 import re
 import unicodedata
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
+from concurrent.futures import ThreadPoolExecutor
 from html import unescape
 from io import BytesIO
 from pathlib import Path
 from typing import Optional
 from urllib.error import URLError, HTTPError
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 from urllib.request import Request, urlopen
 
-from fastapi import FastAPI, UploadFile, File, Query
+from fastapi import FastAPI, UploadFile, File, Query, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from openai import OpenAI
 from PIL import Image
@@ -25,6 +29,7 @@ from pydantic import BaseModel, Field
 import requests
 
 from app.personal_color_palette import get_personal_color_palette
+from app.closet_image_processor import prepare_closet_image
 from app.personal_color_model import COLOR_RESULTS, predict_personal_color
 from app.season_style_rules import resolve_season
 from app.skeleton_style_rules import get_skeleton_style_rules, score_skeleton_text
@@ -41,6 +46,7 @@ load_dotenv()
 
 app = FastAPI()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) if os.getenv("OPENAI_API_KEY") else None
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
 ROOT_DIR = Path(__file__).resolve().parents[1]
 KFASHION_CSV = ROOT_DIR / "data" / "kfashion" / "kfashion_recommendation_data.csv"
 KFASHION_CUTOUT_ROOT = ROOT_DIR / "data" / "kfashion" / "cutouts"
@@ -79,6 +85,30 @@ class VirtualTryOnRequest(BaseModel):
     item_type: str = Field("", description="상의, 하의, 아우터, 원피스 등")
     preserve_pose: bool = True
 
+
+class ClosetItemAnalysisRequest(BaseModel):
+    image_data: str = Field(..., description="옷 사진 data URI")
+    category: str = Field("", description="사용자가 고른 카테고리. 비우면 AI가 분류")
+
+
+class ClosetRecommendationItem(BaseModel):
+    id: str = Field(..., max_length=100)
+    category: str = Field(..., max_length=20)
+    name: str = Field(..., max_length=80)
+    color: str = Field("", max_length=30)
+    pattern: str = Field("", max_length=40)
+    style_tags: list[str] = Field(default_factory=list, max_length=5)
+
+
+class ClosetRecommendationRequest(BaseModel):
+    situation: str = Field(..., max_length=40)
+    mood: str = Field(..., max_length=40)
+    gender: str = Field("", max_length=20)
+    personal_color: str = Field("", max_length=40)
+    skeleton_type: str = Field("", max_length=40)
+    refresh_seed: int = Field(0, ge=0)
+    items: list[ClosetRecommendationItem] = Field(..., min_length=1, max_length=100)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -86,6 +116,33 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def require_firebase_auth(request, call_next):
+    protected = {
+        "/generate-avatar", "/analyze-personal-color", "/virtual-try-on",
+        "/recommend-outfits", "/api/recommend/products", "/api/recommend/closet",
+        "/api/analyze-closet-item", "/api/weather",
+    }
+    if (os.getenv("REQUIRE_FIREBASE_AUTH", "false").lower() == "true"
+            and request.url.path in protected and request.method != "OPTIONS"):
+        authorization = request.headers.get("authorization", "")
+        token = authorization.removeprefix("Bearer ") if authorization.startswith("Bearer ") else ""
+        key = os.getenv("FIREBASE_API_KEY", "")
+        if not token or not key:
+            return JSONResponse(status_code=401, content={"detail": "로그인 후 이용해주세요."})
+        try:
+            response = await asyncio.to_thread(
+                requests.post, "https://identitytoolkit.googleapis.com/v1/accounts:lookup",
+                params={"key": key}, json={"idToken": token}, timeout=10,
+            )
+            users = response.json().get("users", []) if response.status_code == 200 else []
+            if not users or users[0].get("disabled"):
+                return JSONResponse(status_code=401, content={"detail": "다시 로그인해주세요."})
+        except (requests.RequestException, ValueError):
+            return JSONResponse(status_code=503, content={"detail": "로그인 확인에 실패했습니다. 잠시 후 다시 시도해주세요."})
+    return await call_next(request)
 
 if KFASHION_IMAGE_ROOT.exists():
     app.mount(
@@ -100,6 +157,127 @@ if KFASHION_CUTOUT_ROOT.exists():
         StaticFiles(directory=str(KFASHION_CUTOUT_ROOT)),
         name="kfashion-cutouts",
     )
+
+
+@app.get("/api/weather")
+def get_weather(lat: float = Query(..., ge=-90, le=90), lon: float = Query(..., ge=-180, le=180)):
+    """Return current conditions and a compact 3-hour forecast for the mobile home card."""
+    if not OPENWEATHER_API_KEY:
+        raise HTTPException(status_code=503, detail="날씨 API 키가 서버에 설정되지 않았습니다.")
+
+    params = {"lat": lat, "lon": lon, "appid": OPENWEATHER_API_KEY, "units": "metric", "lang": "kr"}
+    try:
+        current_response = requests.get(
+            "https://api.openweathermap.org/data/2.5/weather", params=params, timeout=10
+        )
+        current_response.raise_for_status()
+        forecast_response = requests.get(
+            "https://api.openweathermap.org/data/2.5/forecast", params=params, timeout=10
+        )
+        forecast_response.raise_for_status()
+        current_data = current_response.json()
+        forecast_data = forecast_response.json()
+    except requests.RequestException as exc:
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        if status == 401:
+            raise HTTPException(status_code=502, detail="날씨 API 키를 확인해주세요.") from exc
+        raise HTTPException(status_code=502, detail="날씨 정보를 가져오지 못했습니다.") from exc
+
+    def condition_for(weather_items):
+        item = (weather_items or [{}])[0]
+        main = (item.get("main") or "Clouds").lower()
+        code = int(item.get("id") or 0)
+        if main == "snow":
+            return "snow"
+        if main in {"rain", "drizzle", "thunderstorm"}:
+            return "rain"
+        if main == "clear":
+            return "clear"
+        if main == "clouds" and code in {801, 802}:
+            return "partly_cloudy"
+        return "cloudy"
+
+    timezone_offset = int((forecast_data.get("city") or {}).get("timezone") or 0)
+    local_now = datetime.now(timezone.utc) + timedelta(seconds=timezone_offset)
+    forecast_items = forecast_data.get("list") or []
+    today_items = []
+    hourly = []
+    for entry in forecast_items:
+        local_time = datetime.fromtimestamp(int(entry["dt"]), timezone.utc) + timedelta(seconds=timezone_offset)
+        if local_time.date() == local_now.date():
+            today_items.append(entry)
+        if len(hourly) < 4 and local_time >= local_now:
+            hourly.append({
+                "time": local_time.strftime("%H:%M"),
+                "temperature": round(float(entry["main"]["temp"])),
+                "condition": condition_for(entry.get("weather")),
+            })
+
+    current_weather = (current_data.get("weather") or [{}])[0]
+    current_main = current_data.get("main") or {}
+    current_temp = round(float(current_main.get("temp") or 0))
+    feels_like = round(float(current_main.get("feels_like") or current_temp))
+    day_temps = [float((item.get("main") or {}).get("temp") or current_temp) for item in today_items]
+    day_temps.append(current_temp)
+    condition = condition_for(current_data.get("weather"))
+
+    if condition == "snow":
+        advice = "눈길이 미끄러울 수 있어요. 따뜻하고 편한 신발을 챙겨요."
+    elif condition == "rain":
+        advice = "비가 올 수 있어요. 우산과 가벼운 방수 아우터를 챙겨요."
+    elif feels_like <= 8:
+        advice = "체감 온도가 낮아요. 따뜻한 아우터를 챙겨요."
+    elif feels_like <= 16:
+        advice = "선선한 날씨예요. 가디건이나 얇은 아우터를 추천해요."
+    else:
+        advice = "가벼운 옷차림으로 산뜻하게 외출해보세요."
+
+    return {
+        "location": current_data.get("name") or "현재 위치",
+        "temperature": current_temp,
+        "feels_like": feels_like,
+        "description": current_weather.get("description") or "날씨 정보",
+        "condition": condition,
+        "high": round(max(day_temps)),
+        "low": round(min(day_temps)),
+        "hourly": hourly,
+        "advice": advice,
+        "updated_at": current_data.get("dt"),
+    }
+
+
+@app.get("/api/product-image")
+def product_image(url: str = Query(..., max_length=2048)):
+    """Serve catalog images on the app origin so web fitting can read pixels."""
+    parsed = urlparse(url)
+    if (parsed.scheme != "https" or parsed.hostname != "shopping-phinf.pstatic.net"
+            or parsed.username or parsed.password or parsed.port not in (None, 443)):
+        raise HTTPException(status_code=400, detail="지원하지 않는 상품 이미지 주소입니다.")
+    try:
+        with requests.get(url, timeout=15, stream=True, allow_redirects=False) as upstream:
+            if upstream.status_code != 200:
+                raise HTTPException(status_code=502, detail="상품 이미지를 불러오지 못했습니다.")
+            media_type = upstream.headers.get("content-type", "").split(";", 1)[0]
+            if media_type not in {"image/jpeg", "image/png", "image/webp", "image/gif"}:
+                raise HTTPException(status_code=502, detail="상품 이미지 형식이 올바르지 않습니다.")
+            chunks, size = [], 0
+            for chunk in upstream.iter_content(65536):
+                size += len(chunk)
+                if size > 12 * 1024 * 1024:
+                    raise HTTPException(status_code=413, detail="상품 이미지가 너무 큽니다.")
+                chunks.append(chunk)
+    except requests.RequestException as exc:
+        raise HTTPException(status_code=502, detail="상품 이미지 연결에 실패했습니다.") from exc
+    content = b"".join(chunks)
+    if media_type == "image/gif":
+        # Use the first frame for fitting, which requires a still image.
+        with Image.open(BytesIO(content)) as source:
+            output = BytesIO()
+            source.convert("RGB").save(output, format="JPEG", quality=92)
+            content = output.getvalue()
+            media_type = "image/jpeg"
+    return Response(content, media_type=media_type,
+                    headers={"Cache-Control": "public, max-age=3600"})
 
 
 @app.get("/recommend-outfits")
@@ -126,7 +304,7 @@ async def recommend_outfits(
     )
     if len(naver_items) >= effective_limit:
         return {
-            "source": "naver_shopping",
+            "source": "product_catalog" if os.getenv("SHOPPING_PROVIDER") == "product_catalog" else "naver_shopping",
             "situation": situation,
             "style": style,
             "season": resolve_season(season) if season.strip() else "",
@@ -246,7 +424,269 @@ async def analyze_personal_color(
     gender: str = Query("", description="성별 선택값. 예: female, male"),
 ):
     image_bytes = await user_face.read()
-    return predict_personal_color(image_bytes, gender=gender)
+    try:
+        return await asyncio.to_thread(predict_personal_color, image_bytes, gender=gender)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/api/analyze-closet-item")
+async def analyze_closet_item(request: ClosetItemAnalysisRequest):
+    """Clean a closet photo and identify its category and visible item details."""
+    allowed_categories = {"상의", "하의", "아우터"}
+    requested_category = request.category.strip()
+    if requested_category and requested_category not in allowed_categories:
+        raise HTTPException(status_code=400, detail="지원하지 않는 옷 카테고리입니다.")
+
+    image_data = request.image_data.strip()
+    if not image_data.startswith("data:image/") or "," not in image_data:
+        raise HTTPException(status_code=400, detail="옷 사진 형식이 올바르지 않습니다.")
+
+    try:
+        encoded_image = image_data.split(",", 1)[1]
+        original_bytes = base64.b64decode(encoded_image, validate=True)
+        if len(original_bytes) > 12 * 1024 * 1024:
+            raise HTTPException(status_code=413, detail="사진은 12MB 이하로 올려주세요.")
+        cleaned_bytes = await asyncio.to_thread(prepare_closet_image, original_bytes)
+    except HTTPException:
+        raise
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"사진 배경을 정리하지 못했습니다: {exc}") from exc
+
+    cleaned_data_uri = "data:image/jpeg;base64," + base64.b64encode(cleaned_bytes).decode("ascii")
+    # The same cleaned white-background photo is used for Vision and closet storage.
+    vision_data_uri = cleaned_data_uri
+    if client is None:
+        raise HTTPException(status_code=503, detail="옷 분석 API 키가 서버에 설정되지 않았습니다.")
+
+    try:
+        result = await asyncio.to_thread(client.chat.completions.create,
+            model=os.getenv("OPENAI_VISION_MODEL", "gpt-4o-mini"),
+            response_format={"type": "json_object"},
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "옷 사진을 보고 한국어 JSON으로 분석하세요. "
+                        "필드는 category, item, color, pattern, style_tags 입니다. "
+                        "category는 상의/하의/아우터 중 하나, item은 짧은 옷 이름, "
+                        "color는 대표 색상 한 가지, pattern은 무지/스트라이프/체크 등 짧은 무늬 정보, "
+                        "style_tags는 상황·무드 코디에 쓸 수 있는 짧은 한국어 태그 1~3개 배열입니다. "
+                        "확실하지 않은 소재를 추정하지 말고 신체나 사람을 분석하지 마세요."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": f"사용자가 선택한 카테고리: {requested_category or '선택 안 함. 사진을 보고 상의/하의/아우터 중 하나를 분류하세요.'}"},
+                        {"type": "image_url", "image_url": {"url": vision_data_uri, "detail": "low"}},
+                    ],
+                },
+            ],
+        )
+        content = result.choices[0].message.content or "{}"
+        analysis = json.loads(content)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"옷 분석에 실패했습니다: {exc}") from exc
+
+    category = analysis.get("category", requested_category)
+    if category not in allowed_categories:
+        raise HTTPException(status_code=502, detail="옷 종류를 확인하지 못했습니다. 옷 한 벌이 잘 보이게 다시 촬영해주세요.")
+    return {
+        "category": category,
+        "item": str(analysis.get("item") or "의류"),
+        "color": str(analysis.get("color") or ""),
+        "pattern": str(analysis.get("pattern") or ""),
+        "style_tags": [
+            str(tag)[:24]
+            for tag in (analysis.get("style_tags") or [])[:3]
+            if str(tag).strip()
+        ] if isinstance(analysis.get("style_tags"), list) else [],
+        "processed_image": cleaned_data_uri,
+    }
+
+
+@app.post("/api/recommend/closet")
+def recommend_closet_outfits(request: ClosetRecommendationRequest):
+    """Recommend combinations using only clothing already in the user's closet."""
+    allowed_categories = {"아우터", "상의", "하의"}
+    closet_items = [
+        item for item in request.items if item.category in allowed_categories
+    ]
+    if not closet_items:
+        raise HTTPException(
+            status_code=422,
+            detail="옷장에서 아우터·상의·하의 아이템을 찾지 못했습니다. 옷을 먼저 등록해주세요.",
+        )
+
+    available_categories = {item.category for item in closet_items}
+    missing_categories = {"상의", "하의"} - available_categories
+    if missing_categories:
+        missing_label = "·".join(category for category in ("상의", "하의") if category in missing_categories)
+        raise HTTPException(
+            status_code=422,
+            detail=f"완성 코디 추천을 위해 {missing_label} 옷도 등록해주세요. 등록된 옷만 조합해 추천합니다.",
+        )
+
+    ai_enabled = os.getenv("CLOSET_RECOMMENDATION_AI_ENABLED", "false").lower() in {
+        "1", "true", "yes", "on"
+    }
+    if not ai_enabled:
+        raise HTTPException(
+            status_code=503,
+            detail="실제 AI 코디 추천이 아직 승인·활성화되지 않았습니다.",
+        )
+    if client is None:
+        raise HTTPException(
+            status_code=503,
+            detail="백엔드에 OPENAI_API_KEY가 설정되지 않았습니다.",
+        )
+
+    model = os.getenv("OPENAI_CLOSET_RECOMMENDATION_MODEL", "gpt-5.4-mini")
+    prompt_items = [item.model_dump() for item in closet_items]
+    try:
+        result = client.chat.completions.create(
+            model=model,
+            reasoning_effort="low",
+            max_completion_tokens=800,
+            response_format={"type": "json_object"},
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "당신은 사용자의 옷장 안에 실제로 저장된 옷만 조합하는 코디 추천기입니다. "
+                        "요청된 상황과 무드, 선택적으로 퍼스널 컬러와 골격 유형을 고려하세요. "
+                        "아이템을 새로 만들어내거나 옷장 밖 아이템을 추가하지 마세요. "
+                        "한 코디에는 아우터/상의/하의 각 카테고리에서 최대 한 벌만 선택하고, "
+                        "모든 코디에는 등록된 상의 한 벌과 하의 한 벌을 반드시 포함하세요. "
+                        "아우터는 선택 사항이며 상의를 대신할 수 없습니다. 잡화와 신발은 추천하지 마세요. "
+                        "한국어 JSON으로 최대 3개 코디를 반환하세요. "
+                        '형식: {"outfits":[{"title":"짧은 코디명",'
+                        '"item_ids":["옷장 id"],"reason":"짧은 추천 이유"}]}.'
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": json.dumps(
+                        {
+                            "situation": request.situation,
+                            "mood": request.mood,
+                            "gender": request.gender,
+                            "personal_color": request.personal_color,
+                            "skeleton_type": request.skeleton_type,
+                            "closet_items": prompt_items,
+                        },
+                        ensure_ascii=False,
+                    ),
+                },
+            ],
+        )
+        data = json.loads(result.choices[0].message.content or "{}")
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"내 옷 코디 추천에 실패했습니다: {exc}") from exc
+
+    items_by_id = {item.id: item for item in closet_items}
+    outfits = []
+    seen_combinations = set()
+    for index, outfit in enumerate(data.get("outfits", [])[:3]):
+        selected = []
+        selected_categories = set()
+        for item_id in outfit.get("item_ids", []):
+            item = items_by_id.get(str(item_id))
+            if item is None or item.category in selected_categories:
+                continue
+            selected.append(item.id)
+            selected_categories.add(item.category)
+        combination = tuple(sorted(selected))
+        if not {"상의", "하의"}.issubset(selected_categories) or combination in seen_combinations:
+            continue
+        seen_combinations.add(combination)
+        outfits.append(
+            {
+                "id": f"ai-{index}-{'-'.join(selected)}",
+                "title": str(outfit.get("title") or "오늘의 코디"),
+                "item_ids": selected,
+                "reason": str(outfit.get("reason") or "선택한 상황과 무드에 맞춰 조합했어요."),
+            }
+        )
+
+    if not outfits:
+        raise HTTPException(status_code=502, detail="완성된 상의·하의 코디를 받지 못했습니다. 다시 추천해주세요.")
+    return {"source": "openai", "outfits": outfits}
+
+
+def _build_demo_closet_outfits(
+    items,
+    refresh_seed: int,
+    situation: str = "데일리",
+    mood: str = "캐주얼",
+    gender: str = "",
+) -> list[dict]:
+    ordered_categories = ["아우터", "상의", "하의"]
+    groups = [
+        [item for item in items if item.category == category]
+        for category in ordered_categories
+    ]
+    groups = [group for group in groups if group]
+    # No-cost contextual ranking: use the selected occasion/mood and garment
+    # labels/tags to rank combinations. Never invent items outside the closet.
+    ranked_groups = []
+    for group in groups:
+        ranked = []
+        for item in group:
+            text = " ".join(
+                [item.name, item.category, item.color, item.pattern, *item.style_tags]
+            )
+            fit = _score_situation_mood_fit(text, situation, mood, gender)
+            ranked.append((item, int(fit["score"])))
+        ranked.sort(key=lambda row: row[1], reverse=True)
+        ranked_groups.append(ranked)
+
+    candidates = []
+
+    def collect(group_index: int, selected: list, score: int) -> None:
+        if group_index == len(ranked_groups):
+            candidates.append((list(selected), score))
+            return
+        for item, item_score in ranked_groups[group_index][:12]:
+            selected.append(item)
+            collect(group_index + 1, selected, score + item_score)
+            selected.pop()
+
+    collect(0, [], 0)
+    candidates.sort(key=lambda row: row[1], reverse=True)
+    if candidates and refresh_seed:
+        # Keep the best contextual matches while allowing refresh to show
+        # alternate combinations within that equally relevant band.
+        best = candidates[0][1]
+        candidates = [row for row in candidates if row[1] >= best - 16]
+        offset = refresh_seed % max(1, len(candidates))
+        candidates = candidates[offset:] + candidates[:offset]
+
+    outfits = []
+    seen = set()
+    for selected, _score in candidates:
+        ids = tuple(item.id for item in selected)
+        if ids in seen:
+            continue
+        seen.add(ids)
+        detail = ", ".join(item.name for item in selected if item.name)
+        outfits.append(
+            {
+                "id": "demo-" + "-".join(ids),
+                "title": f"{situation} {mood} 코디",
+                "item_ids": list(ids),
+                "reason": (
+                    f"{situation} 상황과 {mood} 무드에 맞춰 "
+                    f"옷장 아이템({detail})으로 조합했어요."
+                ),
+            }
+        )
+        if len(outfits) == 3:
+            break
+    return outfits
 
 
 @app.post("/generate-avatar")
@@ -318,7 +758,7 @@ async def generate_avatar(
     user_file = BytesIO(user_bytes)
     user_file.name = "user_face.png"
 
-    result = client.images.edit(
+    result = await asyncio.to_thread(client.images.edit,
         model=os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5"),
         image=[base_file, user_file],
         mask=mask_file,
@@ -355,7 +795,7 @@ async def virtual_try_on(request: VirtualTryOnRequest):
         model=model,
         request=normalized_request,
     )
-    response = requests.post(
+    response = await asyncio.to_thread(requests.post,
         f"https://fal.run/{model}",
         headers={
             "Authorization": f"Key {fal_key}",
@@ -581,6 +1021,9 @@ def _recommend_naver_outfits(
     season: str,
     limit: int,
 ) -> list[dict[str, object]]:
+    if os.getenv("SHOPPING_PROVIDER") == "product_catalog":
+        return _recommend_catalog_outfits(situation, style, gender, personal_color,
+                                          skeleton_type, season, limit)
     client_id = os.getenv("NAVER_CLIENT_ID")
     client_secret = os.getenv("NAVER_CLIENT_SECRET")
     if not client_id or not client_secret:
@@ -722,6 +1165,55 @@ def _recommend_naver_outfits(
         reverse=True,
     )
     return _pick_diverse_naver_items(candidates, limit)
+
+
+def _recommend_catalog_outfits(situation, style, gender, personal_color,
+                              skeleton_type, season, limit):
+    """Rank collected real products; prices/availability are NOT live quotes."""
+    path = ROOT_DIR / "structured_clothes_data.csv"
+    if not path.is_file():
+        raise HTTPException(status_code=503, detail="수집 상품 카탈로그가 없습니다.")
+    context = retrieve_style_context(gender=gender, personal_color=personal_color,
+                                    skeleton_type=skeleton_type, situation=situation,
+                                    mood=style, season=season)
+    candidates, seen = [], set()
+    with path.open(encoding="utf-8-sig", newline="") as source:
+        for row in csv.DictReader(source):
+            if not _matches_requested_gender(" ".join([row.get("title", ""), row.get("category2", "")]), gender):
+                continue
+            row["lprice"] = row.get("price", "")
+            item = _naver_public_item(row, row.get("query", ""))
+            if item["item_type"] not in {"상의", "하의", "아우터", "원피스"} or item["image_id"] in seen:
+                continue
+            seen.add(item["image_id"])
+            item.update(_score_naver_item(item, situation, style, gender,
+                                          personal_color, skeleton_type, context))
+            # Dataset tags are evidence from the collected product, not labels
+            # invented from the current request.
+            tags = " ".join(row.get(key, "") for key in ("situation_tags", "mood_tags", "style_tags", "season_tags"))
+            for value in (situation, style):
+                if value and value in tags:
+                    item["recommendation_score"] += 15
+            candidates.append(item)
+    candidates.sort(key=lambda item: (-int(item["recommendation_score"]), str(item["image_id"])))
+    # Collected listings can expire. Do not recommend items whose photo is no
+    # longer available, and cache these checks for this server session.
+    checked = candidates[:max(limit * 3, 45)]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        available = list(pool.map(_catalog_image_available,
+                                  [str(item["image_url"]) for item in checked]))
+    return _pick_diverse_naver_items(
+        [item for item, valid in zip(checked, available) if valid], limit)
+
+
+@lru_cache(maxsize=512)
+def _catalog_image_available(url):
+    try:
+        with requests.get(url, stream=True, timeout=5, allow_redirects=False) as response:
+            return (response.status_code == 200
+                    and response.headers.get("content-type", "").startswith("image/"))
+    except requests.RequestException:
+        return False
 
 
 def _recommend_chroma_outfits(

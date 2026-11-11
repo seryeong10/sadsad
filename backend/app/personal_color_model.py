@@ -7,7 +7,6 @@ import unicodedata
 from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import joblib
 import numpy as np
@@ -19,6 +18,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from app.personal_color_palette import get_personal_color_palette
+from app.model_files import resolve_model_file
 
 try:
     import torch
@@ -110,10 +110,8 @@ def extract_features_from_path(path: Path, gender: str = "") -> np.ndarray:
 
 
 def extract_features_from_bytes(image_bytes: bytes, gender: str = "") -> np.ndarray:
-    with NamedTemporaryFile(suffix=".png") as temp_file:
-        temp_file.write(image_bytes)
-        temp_file.flush()
-        return extract_features_from_path(Path(temp_file.name), gender=gender)
+    with Image.open(BytesIO(image_bytes)) as image:
+        return extract_features_from_image(image, gender=gender)
 
 
 def extract_features_from_image(image: Image.Image, gender: str = "") -> np.ndarray:
@@ -300,6 +298,14 @@ def _predict_deep(image_bytes: bytes) -> tuple[str, float, dict]:
 
     model = _load_deep_model()
     bisenet_ckpt = os.getenv("BISENET_CKPT_PATH", "")
+    if bisenet_ckpt:
+        bisenet_ckpt = str(resolve_model_file(
+            Path(bisenet_ckpt), "BISENET_MODEL_URL",
+            "468e13ca13a9b43cc0881a9f99083a430e9c0a38abd935431d1c28ee94b26567",
+        ))
+    if (os.getenv("REQUIRE_DEEP_PERSONAL_COLOR", "false").lower() == "true"
+            and (not bisenet_ckpt or not Path(bisenet_ckpt).is_file())):
+        raise RuntimeError("기존 BiSeNet 전처리 체크포인트가 없습니다.")
 
     if bisenet_ckpt and Path(bisenet_ckpt).exists():
         print(f"[personal_color] BiSeNet 피부 마스킹 활성화: {bisenet_ckpt}")
@@ -350,16 +356,21 @@ def _predict_sklearn(image_bytes: bytes, gender: str) -> tuple[str, float, dict]
 
 
 def predict_personal_color(image_bytes: bytes, gender: str = "") -> dict:
+    require_deep = os.getenv("REQUIRE_DEEP_PERSONAL_COLOR", "false").lower() == "true"
     analysis_method = "efficientnet_b0_huggingface"
     if _TORCH_AVAILABLE:
         try:
             print("[personal_color] torch 사용 → EfficientNet-B0 추론 시작")
             label, confidence, probabilities = _predict_deep(image_bytes)
         except Exception as e:
+            if require_deep:
+                raise RuntimeError("기존 EfficientNet 퍼스널 컬러 모델 실행에 실패했습니다.") from e
             print(f"[personal_color] EfficientNet 실패 → RandomForest 폴백: {e}")
             label, confidence, probabilities = _predict_sklearn(image_bytes, gender)
             analysis_method = "skin_color_features_random_forest_by_gender"
     else:
+        if require_deep:
+            raise RuntimeError("기존 EfficientNet 실행 패키지가 설치되지 않았습니다.")
         print("[personal_color] torch 없음 → RandomForest 사용")
         label, confidence, probabilities = _predict_sklearn(image_bytes, gender)
         analysis_method = "skin_color_features_random_forest_by_gender"

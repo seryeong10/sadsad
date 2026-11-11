@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../theme/app_colors.dart';
 import '../widgets/app_button.dart';
@@ -11,7 +10,7 @@ import 'personal_color_page.dart';
 class AvatarResultPage extends StatelessWidget {
   final String gender;
   final String imageData;
-  final File sourceFaceImage;
+  final XFile sourceFaceImage;
 
   const AvatarResultPage({
     super.key,

@@ -154,6 +154,8 @@ def _skeleton_document(gender: str, skeleton_type: str) -> Optional[dict]:
         rules = get_skeleton_style_rules(skeleton_type, gender=gender)
     except KeyError:
         return None
+    if not rules:
+        return None
 
     recommended_items = _dedupe_keep_order([
         *rules["recommended_tops"],

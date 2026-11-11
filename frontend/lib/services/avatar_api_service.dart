@@ -1,57 +1,55 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
+import 'api_config.dart';
 
 class AvatarApiService {
-  static Future<File> assetToFile(String assetPath, String fileName) async {
-    final byteData = await rootBundle.load(assetPath);
-    final tempDir = await getTemporaryDirectory();
-
-    final file = File('${tempDir.path}/$fileName');
-
-    await file.writeAsBytes(
-      byteData.buffer.asUint8List(),
-      flush: true,
-    );
-
-    return file;
-  }
+  static const bool _useMockDemo = bool.fromEnvironment('MOCK_DEMO_MODE');
 
   static Future<String> generateAvatar({
     required String gender,
-    required File userFaceFile,
+    required XFile userFaceFile,
+    String? baseAvatarAssetPath,
   }) async {
-    final baseAssetPath = gender == 'female'
+    final baseAssetPath = baseAvatarAssetPath ?? (gender == 'female'
         ? 'assets/avatars/female_base.png'
-        : 'assets/avatars/male_base.png';
+        : 'assets/avatars/male_base.png');
 
-    final baseAvatarFile = await assetToFile(
-      baseAssetPath,
-      gender == 'female' ? 'female_base.png' : 'male_base.png',
-    );
+    if (_useMockDemo) {
+      final bytes = await rootBundle.load(baseAssetPath);
+      return 'data:image/png;base64,${base64Encode(bytes.buffer.asUint8List())}';
+    }
 
     final request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://54.180.152.237:8000/generate-avatar')
+      ApiConfig.uri('generate-avatar')
     );
 
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        'base_avatar',
-        baseAvatarFile.path,
-      ),
-    );
+    final baseBytes = await rootBundle.load(baseAssetPath);
+    request.files.add(http.MultipartFile.fromBytes(
+      'base_avatar',
+      baseBytes.buffer.asUint8List(),
+      filename: baseAssetPath.split('/').last,
+    ));
 
-    request.files.add(
-      await http.MultipartFile.fromPath(
+    if (kIsWeb) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'user_face',
+        await userFaceFile.readAsBytes(),
+        filename: userFaceFile.name,
+      ));
+    } else {
+      request.files.add(await http.MultipartFile.fromPath(
         'user_face',
         userFaceFile.path,
-      ),
-    );
+        filename: userFaceFile.name,
+      ));
+    }
 
+    request.headers.addAll(await ApiConfig.headers());
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
 

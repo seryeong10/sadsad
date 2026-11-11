@@ -32,6 +32,10 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/.vercel/
+/.vercel-demo/
+/.vercel-live/
+/firebase-live.json
 
 # Symbolication related
 app.*.symbols

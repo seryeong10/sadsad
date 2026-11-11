@@ -4,14 +4,38 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'firebase_rest_auth.dart';
 
 class AuthStore {
+  static bool get supportsIdAvailabilityCheck => !FirebaseRestAuth.enabled;
+  static const _allowLocalAuth = bool.fromEnvironment('MOCK_DEMO_MODE');
+  static const _missingAuthMessage =
+      '로그인 서버 설정이 없습니다. Firebase 웹 설정을 확인해주세요.';
+  static Future<(String, String)> profileIdentity() async {
+    if (FirebaseRestAuth.enabled) return FirebaseRestAuth.profileIdentity();
+    if (isFirebaseReady && FirebaseAuth.instance.currentUser != null) {
+      final user = FirebaseAuth.instance.currentUser!;
+      return (user.uid, user.displayName ?? '나의 프로필');
+    }
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getString(_activeUserKey);
+    if (id == null) return ('demo', '데모 사용자');
+    final accounts = await _localAccounts();
+    final account = accounts[id];
+    return (
+      id,
+      account is Map ? account['name']?.toString() ?? '나의 프로필' : '나의 프로필'
+    );
+  }
+
   static bool get isFirebaseReady => Firebase.apps.isNotEmpty;
 
   static Future<bool> isSignedIn() async {
+    if (FirebaseRestAuth.enabled) return FirebaseRestAuth.isSignedIn();
     if (isFirebaseReady) {
       return FirebaseAuth.instance.currentUser != null;
     }
+    if (!_allowLocalAuth) return false;
 
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_activeUserKey) != null;
@@ -39,6 +63,7 @@ class AuthStore {
   }
 
   static Future<bool> isIdAvailable(String id) async {
+    if (!isFirebaseReady && !_allowLocalAuth) return false;
     final normalizedId = _normalizeId(id);
     if (normalizedId.isEmpty) return false;
 
@@ -64,6 +89,17 @@ class AuthStore {
     required String id,
     required String password,
   }) async {
+    if (FirebaseRestAuth.enabled) {
+      try {
+        await FirebaseRestAuth.signUp(_normalizeId(id), password, name.trim());
+        return const AuthResult.success();
+      } catch (error) {
+        return AuthResult.failure(error.toString().replaceFirst('Exception: ', ''));
+      }
+    }
+    if (!isFirebaseReady && !_allowLocalAuth) {
+      return const AuthResult.failure(_missingAuthMessage);
+    }
     final normalizedId = _normalizeId(id);
     if (normalizedId.isEmpty || name.trim().isEmpty || password.isEmpty) {
       return const AuthResult.failure('입력값을 다시 확인해주세요.');
@@ -113,6 +149,22 @@ class AuthStore {
     required String password,
     bool saveId = false,
   }) async {
+    if (FirebaseRestAuth.enabled) {
+      try {
+        await FirebaseRestAuth.login(_normalizeId(id), password);
+        if (saveId) {
+          await saveLoginId(id);
+        } else {
+          await clearSavedLoginId();
+        }
+        return const AuthResult.success();
+      } catch (error) {
+        return AuthResult.failure(error.toString().replaceFirst('Exception: ', ''));
+      }
+    }
+    if (!isFirebaseReady && !_allowLocalAuth) {
+      return const AuthResult.failure(_missingAuthMessage);
+    }
     final normalizedId = _normalizeId(id);
     if (normalizedId.isEmpty || password.isEmpty) {
       return const AuthResult.failure('아이디와 비밀번호를 입력해주세요.');
@@ -152,6 +204,7 @@ class AuthStore {
   }
 
   static Future<void> logout() async {
+    if (FirebaseRestAuth.enabled) return FirebaseRestAuth.logout();
     if (isFirebaseReady) {
       await FirebaseAuth.instance.signOut();
       return;

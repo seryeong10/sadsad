@@ -19,6 +19,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const bool _useMockDemo = bool.fromEnvironment('MOCK_DEMO_MODE');
+
   late final TextEditingController _idController;
   final TextEditingController _passwordController = TextEditingController();
   bool _saveId = true;
@@ -52,18 +54,23 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 12),
-                  const _AvataLogo(size: 104),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 4),
+                  const Center(child: _AvataLogo(size: 82)),
+                  const SizedBox(height: 23),
                   const Text(
-                    '나에게 딱 맞는 스타일을 찾아보세요.',
-                    textAlign: TextAlign.center,
+                    'A-VATA에\n오신 것을 환영해요!',
+                    textAlign: TextAlign.left,
                     style: TextStyle(
-                      color: AppColors.muted,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink,
+                      fontSize: 24,
+                      height: 1.25,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  const Text('AI가 제안하는 나만의 스타일을 지금 만나보세요.',
+                      style: TextStyle(
+                          color: AppColors.muted, fontSize: 13, height: 1.45)),
                   const SizedBox(height: 34),
                   _LabeledField(
                     label: '아이디',
@@ -132,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 22),
                   _OliveButton(
-                    text: '로그인',
+                    text: _useMockDemo ? '데모 시작하기' : '로그인',
                     isLoading: _isLoggingIn,
                     onPressed: _isLoggingIn ? null : () => _login(),
                   ),
@@ -180,6 +187,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _login() async {
     if (_isLoggingIn) return;
+
+    if (_useMockDemo) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const GenderSelectPage()),
+      );
+      return;
+    }
 
     final id = _idController.text.trim();
     final password = _passwordController.text;
@@ -278,21 +293,22 @@ class _SignUpPageState extends State<SignUpPage> {
                   icon: const Icon(Icons.arrow_back_ios_new, size: 21),
                 ),
               ),
-              const _AvataLogo(size: 68, compact: true),
-              const SizedBox(height: 8),
+              const Center(child: _AvataLogo(size: 68, compact: true)),
+              const SizedBox(height: 18),
               const Text(
-                '회원가입',
-                textAlign: TextAlign.center,
+                '회원가입하고\n나만의 스타일을 시작해보세요!',
+                textAlign: TextAlign.left,
                 style: TextStyle(
                   color: AppColors.ink,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w900,
+                  fontSize: 21,
+                  height: 1.25,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               const Text(
-                '기본 정보를 입력하고\n나에게 딱 맞는 스타일을 경험해보세요.',
-                textAlign: TextAlign.center,
+                '간단한 정보로 A-VATA를 이용할 수 있어요.',
+                textAlign: TextAlign.left,
                 style: TextStyle(
                   color: AppColors.muted,
                   fontSize: 12,
@@ -418,6 +434,10 @@ class _SignUpPageState extends State<SignUpPage> {
       return;
     }
 
+    if (!AuthStore.supportsIdAvailabilityCheck) {
+      setState(() => _idCheckMessage = '아이디 중복은 회원가입할 때 확인합니다.');
+      return;
+    }
     setState(() => _isCheckingId = true);
     final isAvailable = await AuthStore.isIdAvailable(id);
     if (!mounted) return;
@@ -821,10 +841,10 @@ class _OliveButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: AppColors.main,
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.point,
+          foregroundColor: AppColors.ink,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         child: isLoading
@@ -866,7 +886,7 @@ class _KakaoLoginButton extends StatelessWidget {
           backgroundColor: const Color(0xffffe812),
           foregroundColor: const Color(0xff191600),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(14),
           ),
         ),
         child: const Row(
@@ -887,7 +907,7 @@ class _KakaoLoginButton extends StatelessWidget {
 
 OutlineInputBorder _fieldBorder(Color color) {
   return OutlineInputBorder(
-    borderRadius: BorderRadius.circular(8),
+    borderRadius: BorderRadius.circular(13),
     borderSide: BorderSide(color: color),
   );
 }

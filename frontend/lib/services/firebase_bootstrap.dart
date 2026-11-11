@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'firebase_rest_auth.dart';
 
 class FirebaseBootstrap {
   static const String _apiKey = String.fromEnvironment('FIREBASE_API_KEY');
@@ -25,6 +26,7 @@ class FirebaseBootstrap {
   }
 
   static Future<void> initialize() async {
+    if (FirebaseRestAuth.enabled) return;
     if (!hasConfig) {
       try {
         await Firebase.initializeApp();

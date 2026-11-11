@@ -1,6 +1,12 @@
 .DS_Store
 .env
 .venv/
+.tools/
+.vercel-backend/
+.tmp/
+.tmp-*
+/output/
+/LIVE_CHECK_REPORT.md
 __pycache__/
 *.pyc
 
@@ -11,6 +17,7 @@ __pycache__/
 backend/generated/*.png
 backend/models/*.pth
 backend/models/*.pt
+backend/models/*.onnx
 backend/data/chroma/
 backend/data/kfashion/
 backend/data/recommendation_eval*.json

@@ -1,26 +1,51 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/style_profile.dart';
+import 'api_config.dart';
 
 class PersonalColorService {
-  static const String _baseUrl = 'http://54.180.152.237:8000';
+  static const bool _useMockDemo = bool.fromEnvironment('MOCK_DEMO_MODE');
 
   static Future<PersonalColorProfile> analyze({
-    required File image,
+    required XFile image,
     required String gender,
   }) async {
-    final uri = Uri.parse('$_baseUrl/analyze-personal-color').replace(
+    if (_useMockDemo) {
+      return const PersonalColorProfile(
+        type: 'summer_cool',
+        label: '여름 쿨',
+        summary: '맑고 부드러운 쿨 톤이 잘 어울리는 데모 결과입니다.',
+        colors: ['라벤더', '로즈 핑크', '소프트 네이비'],
+        bestHexColors: ['#B8A9C9', '#D992A6', '#415B7A'],
+        additionalRecommendedColors: ['쿨 그레이', '아이스 블루'],
+        avoidColors: ['강한 오렌지', '옐로 브라운'],
+      );
+    }
+
+    final uri = ApiConfig.uri('analyze-personal-color').replace(
       queryParameters: {'gender': gender},
     );
 
-    final request = http.MultipartRequest('POST', uri)
-      ..files.add(
-        await http.MultipartFile.fromPath('user_face', image.path),
-      );
+    final request = http.MultipartRequest('POST', uri);
+    if (kIsWeb) {
+      request.files.add(http.MultipartFile.fromBytes(
+        'user_face',
+        await image.readAsBytes(),
+        filename: image.name,
+      ));
+    } else {
+      request.files.add(await http.MultipartFile.fromPath(
+        'user_face',
+        image.path,
+        filename: image.name,
+      ));
+    }
 
+    request.headers.addAll(await ApiConfig.headers());
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
 

@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:http/http.dart' as http;
 
 import 'outfit_recommendation_service.dart';
+import 'api_config.dart';
 
 class GarmentImageInput {
   final String dataUri;
@@ -24,18 +25,22 @@ class GarmentImageInput {
 }
 
 class VirtualTryOnService {
-  static const String _baseUrl = 'http://54.180.152.237:8000';
+  static const bool _useMockDemo = bool.fromEnvironment('MOCK_DEMO_MODE');
 
   static Future<String> tryOn({
     required String personImage,
     required OutfitItem item,
     String? garmentImageOverride,
   }) async {
+    if (_useMockDemo) {
+      return personImage;
+    }
+
     final garmentImage =
         garmentImageOverride ?? (await garmentImageInput(item)).dataUri;
     final response = await http.post(
-      Uri.parse('$_baseUrl/virtual-try-on'),
-      headers: {'Content-Type': 'application/json'},
+      ApiConfig.uri('virtual-try-on'),
+      headers: await ApiConfig.headers(json: true),
       body: jsonEncode({
         'person_image': personImage,
         'garment_image': garmentImage,

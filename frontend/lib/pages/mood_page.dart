@@ -13,6 +13,7 @@ class MoodPage extends StatefulWidget {
   final SkeletonProfile? skeletonProfile;
   final bool embeddedInTab;
   final VoidCallback? onBackPressed;
+  final void Function(String situation, String style)? onNext;
 
   const MoodPage({
     super.key,
@@ -22,6 +23,7 @@ class MoodPage extends StatefulWidget {
     this.skeletonProfile,
     this.embeddedInTab = false,
     this.onBackPressed,
+    this.onNext,
   });
 
   @override
@@ -31,6 +33,8 @@ class MoodPage extends StatefulWidget {
 class _MoodPageState extends State<MoodPage> {
   String? situation;
   String? style;
+  final ScrollController _situationController = ScrollController();
+  final ScrollController _styleController = ScrollController();
 
   static const situations = [
     _MoodOption('데일리', Icons.checkroom_outlined),
@@ -69,6 +73,13 @@ class _MoodPageState extends State<MoodPage> {
       stylesBySituation[situation] ?? stylesBySituation['데일리']!;
 
   @override
+  void dispose() {
+    _situationController.dispose();
+    _styleController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final content = SafeArea(
       child: LayoutBuilder(
@@ -76,9 +87,9 @@ class _MoodPageState extends State<MoodPage> {
           return Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 356),
+              constraints: const BoxConstraints(maxWidth: 420),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 6, 0, 16),
+                padding: const EdgeInsets.fromLTRB(10, 4, 10, 14),
                 child: SingleChildScrollView(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
@@ -89,61 +100,70 @@ class _MoodPageState extends State<MoodPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const _MoodHeader(),
-                          const SizedBox(height: 24),
-                          _MoodHeadline(situation: situation),
-                          const SizedBox(height: 34),
-                          _SituationTitleRow(onReset: _resetSelection),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            height: 96,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: situations.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: 8),
-                              itemBuilder: (context, index) {
-                                final item = situations[index];
-                                return _SituationTile(
-                                  option: item,
-                                  selected: situation == item.label,
-                                  onTap: () {
-                                    setState(() {
+                          const SizedBox(height: 16),
+                          const _MoodHeadline(),
+                          const SizedBox(height: 36),
+                          const _SectionTitle('상황'),
+                          const SizedBox(height: 4),
+                          const _SectionDescription('어떤 상황에서 입을 코디인가요?'),
+                          const SizedBox(height: 14),
+                          _ChoiceRow(
+                            controller: _situationController,
+                            itemCount: situations.length,
+                            itemBuilder: (index) {
+                              final item = situations[index];
+                              return _ChoiceChip(
+                                label: item.label,
+                                selected: situation == item.label,
+                                onTap: () {
+                                  setState(() {
+                                    if (situation == item.label) {
+                                      situation = null;
+                                      style = null;
+                                    } else {
                                       situation = item.label;
                                       style = null;
-                                    });
-                                  },
-                                );
-                              },
-                            ),
+                                    }
+                                  });
+                                },
+                              );
+                            },
                           ),
-                          const SizedBox(height: 44),
-                          const _SectionTitle('무드 선택'),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            height: 40,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: currentStyles.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: 8),
-                              itemBuilder: (context, index) {
-                                final label = currentStyles[index];
-                                return _StyleChip(
-                                  label: label,
-                                  selected: style == label,
-                                  onTap: () => setState(() => style = label),
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 34),
-                          _MoodSupportCard(situation: situation, style: style),
-                          const Spacer(),
                           const SizedBox(height: 30),
+                          const Divider(height: 1, color: AppColors.line),
+                          const SizedBox(height: 26),
+                          const _SectionTitle('무드'),
+                          const SizedBox(height: 4),
+                          const _SectionDescription('원하는 스타일의 분위기는 어떤가요?'),
+                          const SizedBox(height: 14),
+                          _ChoiceRow(
+                            controller: _styleController,
+                            itemCount: currentStyles.length,
+                            itemBuilder: (index) {
+                              final label = currentStyles[index];
+                              return _ChoiceChip(
+                                label: label,
+                                compact: true,
+                                selected: style == label,
+                                onTap: () => setState(
+                                  () => style = style == label ? null : label,
+                                ),
+                              );
+                            },
+                          ),
+                          const Spacer(),
+                          const SizedBox(height: 28),
                           _RecommendButton(
                             enabled: canRecommend,
+                            label: widget.onNext != null
+                                ? '다음으로'
+                                : '추천 코디 보러가기',
                             onPressed: () {
                               if (!canRecommend) return;
+                              if (widget.onNext != null) {
+                                widget.onNext!(situation!, style!);
+                                return;
+                              }
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -161,6 +181,7 @@ class _MoodPageState extends State<MoodPage> {
                               );
                             },
                           ),
+                          const SizedBox(height: 2),
                         ],
                       ),
                     ),
@@ -200,12 +221,6 @@ class _MoodPageState extends State<MoodPage> {
     );
   }
 
-  void _resetSelection() {
-    setState(() {
-      situation = null;
-      style = null;
-    });
-  }
 }
 
 class _MoodHeader extends StatelessWidget {
@@ -234,43 +249,42 @@ class _MoodHeader extends StatelessWidget {
 }
 
 class _MoodHeadline extends StatelessWidget {
-  final String? situation;
-
-  const _MoodHeadline({required this.situation});
+  const _MoodHeadline();
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Text(
+          'FIND YOUR STYLE',
+          style: TextStyle(
+            color: AppColors.point,
+            fontSize: 12,
+            letterSpacing: 1.5,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        const SizedBox(height: 12),
         const Text.rich(
           TextSpan(
-            text: '오늘 어떤 ',
-            children: [
-              TextSpan(
-                text: '스타일로\n',
-                style: TextStyle(color: AppColors.main),
-              ),
-              TextSpan(text: '입어볼까요?'),
-            ],
+            text: '오늘은 어떤 스타일로\n입을까요?',
           ),
           style: TextStyle(
             color: AppColors.ink,
-            fontSize: 26,
-            height: 1.28,
+            fontSize: 28,
+            height: 1.24,
             fontWeight: FontWeight.w900,
           ),
         ),
         const SizedBox(height: 12),
         Text(
-          situation == null
-              ? '상황과 무드를 선택하면\n나에게 딱 맞는 코디를 추천해드려요.'
-              : '$situation 무드를 선택하면\n나에게 딱 맞는 코디를 추천해드려요.',
+          '상황과 무드를 선택하면\n나에게 딱 맞는 코디를 추천해드려요.',
           style: const TextStyle(
             color: AppColors.muted,
-            fontSize: 13,
-            height: 1.55,
-            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            height: 1.5,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],
@@ -289,190 +303,125 @@ class _SectionTitle extends StatelessWidget {
       text,
       style: const TextStyle(
         color: AppColors.ink,
-        fontSize: 15,
-        fontWeight: FontWeight.w800,
+        fontSize: 20,
+        fontWeight: FontWeight.w900,
       ),
     );
   }
 }
 
-class _SituationTitleRow extends StatelessWidget {
-  final VoidCallback onReset;
+class _SectionDescription extends StatelessWidget {
+  final String text;
 
-  const _SituationTitleRow({required this.onReset});
+  const _SectionDescription(this.text);
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: _SectionTitle('상황 선택')),
-        TextButton(
-          onPressed: onReset,
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.muted,
-            visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            minimumSize: const Size(0, 30),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: const Text(
-            '초기화',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+  Widget build(BuildContext context) => Text(
+        text,
+        style: const TextStyle(
+          color: AppColors.muted,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
         ),
-      ],
-    );
-  }
+      );
 }
 
-class _SituationTile extends StatelessWidget {
-  final _MoodOption option;
-  final bool selected;
-  final VoidCallback onTap;
+class _ChoiceRow extends StatelessWidget {
+  final ScrollController controller;
+  final int itemCount;
+  final Widget Function(int index) itemBuilder;
 
-  const _SituationTile({
-    required this.option,
-    required this.selected,
-    required this.onTap,
+  const _ChoiceRow({
+    required this.controller,
+    required this.itemCount,
+    required this.itemBuilder,
   });
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        width: 54,
-        height: 94,
-        decoration: BoxDecoration(
-          color: selected ? AppColors.selectedBackground : Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: selected ? AppColors.point : AppColors.line,
-            width: selected ? 1.1 : 1,
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0d000000),
-              blurRadius: 10,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              option.icon,
-              color: selected ? AppColors.main : AppColors.ink,
-              size: 21,
-            ),
-            const SizedBox(height: 14),
-            Text(
-              option.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: selected ? AppColors.main : AppColors.ink,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
+  Widget build(BuildContext context) => Row(
+        children: [
+          Expanded(
+            child: SizedBox(
+              height: 54,
+              child: ListView.separated(
+                controller: controller,
+                scrollDirection: Axis.horizontal,
+                itemCount: itemCount,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (_, index) => itemBuilder(index),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StyleChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _StyleChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        height: 38,
-        constraints: const BoxConstraints(minWidth: 54),
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: selected ? AppColors.point : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: selected ? AppColors.point : AppColors.line,
           ),
-        ),
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: selected ? AppColors.ink : AppColors.ink,
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MoodSupportCard extends StatelessWidget {
-  final String? situation;
-  final String? style;
-
-  const _MoodSupportCard({
-    required this.situation,
-    required this.style,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final message = situation == null
-        ? '상황과 무드를 선택하면\n어울리는 코디를 찾아드릴게요.'
-        : style == null
-            ? '$situation 상황에 어울리는\n무드를 골라주세요.'
-            : '당신에게 어울리는\n$situation $style 코디를 추천해드려요.';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
-      decoration: BoxDecoration(
-        color: AppColors.canvas,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xfff0f1eb)),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.eco_outlined, color: AppColors.main, size: 24),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Text(
-              message,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.ink,
-                fontSize: 12,
-                height: 1.55,
-                fontWeight: FontWeight.w700,
+          SizedBox(
+            width: 22,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              onPressed: scrollForward,
+              icon: const Icon(
+                Icons.chevron_right_rounded,
+                size: 24,
               ),
             ),
           ),
         ],
+      );
+
+  void scrollForward() {
+    if (!controller.hasClients) return;
+    controller.animateTo(
+      (controller.offset + 180)
+          .clamp(0, controller.position.maxScrollExtent)
+          .toDouble(),
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
+}
+
+class _ChoiceChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final bool compact;
+
+  const _ChoiceChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.compact = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(28),
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          height: compact ? 42 : 54,
+          padding: EdgeInsets.symmetric(horizontal: compact ? 17 : 22),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: selected ? AppColors.point : Colors.white,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: selected ? AppColors.point : AppColors.line,
+            ),
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            softWrap: false,
+            style: TextStyle(
+              color: AppColors.ink,
+              fontSize: compact ? 13 : 15,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -480,10 +429,12 @@ class _MoodSupportCard extends StatelessWidget {
 
 class _RecommendButton extends StatelessWidget {
   final bool enabled;
+  final String label;
   final VoidCallback onPressed;
 
   const _RecommendButton({
     required this.enabled,
+    required this.label,
     required this.onPressed,
   });
 
@@ -494,26 +445,26 @@ class _RecommendButton extends StatelessWidget {
       height: 58,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: enabled ? AppColors.main : AppColors.chip,
+          backgroundColor: enabled ? AppColors.point : AppColors.chip,
           foregroundColor: enabled ? Colors.white : AppColors.muted,
           disabledBackgroundColor: AppColors.chip,
           disabledForegroundColor: AppColors.muted,
           elevation: enabled ? 8 : 0,
           shadowColor: enabled ? AppColors.buttonShadow : Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
         onPressed: enabled ? onPressed : null,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '추천 코디 보러가기',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              label,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
             ),
-            SizedBox(width: 18),
-            Icon(Icons.arrow_forward, size: 22),
+            const SizedBox(width: 18),
+            const Icon(Icons.arrow_forward, size: 22),
           ],
         ),
       ),

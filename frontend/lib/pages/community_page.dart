@@ -562,7 +562,7 @@ class _EngagementRowState extends State<_EngagementRow> {
           onTap: _toggleLike,
           child: Icon(
             widget.post.isLiked ? Icons.favorite : Icons.favorite_border,
-            color: widget.post.isLiked ? const Color(0xffd84b4b) : Colors.black,
+            color: widget.post.isLiked ? AppColors.liked : Colors.black,
             size: iconSize,
           ),
         ),

@@ -1,11 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../models/style_profile.dart';
+import '../services/outfit_recommendation_service.dart';
+import '../services/style_closet_store.dart';
 import '../theme/app_colors.dart';
 import '../widgets/avatar_memory_image.dart';
 import '../widgets/bottom_nav.dart';
-import 'community_page.dart';
+import 'closet_placeholder_page.dart';
 import 'fitting_flow_page.dart';
+import 'home_page.dart';
 import 'mood_entry_page.dart';
 import 'my_page.dart';
 
@@ -29,19 +34,34 @@ class AvatarHomePage extends StatefulWidget {
 
 class _AvatarHomePageState extends State<AvatarHomePage> {
   int _currentIndex = 0;
+  int _moodEntryKey = 0;
 
   @override
   Widget build(BuildContext context) {
     final pages = [
-      _AvatarView(avatarImageData: widget.avatarImageData),
+      HomePage(
+        personalColorProfile: widget.personalColorProfile,
+        skeletonProfile: widget.skeletonProfile,
+      ),
       MoodEntryPage(
+        key: ValueKey(_moodEntryKey),
         gender: widget.gender,
         avatarImageData: widget.avatarImageData,
         personalColorProfile: widget.personalColorProfile,
         skeletonProfile: widget.skeletonProfile,
+        onExit: () => setState(() => _currentIndex = 0),
       ),
-      const CommunityPage(),
-      const MyPage(),
+      _AvatarView(
+          gender: widget.gender,
+          personalColorProfile: widget.personalColorProfile,
+          skeletonProfile: widget.skeletonProfile,
+          avatarImageData: widget.avatarImageData,
+          onBack: () => setState(() => _currentIndex = 0)),
+      const ClosetPlaceholderPage(),
+      MyPage(
+          gender: widget.gender,
+          personalColorProfile: widget.personalColorProfile,
+          skeletonProfile: widget.skeletonProfile),
     ];
 
     return Scaffold(
@@ -53,6 +73,7 @@ class _AvatarHomePageState extends State<AvatarHomePage> {
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
+            if (index == 1) _moodEntryKey++;
             _currentIndex = index;
           });
         },
@@ -62,56 +83,384 @@ class _AvatarHomePageState extends State<AvatarHomePage> {
 }
 
 class _AvatarView extends StatefulWidget {
+  final String gender;
+  final PersonalColorProfile? personalColorProfile;
+  final SkeletonProfile? skeletonProfile;
   final String avatarImageData;
+  final VoidCallback onBack;
 
-  const _AvatarView({required this.avatarImageData});
+  const _AvatarView(
+      {required this.avatarImageData,
+      required this.onBack,
+      required this.gender,
+      this.personalColorProfile,
+      this.skeletonProfile});
 
   @override
   State<_AvatarView> createState() => _AvatarViewState();
 }
 
 class _AvatarViewState extends State<_AvatarView> {
-  _AvatarQuickAction? _expandedAction;
+  int _selectedCollection = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    StyleClosetStore.revision.addListener(_refreshCollections);
+  }
+
+  void _refreshCollections() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    StyleClosetStore.revision.removeListener(_refreshCollections);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
-        width: double.infinity,
-        color: const Color(0xfff8f7f3),
-        child: Stack(
-          children: [
-            const Positioned.fill(child: _FittingRoomBackground()),
-            Positioned.fill(
-              top: 34,
-              bottom: 20,
-              child: AvatarMemoryImage(imageData: widget.avatarImageData),
+      child: LayoutBuilder(builder: (context, constraints) {
+        final compact = constraints.maxHeight < 720;
+        final recent = _selectedCollection == 0;
+        final records =
+            recent ? StyleClosetStore.fittingRecords : const <FittingRecord>[];
+        final savedLooks = recent
+            ? const <SavedClosetLook>[]
+            : StyleClosetStore.savedClosetLooks;
+        return Container(
+          color: const Color(0xfffbfcff),
+          child: Column(children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 3, 12, 12),
+              child: Row(children: [
+                IconButton(
+                    onPressed: widget.onBack,
+                    icon:
+                        const Icon(Icons.arrow_back_ios_new_rounded, size: 19)),
+                const Expanded(
+                    child: Text('내 아바타',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: AppColors.ink,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w900))),
+                const SizedBox(width: 48),
+              ]),
             ),
-            Positioned(
-              left: 0,
-              top: 142,
-              child: _BookmarkActionRail(
-                avatarImageData: widget.avatarImageData,
-                expandedAction: _expandedAction,
-                onActionTap: _handleActionTap,
-              ),
-            ),
-          ],
-        ),
-      ),
+            Expanded(
+                child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(14, 0, 14, 16),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                        height: compact ? 278 : 340,
+                        child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                  flex: 6,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Container(
+                                        color: const Color(0xfff0f5fd),
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8, 10, 8, 0),
+                                        child: AvatarMemoryImage(
+                                            imageData: widget.avatarImageData)),
+                                  )),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                  flex: 4,
+                                  child: Column(children: [
+                                    Expanded(
+                                        child: _AvatarActionCard(
+                                            icon: Icons.checkroom_outlined,
+                                            title: '피팅룸',
+                                            subtitle: '옷을 입혀보고\n코디해보세요.',
+                                            onTap: () => _openAction(
+                                                _AvatarQuickAction
+                                                    .fittingRoom))),
+                                    const SizedBox(height: 12),
+                                    Expanded(
+                                        child: _AvatarActionCard(
+                                            icon: Icons.favorite_border_rounded,
+                                            title: '위시리스트',
+                                            subtitle: '저장한 아이템과\n코디를 모아보세요.',
+                                            onTap: () => _openAction(
+                                                _AvatarQuickAction.wishlist))),
+                                  ])),
+                            ])),
+                    const SizedBox(height: 18),
+                    Row(children: [
+                      Expanded(
+                          child: _CollectionTab(
+                              label: '최근 착용',
+                              selected: _selectedCollection == 0,
+                              onTap: () =>
+                                  setState(() => _selectedCollection = 0))),
+                      Expanded(
+                        child: _CollectionTab(
+                            label: '저장한 코디',
+                            selected: _selectedCollection == 1,
+                            onTap: () =>
+                                setState(() => _selectedCollection = 1)),
+                      ),
+                    ]),
+                    const SizedBox(height: 12),
+                    if (recent && records.isNotEmpty)
+                      SizedBox(
+                          height: 202,
+                          child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: records.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 10),
+                              itemBuilder: (context, index) =>
+                                  _RecentFitCard(record: records[index])))
+                    else if (!recent && savedLooks.isNotEmpty)
+                      SizedBox(
+                          height: 202,
+                          child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: savedLooks.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 10),
+                              itemBuilder: (context, index) => _SavedLookCard(
+                                  look: savedLooks[index],
+                                  onTap: () => showSavedLookFittingSheet(
+                                      context,
+                                      look: savedLooks[index],
+                                      avatarImageData:
+                                          widget.avatarImageData))))
+                    else
+                      _CollectionEmptyState(
+                          label: recent
+                              ? '피팅한 코디가 여기에 모여요.'
+                              : '마음에 드는 아이템을 저장해보세요.'),
+                  ]),
+            )),
+          ]),
+        );
+      }),
     );
   }
 
-  void _handleActionTap(_AvatarQuickAction action) {
-    if (_expandedAction == action) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => action.page(widget.avatarImageData)),
-      );
-      return;
-    }
+  void _openAction(_AvatarQuickAction action) {
+    Navigator.push(context,
+        MaterialPageRoute(builder: (_) => action.page(widget.avatarImageData)));
+  }
+}
 
-    setState(() => _expandedAction = action);
+class _AvatarActionCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _AvatarActionCard(
+      {required this.icon,
+      required this.title,
+      required this.subtitle,
+      required this.onTap});
+  @override
+  Widget build(BuildContext context) => Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(17),
+      child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(17),
+          child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(17),
+                  border: Border.all(color: const Color(0xffe8eef8)),
+                  boxShadow: const [
+                    BoxShadow(
+                        color: Color(0x080c2856),
+                        blurRadius: 12,
+                        offset: Offset(0, 4))
+                  ]),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icon, color: AppColors.main, size: 28),
+                    const SizedBox(height: 10),
+                    Row(children: [
+                      Expanded(
+                          child: Text(title,
+                              style: const TextStyle(
+                                  color: AppColors.ink,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w900))),
+                      const Icon(Icons.chevron_right_rounded,
+                          color: AppColors.muted)
+                    ]),
+                    const SizedBox(height: 5),
+                    Text(subtitle,
+                        style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 11,
+                            height: 1.45,
+                            fontWeight: FontWeight.w600))
+                  ]))));
+}
+
+class _CollectionTab extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  const _CollectionTab(
+      {required this.label, required this.selected, required this.onTap});
+  @override
+  Widget build(BuildContext context) => InkWell(
+      onTap: onTap,
+      child: Container(
+          padding: const EdgeInsets.only(bottom: 9),
+          decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(
+                      color:
+                          selected ? AppColors.main : const Color(0xffe8edf5),
+                      width: selected ? 2 : 1))),
+          child: Text(label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  color: selected ? AppColors.ink : AppColors.muted,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800))));
+}
+
+class _CollectionEmptyState extends StatelessWidget {
+  final String label;
+  const _CollectionEmptyState({required this.label});
+  @override
+  Widget build(BuildContext context) => Container(
+      height: 145,
+      width: double.infinity,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xffedf1f7))),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const Icon(Icons.checkroom_outlined,
+            color: Color(0xffb7d1f8), size: 30),
+        const SizedBox(height: 8),
+        Text(label,
+            style: const TextStyle(
+                color: AppColors.muted,
+                fontSize: 12,
+                fontWeight: FontWeight.w600))
+      ]));
+}
+
+class _RecentFitCard extends StatelessWidget {
+  final FittingRecord record;
+  const _RecentFitCard({required this.record});
+  @override
+  Widget build(BuildContext context) => Container(
+      width: 138,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: const Color(0xffedf1f7))),
+      child: Column(children: [
+        Expanded(child: AvatarMemoryImage(imageData: record.avatarImageData)),
+        Padding(
+            padding: const EdgeInsets.all(9),
+            child: Text('${record.createdAt.month}.${record.createdAt.day} 피팅',
+                style: const TextStyle(
+                    color: AppColors.ink,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800)))
+      ]));
+}
+
+class _SavedLookCard extends StatelessWidget {
+  final SavedClosetLook look;
+  final VoidCallback onTap;
+  const _SavedLookCard({required this.look, required this.onTap});
+  @override
+  Widget build(BuildContext context) => Semantics(
+      button: true,
+      label: '${look.title} 코디 보기',
+      child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+              width: 138,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: const Color(0xffedf1f7))),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _SavedLookPreview(items: look.items)),
+                    Padding(
+                        padding: const EdgeInsets.all(9),
+                        child: Text(look.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                color: AppColors.ink,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800)))
+                  ]))));
+}
+
+class _SavedLookPreview extends StatelessWidget {
+  final List<OutfitItem> items;
+  const _SavedLookPreview({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    const places = [
+      Rect.fromLTWH(.04, .08, .48, .54),
+      Rect.fromLTWH(.52, .03, .41, .43),
+      Rect.fromLTWH(.18, .49, .47, .46),
+      Rect.fromLTWH(.60, .48, .35, .46),
+    ];
+    return LayoutBuilder(
+        builder: (context, size) => ColoredBox(
+              color: const Color(0xfff8faff),
+              child: Stack(children: [
+                for (var index = 0;
+                    index < items.length && index < places.length;
+                    index++)
+                  Positioned(
+                    left: size.maxWidth * places[index].left,
+                    top: size.maxHeight * places[index].top,
+                    width: size.maxWidth * places[index].width,
+                    height: size.maxHeight * places[index].height,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8)),
+                      child: _savedItemImage(items[index].imageUrl),
+                    ),
+                  ),
+              ]),
+            ));
+  }
+
+  Widget _savedItemImage(String value) {
+    if (value.startsWith('data:')) {
+      return Image.memory(base64Decode(value.split(',').last),
+          fit: BoxFit.contain);
+    }
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return Image.network(value, fit: BoxFit.contain);
+    }
+    return const Center(
+        child: Icon(Icons.checkroom_outlined, color: AppColors.main));
   }
 }
 

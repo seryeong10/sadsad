@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'demo_catalog.dart';
+import 'api_config.dart';
 
 class OutfitRecommendationService {
-  static const String _baseUrl = 'http://54.180.152.237:8000';
+  static const bool _useMockDemo = bool.fromEnvironment('MOCK_DEMO_MODE');
 
   static Future<OutfitRecommendationResponse> recommendOutfits({
     required String situation,
@@ -13,7 +15,16 @@ class OutfitRecommendationService {
     String skeletonType = '',
     int limit = 30,
   }) async {
-    final uri = Uri.parse('$_baseUrl/recommend-outfits').replace(
+    if (_useMockDemo) {
+      return OutfitRecommendationResponse(
+        situation: situation,
+        style: style,
+        source: 'mock_demo',
+        items: (await DemoCatalog.load()).take(limit.clamp(0, 6)).toList(),
+      );
+    }
+
+    final uri = ApiConfig.uri('recommend-outfits').replace(
       queryParameters: {
         'situation': situation,
         'style': style,
@@ -24,14 +35,14 @@ class OutfitRecommendationService {
       },
     );
 
-    final response = await http.get(uri);
+    final response = await http.get(uri, headers: await ApiConfig.headers());
     if (response.statusCode != 200) {
       throw Exception('코디 추천 실패: ${response.body}');
     }
 
     return OutfitRecommendationResponse.fromJson(
       jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>,
-      baseUrl: _baseUrl,
+      baseUrl: ApiConfig.baseUrl,
     );
   }
 }
@@ -72,6 +83,29 @@ class OutfitRecommendationResponse {
 }
 
 class OutfitItem {
+  Map<String, dynamic> toJson() => {
+        'image_id': imageId,
+        'title': title,
+        'image_url': imageUrl,
+        'link': link,
+        'price': price,
+        'mall_name': mallName,
+        'style': style,
+        'sub_style': subStyle,
+        'item_type': itemType,
+        'category': category,
+        'color': color,
+        'sub_color': subColor,
+        'fit': fit,
+        'material': material,
+        'print': print,
+        'detail': detail,
+        'situation_tags': situationTags,
+        'mood_tags': moodTags,
+        'source_query': sourceQuery,
+        'recommendation_score': recommendationScore,
+        'recommendation_reasons': recommendationReasons,
+      };
   final String imageId;
   final String title;
   final String imageUrl;
@@ -121,29 +155,35 @@ class OutfitItem {
   factory OutfitItem.localWardrobe({
     required String imagePath,
     required String category,
+    String? itemName,
+    String color = '',
+    String pattern = '',
+    List<String> styleTags = const [],
+    String material = '분석 대기',
+    String? imageId,
   }) {
     final timestamp = DateTime.now().microsecondsSinceEpoch;
     final itemType = category == '전체' ? '의류' : category;
 
     return OutfitItem(
-      imageId: 'wardrobe_$timestamp',
-      title: '내 옷 $itemType',
+      imageId: imageId ?? 'wardrobe_$timestamp',
+      title: itemName ?? '내 옷 $itemType',
       imageUrl: imagePath,
       link: '',
       price: '',
       mallName: '내 옷장',
-      style: '',
+      style: styleTags.take(2).join(' '),
       subStyle: '',
       itemType: itemType,
       category: itemType,
-      color: '분석 대기',
+      color: color,
       subColor: '',
       fit: '',
-      material: '',
-      print: '',
-      detail: '사진 촬영 등록',
+      material: material,
+      print: pattern,
+      detail: '옷장에 직접 등록',
       situationTags: '',
-      moodTags: '',
+      moodTags: styleTags.join('|'),
       sourceQuery: 'wardrobe_capture',
       recommendationScore: 0,
       recommendationReasons: const ['직접 등록'],
@@ -155,13 +195,16 @@ class OutfitItem {
     required String baseUrl,
   }) {
     final imagePath = json['image_url'] as String? ?? '';
-    final imageUrl =
-        imagePath.startsWith('http') ? imagePath : '$baseUrl$imagePath';
+    final imageUrl = imagePath.startsWith('http') ||
+            imagePath.startsWith('data:') ||
+            imagePath.startsWith('blob:')
+        ? imagePath
+        : '$baseUrl$imagePath';
 
     return OutfitItem(
       imageId: json['image_id'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      imageUrl: imageUrl,
+      imageUrl: ApiConfig.productImage(imageUrl),
       link: json['link'] as String? ?? '',
       price: json['price']?.toString() ?? '',
       mallName: json['mall_name'] as String? ?? '',

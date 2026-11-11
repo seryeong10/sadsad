@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/style_profile.dart';
 import '../services/personal_color_service.dart';
@@ -12,7 +12,7 @@ import 'skeleton_diagnosis_page.dart';
 class PersonalColorIntroPage extends StatelessWidget {
   final String gender;
   final String avatarImageData;
-  final File sourceFaceImage;
+  final XFile sourceFaceImage;
 
   const PersonalColorIntroPage({
     super.key,
@@ -163,7 +163,6 @@ class _PersonalColorPreviewPageState extends State<PersonalColorPreviewPage> {
                     children: [
                       _ColorResultHero(
                         result: result,
-                        sourceFaceImage: null,
                       ),
                       const SizedBox(height: 12),
                       _PaletteCard(result: result),
@@ -224,13 +223,15 @@ class _PersonalColorPreviewPageState extends State<PersonalColorPreviewPage> {
 class PersonalColorLoadingPage extends StatefulWidget {
   final String gender;
   final String avatarImageData;
-  final File sourceFaceImage;
+  final XFile sourceFaceImage;
+  final bool generateAvatarAfterDiagnosis;
 
   const PersonalColorLoadingPage({
     super.key,
     required this.gender,
     required this.avatarImageData,
     required this.sourceFaceImage,
+    this.generateAvatarAfterDiagnosis = false,
   });
 
   @override
@@ -293,6 +294,7 @@ class _PersonalColorLoadingPageState extends State<PersonalColorLoadingPage> {
             gender: widget.gender,
             avatarImageData: widget.avatarImageData,
             sourceFaceImage: widget.sourceFaceImage,
+            generateAvatarAfterDiagnosis: widget.generateAvatarAfterDiagnosis,
             result: result,
           ),
         ),
@@ -315,41 +317,40 @@ class _PersonalColorLoadingPageState extends State<PersonalColorLoadingPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _BackButton(onPressed: () => Navigator.pop(context)),
-              const SizedBox(height: 34),
-              const Center(
-                child: Column(
-                  children: [
-                    Text(
-                      'AI가 톤 경향을\n분석 중이에요',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.ink,
-                        fontSize: 25,
-                        height: 1.3,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    SizedBox(height: 14),
-                    Text(
-                      '얼굴 이미지의 색상 특징을 바탕으로\n추천에 반영할 컬러를 찾고 있어요.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 13,
-                        height: 1.55,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
+              Row(
+                children: [
+                  _BackButton(onPressed: () => Navigator.pop(context)),
+                  const Spacer(),
+                ],
+              ),
+              const SizedBox(height: 28),
+              const Text('PERSONAL STYLE',
+                  style: TextStyle(
+                      color: AppColors.main,
+                      fontSize: 11,
+                      letterSpacing: .8,
+                      fontWeight: FontWeight.w800)),
+              const SizedBox(height: 12),
+              const Text(
+                '나에게 어울리는\n스타일을 찾고 있어요',
+                style: TextStyle(
+                    color: AppColors.ink,
+                    fontSize: 24,
+                    height: 1.28,
+                    fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                '퍼스널 컬러와 스타일 정보를 분석해\n당신에게 어울리는 코디를 준비하고 있어요.',
+                style: TextStyle(
+                    color: AppColors.muted,
+                    fontSize: 13,
+                    height: 1.5,
+                    fontWeight: FontWeight.w600),
               ),
               const Spacer(),
-              Center(
-                child:
-                    _LoadingFaceRing(sourceFaceImage: widget.sourceFaceImage),
-              ),
-              const SizedBox(height: 34),
+              const Center(child: _LoadingStyleOrbits()),
+              const SizedBox(height: 18),
               if (_hasError)
                 _AnalysisError(
                   message: _errorMessage ?? '분석 중 문제가 생겼어요.',
@@ -363,7 +364,15 @@ class _PersonalColorLoadingPageState extends State<PersonalColorLoadingPage> {
                   },
                 )
               else
-                _AnalysisSteps(activeStepIndex: _activeStepIndex),
+                const Center(
+                  child: Text('잠시만 기다려주세요.\n당신만의 스타일을 찾아드릴게요.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 13,
+                          height: 1.55,
+                          fontWeight: FontWeight.w600)),
+                ),
               const Spacer(),
               Container(
                 width: double.infinity,
@@ -375,12 +384,12 @@ class _PersonalColorLoadingPageState extends State<PersonalColorLoadingPage> {
                 ),
                 child: const Row(
                   children: [
-                    Icon(Icons.lightbulb_outline,
-                        color: AppColors.main, size: 18),
+                    Icon(Icons.info_outline_rounded,
+                        color: AppColors.main, size: 20),
                     SizedBox(width: 9),
                     Expanded(
                       child: Text(
-                        '조명과 카메라 색감에 따라 결과가 달라질 수 있어요.',
+                        '진단 결과를 바탕으로 나에게 어울리는 컬러와 코디를 추천해드릴게요.',
                         style: TextStyle(
                           color: AppColors.muted,
                           fontSize: 12,
@@ -467,7 +476,8 @@ class _AnalysisError extends StatelessWidget {
 class PersonalColorResultPage extends StatelessWidget {
   final String gender;
   final String avatarImageData;
-  final File sourceFaceImage;
+  final XFile sourceFaceImage;
+  final bool generateAvatarAfterDiagnosis;
   final PersonalColorProfile result;
 
   const PersonalColorResultPage({
@@ -475,6 +485,7 @@ class PersonalColorResultPage extends StatelessWidget {
     required this.gender,
     required this.avatarImageData,
     required this.sourceFaceImage,
+    this.generateAvatarAfterDiagnosis = false,
     required this.result,
   });
 
@@ -490,18 +501,7 @@ class PersonalColorResultPage extends StatelessWidget {
               Row(
                 children: [
                   _BackButton(onPressed: () => Navigator.pop(context)),
-                  const Expanded(
-                    child: Text(
-                      'AI 컬러 분석 결과',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.ink,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
+                  const Spacer(),
                 ],
               ),
               const SizedBox(height: 14),
@@ -511,26 +511,30 @@ class PersonalColorResultPage extends StatelessWidget {
                     children: [
                       _ColorResultHero(
                         result: result,
-                        sourceFaceImage: sourceFaceImage,
                       ),
-                      const SizedBox(height: 12),
-                      _PaletteCard(result: result),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       _ColorUsageCard(result: result),
+                      const SizedBox(height: 9),
+                      _PaletteCard(result: result),
+                      const SizedBox(height: 9),
+                      const _ResultNoteCard(),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 14),
               _OliveButton(
-                text: '다음: 나에게 맞는 핏 찾기',
-                onPressed: () => Navigator.pushReplacement(
+                text: '골격진단하러 가기  →',
+                onPressed: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => SkeletonDiagnosisIntroPage(
                       gender: gender,
                       avatarImageData: avatarImageData,
                       personalColorProfile: result,
+                      sourceFaceImage: sourceFaceImage,
+                      generateAvatarAfterDiagnosis:
+                          generateAvatarAfterDiagnosis,
                     ),
                   ),
                 ),
@@ -604,7 +608,7 @@ class PersonalColorResultPage extends StatelessWidget {
 }
 
 class _FacePreview extends StatelessWidget {
-  final File sourceFaceImage;
+  final XFile sourceFaceImage;
 
   const _FacePreview({required this.sourceFaceImage});
 
@@ -623,7 +627,19 @@ class _FacePreview extends StatelessWidget {
             border: Border.all(color: AppColors.point),
           ),
           child: ClipOval(
-            child: Image.file(sourceFaceImage, fit: BoxFit.cover),
+            child: FutureBuilder(
+              future: sourceFaceImage.readAsBytes(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const ColoredBox(
+                    color: AppColors.selectedBackground,
+                    child: Center(
+                        child: CircularProgressIndicator(strokeWidth: 2)),
+                  );
+                }
+                return Image.memory(snapshot.data!, fit: BoxFit.cover);
+              },
+            ),
           ),
         ),
         Transform.translate(
@@ -734,10 +750,8 @@ class _PhotoNotice extends StatelessWidget {
   }
 }
 
-class _LoadingFaceRing extends StatelessWidget {
-  final File sourceFaceImage;
-
-  const _LoadingFaceRing({required this.sourceFaceImage});
+class _LoadingStyleOrbits extends StatelessWidget {
+  const _LoadingStyleOrbits();
 
   @override
   Widget build(BuildContext context) {
@@ -747,31 +761,56 @@ class _LoadingFaceRing extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          const SizedBox(
-            width: 214,
-            height: 214,
-            child: CircularProgressIndicator(
-              strokeWidth: 6,
-              color: AppColors.main,
-              backgroundColor: AppColors.chip,
-            ),
-          ),
+          Positioned(
+              top: 10, child: _OrbitBubble(color: AppColors.point, size: 112)),
+          Positioned(
+              left: 7,
+              top: 65,
+              child: _OrbitBubble(color: const Color(0xffdceaff), size: 112)),
+          Positioned(
+              right: 7,
+              top: 65,
+              child: _OrbitBubble(color: const Color(0xffe9e4fa), size: 112)),
+          Positioned(
+              bottom: 3,
+              child: _OrbitBubble(color: const Color(0xffe7eafa), size: 112)),
           Container(
-            width: 174,
-            height: 174,
-            padding: const EdgeInsets.all(6),
+            width: 96,
+            height: 96,
+            alignment: Alignment.center,
             decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            child: ClipOval(
-              child: Image.file(sourceFaceImage, fit: BoxFit.cover),
-            ),
+                color: Colors.white, shape: BoxShape.circle),
+            child: const SizedBox(
+                width: 68,
+                height: 68,
+                child: CircularProgressIndicator(
+                    strokeWidth: 5,
+                    color: AppColors.main,
+                    backgroundColor: AppColors.chip)),
           ),
         ],
       ),
     );
   }
+}
+
+class _OrbitBubble extends StatelessWidget {
+  final Color color;
+  final double size;
+  const _OrbitBubble({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(colors: [
+            color.withValues(alpha: .48),
+            color.withValues(alpha: .08)
+          ]),
+        ),
+      );
 }
 
 class _AnalysisSteps extends StatelessWidget {
@@ -848,12 +887,8 @@ class _StepRow extends StatelessWidget {
 
 class _ColorResultHero extends StatelessWidget {
   final PersonalColorProfile result;
-  final File? sourceFaceImage;
 
-  const _ColorResultHero({
-    required this.result,
-    required this.sourceFaceImage,
-  });
+  const _ColorResultHero({required this.result});
 
   @override
   Widget build(BuildContext context) {
@@ -861,106 +896,92 @@ class _ColorResultHero extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accent.withValues(alpha: 0.18)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(4, 3, 4, 15),
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Container(
-            width: 142,
-            height: 180,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: sourceFaceImage == null
-                  ? _PreviewFace(type: result.type)
-                  : Image.file(sourceFaceImage!, fit: BoxFit.cover),
-            ),
-          ),
-          const SizedBox(width: 18),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'BEST SEASON TYPE',
+          Positioned(
+              right: 18, top: -12, child: _SeasonOrb(color: accent, size: 66)),
+          Positioned(
+              right: 58, top: 33, child: _SeasonOrb(color: accent, size: 40)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('PERSONAL COLOR',
                   style: TextStyle(
-                    color: AppColors.muted,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 7,
-                  runSpacing: 3,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      result.label,
-                      style: TextStyle(
-                        color: accent,
-                        fontSize: 29,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    Text(
-                      '(${_seasonEnglishName(result.type)})',
-                      style: TextStyle(
-                        color: accent,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  result.summary,
-                  style: const TextStyle(
-                    color: AppColors.ink,
-                    fontSize: 13,
-                    height: 1.55,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: _seasonTags(result.type).map((tag) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: accent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(99),
-                      ),
-                      child: Text(
-                        tag,
+                      color: AppColors.main,
+                      fontSize: 11,
+                      letterSpacing: .8,
+                      fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                Text(result.label,
+                    style: const TextStyle(
+                        color: AppColors.ink,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w900)),
+                const SizedBox(width: 9),
+                Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                        color: accent.withValues(alpha: .1),
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Text(_seasonEnglishName(result.type).toUpperCase(),
                         style: TextStyle(
-                          color: accent,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
+                            color: accent,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800))),
+              ]),
+              const SizedBox(height: 7),
+              Padding(
+                  padding: const EdgeInsets.only(right: 70),
+                  child: Text(result.summary,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 12,
+                          height: 1.45,
+                          fontWeight: FontWeight.w600))),
+              const SizedBox(height: 10),
+              Wrap(
+                  spacing: 7,
+                  runSpacing: 6,
+                  children: _seasonTags(result.type)
+                      .take(4)
+                      .map((tag) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                              color: accent.withValues(alpha: .09),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Text('#$tag',
+                              style: TextStyle(
+                                  color: accent,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800))))
+                      .toList()),
+            ],
           ),
         ],
       ),
     );
   }
+}
+
+class _SeasonOrb extends StatelessWidget {
+  final Color color;
+  final double size;
+  const _SeasonOrb({required this.color, required this.size});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+            color: color.withValues(alpha: .13), shape: BoxShape.circle),
+      );
 }
 
 class _PreviewFace extends StatelessWidget {
@@ -1004,7 +1025,7 @@ class _PaletteCard extends StatelessWidget {
           const Text(
             'BEST COLORS',
             style: TextStyle(
-              color: AppColors.muted,
+              color: AppColors.main,
               fontSize: 11,
               fontWeight: FontWeight.w900,
             ),
@@ -1057,6 +1078,14 @@ class _PaletteCard extends StatelessWidget {
 
   List<_PaletteSwatch> _paletteSwatches(PersonalColorProfile result) {
     final names = result.colors.take(6).toList();
+    final defaults = _previewResults
+        .firstWhere((profile) => profile.type == result.type,
+            orElse: () => _previewResults[1])
+        .colors;
+    for (final name in defaults) {
+      if (names.length >= 6) break;
+      if (!names.contains(name)) names.add(name);
+    }
     final hexColors = result.bestHexColors.take(6).toList();
     final fallbackColors = _fallbackPaletteColors(result.type);
 
@@ -1192,38 +1221,64 @@ class _ColorUsageCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '코디 추천에 이렇게 반영돼요',
+            '이런 분위기가 잘 어울려요',
             style: TextStyle(
-              color: AppColors.ink,
-              fontSize: 13,
+              color: AppColors.main,
+              fontSize: 14,
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 11),
-          _UsageRow(
-            '상의',
-            _usageGuide(result.type).top,
-            color: _seasonAccent(result.type).withValues(alpha: 0.1),
-            textColor: _seasonAccent(result.type),
-          ),
-          const SizedBox(height: 8),
-          _UsageRow(
-            '포인트',
-            _usageGuide(result.type).point,
-            color: _seasonAccent(result.type).withValues(alpha: 0.1),
-            textColor: _seasonAccent(result.type),
-          ),
-          const SizedBox(height: 8),
-          _UsageRow(
-            '주의',
-            _usageGuide(result.type).avoid,
-            color: _seasonAccent(result.type).withValues(alpha: 0.1),
-            textColor: _seasonAccent(result.type),
-          ),
+          const SizedBox(height: 9),
+          Text(_seasonMoodDescription(result.type),
+              style: const TextStyle(
+                  color: AppColors.muted,
+                  fontSize: 12,
+                  height: 1.5,
+                  fontWeight: FontWeight.w600)),
         ],
       ),
     );
   }
+}
+
+String _seasonMoodDescription(String type) {
+  switch (type) {
+    case 'spring_warm':
+      return '맑고 화사한 느낌이 강해 생기 있고 사랑스러운 분위기가 잘 어울려요. 밝고 따뜻한 컬러로 얼굴이 더 화사해 보여요.';
+    case 'summer_cool':
+      return '맑고 시원한 느낌이 강해 차분하고 깨끗한 분위기가 잘 어울려요. 부드럽고 은은한 컬러로 얼굴이 더 환해 보여요.';
+    case 'autumn_warm':
+      return '차분하고 따뜻한 느낌이 강해 자연스럽고 고급스러운 분위기가 잘 어울려요. 부드럽고 깊이 있는 컬러가 잘 어울려요.';
+    case 'winter_cool':
+      return '선명하고 또렷한 느낌이 강해 세련되고 시크한 분위기가 잘 어울려요. 깨끗하고 대비감 있는 컬러가 인상을 살려줘요.';
+    default:
+      return '분석된 컬러와 어울리는 분위기를 코디 추천에 반영할게요.';
+  }
+}
+
+class _ResultNoteCard extends StatelessWidget {
+  const _ResultNoteCard();
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
+        decoration: BoxDecoration(
+            color: AppColors.canvas, borderRadius: BorderRadius.circular(12)),
+        child:
+            const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Icon(Icons.info_outline_rounded, color: AppColors.main, size: 20),
+          SizedBox(width: 9),
+          Expanded(
+              child: Text(
+                  '이 결과는 스타일 추천을 위한 간이 분석이에요. 조명, 메이크업, 카메라 색감에 따라 달라질 수 있어요.',
+                  style: TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 11,
+                      height: 1.4,
+                      fontWeight: FontWeight.w600))),
+        ]),
+      );
 }
 
 class _UsageGuide {
@@ -1447,10 +1502,10 @@ class _OliveButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: AppColors.main,
-          foregroundColor: Colors.white,
+          backgroundColor: AppColors.point,
+          foregroundColor: AppColors.ink,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(28),
           ),
         ),
         child: Text(

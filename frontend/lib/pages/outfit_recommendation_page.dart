@@ -5,8 +5,7 @@ import '../models/style_profile.dart';
 import '../services/outfit_recommendation_service.dart';
 import '../services/style_closet_store.dart';
 import '../theme/app_colors.dart';
-
-enum _CoordiMode { mix, dress }
+import '../widgets/outfit_image.dart';
 
 class OutfitRecommendationPage extends StatefulWidget {
   final String gender;
@@ -33,7 +32,6 @@ class OutfitRecommendationPage extends StatefulWidget {
 
 class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
   late final Future<OutfitRecommendationResponse> _recommendation;
-  _CoordiMode _mode = _CoordiMode.mix;
 
   bool get _isMale => widget.gender.toLowerCase() == 'male';
 
@@ -98,11 +96,14 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
                     skeletonProfile: widget.skeletonProfile,
                   ),
                 ),
-                if (!_isMale)
-                  SliverToBoxAdapter(
-                    child: _ModeTabs(
-                      mode: _mode,
-                      onChanged: (mode) => setState(() => _mode = mode),
+                if (data.source == 'product_catalog')
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(24, 12, 24, 0),
+                      child: Text(
+                        '수집된 실제 상품을 프로필에 맞춰 추천합니다. 가격은 수집 당시 정보이며, 현재 가격·재고는 판매 페이지에서 확인해주세요.',
+                        style: TextStyle(color: AppColors.muted, fontSize: 12),
+                      ),
                     ),
                   ),
                 if (sections.isEmpty)
@@ -156,18 +157,13 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
   List<_OutfitSectionData> _visibleSections(
     Map<String, List<OutfitItem>> groups,
   ) {
-    if (!_isMale && _mode == _CoordiMode.dress) {
-      return [
-        _OutfitSectionData(
-          itemType: '원피스',
-          icon: Icons.checkroom_outlined,
-          helper: '하나만으로 완성되는 원피스 코디예요.',
-          items: groups['원피스']!,
-        ),
-      ].where((section) => section.items.isNotEmpty).toList();
-    }
-
     final sections = [
+      if (!_isMale)
+        _OutfitSectionData(
+            itemType: '원피스',
+            icon: Icons.checkroom_outlined,
+            helper: '하나만으로 완성되는 원피스 코디예요.',
+            items: groups['원피스']!),
       _OutfitSectionData(
         itemType: '상의',
         icon: Icons.checkroom_outlined,
@@ -298,110 +294,7 @@ class _RecommendationHeader extends StatelessWidget {
               ),
             ],
           ),
-          if (personalColorProfile != null || skeletonProfile != null) ...[
-            const SizedBox(height: 10),
-            _PersonalFitSummary(
-              personalColor: personalColorProfile,
-              skeleton: skeletonProfile,
-            ),
-          ],
         ],
-      ),
-    );
-  }
-}
-
-class _PersonalFitSummary extends StatelessWidget {
-  final PersonalColorProfile? personalColor;
-  final SkeletonProfile? skeleton;
-
-  const _PersonalFitSummary({
-    required this.personalColor,
-    required this.skeleton,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final fitConcern = skeleton?.fitConcern.trim() ?? '';
-    final hasFitConcern = fitConcern.isNotEmpty && fitConcern != '없음';
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 11),
-      decoration: BoxDecoration(
-        color: AppColors.selectedBackground,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.point),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: [
-              if (personalColor != null) _FitChip(text: personalColor!.label),
-              if (skeleton != null) _FitChip(text: '${skeleton!.type} 골격'),
-              if (hasFitConcern) _FitChip(text: fitConcern),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _reasonText,
-            style: const TextStyle(
-              color: AppColors.ink,
-              fontSize: 11,
-              height: 1.42,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String get _reasonText {
-    final fitConcern = skeleton?.fitConcern.trim() ?? '';
-    final hasFitConcern = fitConcern.isNotEmpty && fitConcern != '없음';
-
-    if (personalColor != null && skeleton != null) {
-      if (hasFitConcern) {
-        return '${personalColor!.label} 추천 색상과 ${skeleton!.type} 골격, '
-            '$fitConcern 포인트를 반영해 먼저 골랐어요.';
-      }
-      return '${personalColor!.label} 추천 색상과 ${skeleton!.type} 골격 스타일을 반영해 먼저 골랐어요.';
-    }
-    if (personalColor != null) {
-      return '${personalColor!.label} 추천 색상을 반영해 어울리는 톤을 먼저 골랐어요.';
-    }
-    if (hasFitConcern) {
-      return '${skeleton!.type} 골격 스타일과 $fitConcern 포인트를 반영해 '
-          '추천 실루엣을 먼저 골랐어요.';
-    }
-    return '${skeleton!.type} 골격 스타일을 반영해 추천 실루엣을 먼저 골랐어요.';
-  }
-}
-
-class _FitChip extends StatelessWidget {
-  final String text;
-
-  const _FitChip({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(7),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: AppColors.main,
-          fontSize: 10,
-          fontWeight: FontWeight.w900,
-        ),
       ),
     );
   }
@@ -477,85 +370,6 @@ class _SelectionInfoCard extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _ModeTabs extends StatelessWidget {
-  final _CoordiMode mode;
-  final ValueChanged<_CoordiMode> onChanged;
-
-  const _ModeTabs({
-    required this.mode,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 0),
-      child: Container(
-        height: 38,
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.line),
-        ),
-        child: Row(
-          children: [
-            _ModeTabButton(
-              text: '아이템별 추천',
-              selected: mode == _CoordiMode.mix,
-              onTap: () => onChanged(_CoordiMode.mix),
-            ),
-            _ModeTabButton(
-              text: '원피스 추천',
-              selected: mode == _CoordiMode.dress,
-              onTap: () => onChanged(_CoordiMode.dress),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ModeTabButton extends StatelessWidget {
-  final String text;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _ModeTabButton({
-    required this.text,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 160),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selected ? AppColors.main : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: selected ? Colors.white : AppColors.ink,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -693,18 +507,9 @@ class _OutfitPickCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: Image.network(
-                    item.imageUrl,
+                  child: OutfitImage(
+                    value: item.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) {
-                      return const ColoredBox(
-                        color: AppColors.canvas,
-                        child: Icon(
-                          Icons.checkroom_outlined,
-                          color: AppColors.main,
-                        ),
-                      );
-                    },
                   ),
                 ),
                 Padding(
@@ -816,7 +621,7 @@ class _FavoriteButton extends StatelessWidget {
             ),
             child: Icon(
               liked ? Icons.favorite : Icons.favorite_border,
-              color: liked ? AppColors.main : AppColors.ink,
+              color: liked ? AppColors.liked : AppColors.ink,
               size: 14,
             ),
           ),

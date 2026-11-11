@@ -42,7 +42,10 @@ class AvatarLoadingView extends StatelessWidget {
           const Text(
             'AI가 아바타를 생성 중입니다',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+            style: TextStyle(
+                color: AppColors.main,
+                fontSize: 19,
+                fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
           const Text(

@@ -35,7 +35,7 @@ try {
     foreach ($endpoint in @('/generate-avatar', '/analyze-personal-color', '/api/analyze-closet-item', '/virtual-try-on', '/api/weather')) {
         if (!$schema.paths.$endpoint) { throw "Backend is missing $endpoint" }
     }
-    flutter build web --release "--dart-define-from-file=$definesPath" --dart-define=API_BASE_URL=/backend --dart-define=MOCK_DEMO_MODE=false
+    flutter build web --release "--dart-define-from-file=$definesPath" "--dart-define=API_BASE_URL=$backend" --dart-define=MOCK_DEMO_MODE=false
     if ($LASTEXITCODE -ne 0) { throw 'Live web build failed.' }
     $deployPath = Join-Path $PSScriptRoot '.vercel-live'
     New-Item -ItemType Directory -Force -Path $deployPath | Out-Null

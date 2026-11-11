@@ -3,6 +3,7 @@
 .venv/
 .tools/
 .vercel-backend/
+/.vercel/
 .tmp/
 .tmp-*
 /output/

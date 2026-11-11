@@ -6,6 +6,8 @@ $obsoleteEntry = Join-Path $destination 'app.py'
 if (Test-Path -LiteralPath $obsoleteEntry) { Remove-Item -LiteralPath $obsoleteEntry }
 Copy-Item -Path (Join-Path $PSScriptRoot 'vercel_backend/*') -Destination $destination -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'vercel_backend/.python-version') -Destination $destination -Force
+$oldRequirements = Join-Path $destination 'requirements.txt'
+if (Test-Path -LiteralPath $oldRequirements) { Remove-Item -LiteralPath $oldRequirements }
 $backendDestination = Join-Path $destination 'backend'
 New-Item -ItemType Directory -Force -Path $backendDestination | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'backend/app') -Destination $backendDestination -Recurse -Force

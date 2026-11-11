@@ -35,3 +35,11 @@ flutter build web --release \
   --dart-define=FIREBASE_REST_AUTH=true \
   "--dart-define=FIREBASE_API_KEY=$firebase_key" \
   "--dart-define=API_BASE_URL=$api_url"
+
+# A successful command without web output must never publish an empty site.
+test -s "$repo_root/frontend/build/web/index.html"
+test -s "$repo_root/frontend/build/web/flutter_bootstrap.js"
+test -s "$repo_root/frontend/build/web/main.dart.js"
+node -e 'const fs=require("node:fs");fs.writeFileSync(process.argv[1],JSON.stringify({mode:"live",api:process.argv[2],commit:process.env.VERCEL_GIT_COMMIT_SHA||"local"}))' \
+  "$repo_root/frontend/build/web/avata-build.json" "$api_url"
+echo "Verified Flutter web output: index.html, flutter_bootstrap.js, main.dart.js"

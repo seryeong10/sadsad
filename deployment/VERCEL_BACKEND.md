@@ -13,7 +13,8 @@
 
 - Root Directory: 저장소 최상위 (`.`)
 - 저장소의 명시적인 `@vercel/static-build` 대상만 빌드한다. Python 함수를 자동 생성하지 않는다.
-- Build Command: `package.json`의 `vercel-build` → `bash deployment/build-frontend-vercel.sh`
+- Build entrypoint: 최상위 `build.sh` → `bash deployment/build-frontend-vercel.sh`
+- `index.html`, `flutter_bootstrap.js`, `main.dart.js`가 생성되지 않으면 빌드를 실패 처리한다.
 - Output Directory: `frontend/build/web`
 - Flutter: 검증한 3.47.2 커밋으로 고정
 - API: 기본값 `https://a-vata-api.vercel.app`, `API_BASE_URL`로 변경 가능

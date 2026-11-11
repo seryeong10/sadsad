@@ -24,7 +24,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from openai import OpenAI
-from PIL import Image
+from PIL import Image, ImageOps
 from pydantic import BaseModel, Field
 import requests
 
@@ -84,6 +84,7 @@ class VirtualTryOnRequest(BaseModel):
     garment_image: str = Field(..., description="옷 이미지 data URI 또는 공개 URL")
     item_type: str = Field("", description="상의, 하의, 아우터, 원피스 등")
     preserve_pose: bool = True
+    garment_photo_type: str = Field("auto", pattern="^(auto|flat-lay|model)$")
 
 
 class ClosetItemAnalysisRequest(BaseModel):
@@ -289,9 +290,26 @@ async def recommend_outfits(
     skeleton_type: str = Query("", description="골격 타입. 예: 스트레이트, 웨이브, 내추럴"),
     season: str = Query("", description="계절 필터. 비워두면 계절 조건 없이 추천"),
     limit: int = Query(8, ge=1, le=30),
+    per_category_limit: int = Query(7, ge=1, le=10),
+    refresh_seed: str = Query("", max_length=80),
+    exclude_ids: str = Query("", max_length=4000),
 ):
     gender = _normalize_gender_input(gender)
     personal_color = _normalize_personal_color_input(personal_color)
+    if os.getenv("SHOPPING_PROVIDER") == "product_catalog":
+        items = await asyncio.to_thread(
+            _recommend_catalog_outfits, situation, style, gender, personal_color,
+            skeleton_type, season, per_category_limit * (3 if gender == "male" else 4),
+            per_category_limit,
+            refresh_seed, set(exclude_ids.split(",")) if exclude_ids else set(),
+        )
+        categories = ["상의", "하의", "아우터"] + ([] if gender == "male" else ["원피스"])
+        counts = {category: sum(item["item_type"] == category for item in items) for category in categories}
+        return {"source": "product_catalog", "situation": situation, "style": style,
+                "season": resolve_season(season) if season.strip() else "", "items": items,
+                "count": len(items), "per_category_limit": per_category_limit,
+                "category_counts": counts,
+                "shortages": {key: per_category_limit - count for key, count in counts.items() if count < per_category_limit}}
     effective_limit = max(limit, 7)
     naver_items = _recommend_naver_outfits(
         situation=situation,
@@ -755,7 +773,10 @@ async def generate_avatar(
     mask_file = BytesIO(mask_bytes)
     mask_file.name = "avatar_head_mask.png"
 
-    user_file = BytesIO(user_bytes)
+    user_photo = ImageOps.exif_transpose(Image.open(BytesIO(user_bytes))).convert("RGB")
+    user_output = BytesIO()
+    user_photo.save(user_output, format="PNG")
+    user_file = BytesIO(user_output.getvalue())
     user_file.name = "user_face.png"
 
     result = await asyncio.to_thread(client.images.edit,
@@ -772,6 +793,12 @@ async def generate_avatar(
 
     image_base64 = result.data[0].b64_json
     image_base64 = _remove_light_edge_background(image_base64)
+    # Remove detached background debris without changing the generated face/body.
+    generated = Image.open(BytesIO(base64.b64decode(image_base64))).convert("RGBA")
+    composed = _clean_avatar_alpha(generated)
+    output = BytesIO()
+    composed.save(output, format="PNG")
+    image_base64 = base64.b64encode(output.getvalue()).decode()
 
     return {
         "image": f"data:image/png;base64,{image_base64}"
@@ -787,9 +814,10 @@ async def virtual_try_on(request: VirtualTryOnRequest):
     model = os.getenv("FAL_TRYON_MODEL", "fal-ai/fashn/tryon/v1.5")
     normalized_request = VirtualTryOnRequest(
         person_image=_normalize_fal_input_image(request.person_image),
-        garment_image=request.garment_image,
+        garment_image=_normalize_fal_input_image(request.garment_image),
         item_type=request.item_type,
         preserve_pose=request.preserve_pose,
+        garment_photo_type=request.garment_photo_type,
     )
     payload = _build_fal_try_on_payload(
         model=model,
@@ -843,7 +871,7 @@ def _build_fal_try_on_payload(
             "garment_image": request.garment_image,
             "category": _fashn_category(item_type),
             "mode": os.getenv("FAL_FASHN_MODE", "quality"),
-            "garment_photo_type": os.getenv("FAL_GARMENT_PHOTO_TYPE", "auto"),
+            "garment_photo_type": request.garment_photo_type,
             "moderation_level": os.getenv("FAL_FASHN_MODERATION_LEVEL", "permissive"),
             "num_samples": 1,
             "segmentation_free": True,
@@ -935,7 +963,7 @@ def _prepare_avatar_edit_inputs(
     output_size: tuple[int, int],
 ) -> tuple[bytes, bytes]:
     canvas_width, canvas_height = output_size
-    avatar = Image.open(BytesIO(base_bytes)).convert("RGBA")
+    avatar = _clean_avatar_alpha(Image.open(BytesIO(base_bytes)).convert("RGBA"))
     bbox = avatar.getchannel("A").getbbox() or (0, 0, avatar.width, avatar.height)
     avatar = avatar.crop(bbox)
 
@@ -969,6 +997,25 @@ def _prepare_avatar_edit_inputs(
     mask_output = BytesIO()
     mask.save(mask_output, format="PNG")
     return base_output.getvalue(), mask_output.getvalue()
+
+
+def _clean_avatar_alpha(image: Image.Image) -> Image.Image:
+    """Keep the connected person and antialiased edges, discard detached specks."""
+    import numpy as np
+    from scipy import ndimage
+    rgba = np.array(image.convert("RGBA"))
+    # Thin, nearly transparent bridges can connect background residue to the
+    # silhouette. Open the solid-alpha core before selecting the person.
+    core = ndimage.binary_opening(rgba[:, :, 3] > 128, iterations=2)
+    labels, count = ndimage.label(core)
+    if not count:
+        return image
+    sizes = np.bincount(labels.ravel())
+    sizes[0] = 0
+    person = labels == sizes.argmax()
+    keep = ndimage.binary_dilation(person, iterations=3)
+    rgba[:, :, 3][~keep] = 0
+    return Image.fromarray(rgba)
 
 
 def _remove_light_edge_background(image_base64: str) -> str:
@@ -1168,7 +1215,8 @@ def _recommend_naver_outfits(
 
 
 def _recommend_catalog_outfits(situation, style, gender, personal_color,
-                              skeleton_type, season, limit):
+                              skeleton_type, season, limit, per_category_limit=7,
+                              refresh_seed="", exclude_ids=None):
     """Rank collected real products; prices/availability are NOT live quotes."""
     path = ROOT_DIR / "structured_clothes_data.csv"
     if not path.is_file():
@@ -1176,16 +1224,33 @@ def _recommend_catalog_outfits(situation, style, gender, personal_color,
     context = retrieve_style_context(gender=gender, personal_color=personal_color,
                                     skeleton_type=skeleton_type, situation=situation,
                                     mood=style, season=season)
-    candidates, seen = [], set()
+    audit_path = ROOT_DIR / "data/product_image_audit.json"
+    audits = json.loads(audit_path.read_text(encoding="utf-8")) if audit_path.exists() else {}
+    candidates, seen, seen_images, seen_titles = [], set(), set(), set()
     with path.open(encoding="utf-8-sig", newline="") as source:
         for row in csv.DictReader(source):
             if not _matches_requested_gender(" ".join([row.get("title", ""), row.get("category2", "")]), gender):
                 continue
             row["lprice"] = row.get("price", "")
             item = _naver_public_item(row, row.get("query", ""))
-            if item["item_type"] not in {"상의", "하의", "아우터", "원피스"} or item["image_id"] in seen:
+            audit = audits.get(row.get("image", ""), {})
+            if audit.get("category") in {"상의", "하의", "아우터", "원피스"}:
+                item["item_type"] = audit["category"]
+            item["photo_type"] = audit.get("photo_type", "unknown")
+            item["single_garment"] = audit.get("single_garment") is True
+            if audit.get("photo_type") == "mixed" or audit.get("category") == "기타":
+                continue
+            if gender == "male" and item["item_type"] == "원피스":
+                continue
+            image_key = urlparse(str(item["image_url"])).path
+            title_key = re.sub(r"[\W_]+", "", str(item["title"])).lower()
+            if (item["item_type"] not in {"상의", "하의", "아우터", "원피스"}
+                    or item["image_id"] in seen or image_key in seen_images
+                    or title_key in seen_titles):
                 continue
             seen.add(item["image_id"])
+            seen_images.add(image_key)
+            seen_titles.add(title_key)
             item.update(_score_naver_item(item, situation, style, gender,
                                           personal_color, skeleton_type, context))
             # Dataset tags are evidence from the collected product, not labels
@@ -1195,15 +1260,27 @@ def _recommend_catalog_outfits(situation, style, gender, personal_color,
                 if value and value in tags:
                     item["recommendation_score"] += 15
             candidates.append(item)
-    candidates.sort(key=lambda item: (-int(item["recommendation_score"]), str(item["image_id"])))
+    excluded = exclude_ids or set()
+    candidates.sort(key=lambda item: (
+        item["image_id"] in excluded,
+        item["photo_type"] != "flat-lay",
+        -(int(item["recommendation_score"]) // 20 if refresh_seed else int(item["recommendation_score"])),
+        hashlib.sha256((refresh_seed + str(item["image_id"])).encode()).hexdigest(),
+    ))
     # Collected listings can expire. Do not recommend items whose photo is no
     # longer available, and cache these checks for this server session.
-    checked = candidates[:max(limit * 3, 45)]
+    checked = candidates
     with ThreadPoolExecutor(max_workers=8) as pool:
         available = list(pool.map(_catalog_image_available,
                                   [str(item["image_url"]) for item in checked]))
-    return _pick_diverse_naver_items(
-        [item for item, valid in zip(checked, available) if valid], limit)
+    selected, counts = [], {}
+    for item, valid in zip(checked, available):
+        category = item["item_type"]
+        if not valid or counts.get(category, 0) >= per_category_limit:
+            continue
+        selected.append(_public_naver_item(item))
+        counts[category] = counts.get(category, 0) + 1
+    return selected[:limit]
 
 
 @lru_cache(maxsize=512)
@@ -1585,7 +1662,11 @@ def _naver_public_item(raw_item: dict[str, object], query: str) -> dict[str, obj
             raw_item.get("category4", ""),
         ]
     )
-    item_type = _infer_naver_item_type(product_text)
+    # Retailer leaf categories describe the sold garment. Broad title keyword
+    # matches can describe styled trousers or a jacket worn alongside it.
+    item_type = _infer_naver_item_type(category)
+    if item_type == "기타":
+        item_type = _infer_naver_item_type(title)
     color = _infer_color_name(search_text)
 
     return {
@@ -2247,6 +2328,8 @@ def _public_naver_item(item: dict[str, object]) -> dict[str, object]:
             "image_id",
             "title",
             "image_url",
+            "photo_type",
+            "single_garment",
             "link",
             "price",
             "mall_name",
@@ -2411,15 +2494,17 @@ def _gender_label(gender: str) -> str:
 
 def _infer_naver_item_type(text: str) -> str:
     normalized_text = _normalize(text)
+    if normalized_text in {"상의", "하의", "아우터", "원피스"}:
+        return normalized_text
     if any(keyword in normalized_text for keyword in ["원피스", "드레스"]):
         return "원피스"
     if any(keyword in normalized_text for keyword in ["운동화", "스니커즈", "구두", "로퍼", "부츠", "샌들", "러닝화", "트레킹화", "슈즈"]):
         return "신발"
     if any(keyword in normalized_text for keyword in ["가방", "백", "볼캡", "모자", "라탄백", "크로스백", "양말", "삭스", "스타킹", "벨트", "넥타이", "타이"]):
         return "잡화"
-    if any(keyword in normalized_text for keyword in ["자켓", "재킷", "코트", "점퍼", "블레이저", "가디건", "집업", "바람막이", "아노락", "윈드브레이커", "트렌치", "야상", "패딩", "베스트"]):
+    if any(keyword in normalized_text for keyword in ["자켓", "재킷", "코트", "점퍼", "블레이저", "가디건", "카디건", "집업", "바람막이", "아노락", "윈드브레이커", "트렌치", "야상", "패딩", "베스트"]):
         return "아우터"
-    if any(keyword in normalized_text for keyword in ["팬츠", "슬랙스", "데님", "청바지", "스커트", "치마", "반바지", "레깅스", "조거", "카고", "면바지", "치노"]):
+    if any(keyword in normalized_text for keyword in ["팬츠", "슬랙스", "데님", "바지", "스커트", "치마", "반바지", "레깅스", "조거", "카고", "면바지", "치노"]):
         return "하의"
     if any(keyword in normalized_text for keyword in ["셔츠", "티셔츠", "반팔", "맨투맨", "후드", "후드티", "니트", "블라우스", "브라탑", "탑", "카라티", "폴로"]):
         return "상의"

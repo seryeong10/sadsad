@@ -46,6 +46,10 @@ class VirtualTryOnService {
         'garment_image': garmentImage,
         'item_type': item.itemType.isNotEmpty ? item.itemType : item.category,
         'preserve_pose': true,
+        'garment_photo_type': garmentImageOverride == null &&
+                ['flat-lay', 'model'].contains(item.photoType)
+            ? item.photoType
+            : 'auto',
       }),
     );
 
@@ -95,6 +99,7 @@ class VirtualTryOnService {
     required OutfitItem item,
     required GarmentImageInput input,
   }) {
+    if (item.photoType == 'flat-lay') return !item.singleGarment;
     final text = [
       item.title,
       item.category,

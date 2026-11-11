@@ -31,13 +31,18 @@ class OutfitRecommendationPage extends StatefulWidget {
 }
 
 class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
-  late final Future<OutfitRecommendationResponse> _recommendation;
+  late Future<OutfitRecommendationResponse> _recommendation;
+  List<String> _previousIds = [];
 
   bool get _isMale => widget.gender.toLowerCase() == 'male';
 
   @override
   void initState() {
     super.initState();
+    _loadRecommendations();
+  }
+
+  void _loadRecommendations({bool refresh = false}) {
     _recommendation = OutfitRecommendationService.recommendOutfits(
       situation: widget.situation,
       style: widget.style,
@@ -45,6 +50,8 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
       personalColorType: widget.personalColorProfile?.type ?? '',
       skeletonType: widget.skeletonProfile?.type ?? '',
       limit: 30,
+      refreshSeed: refresh ? DateTime.now().microsecondsSinceEpoch.toString() : '',
+      excludeIds: refresh ? _previousIds : const [],
     );
   }
 
@@ -82,6 +89,7 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
             }
 
             final data = snapshot.data!;
+            _previousIds = data.items.map((item) => item.imageId).toList();
             final groups = _groupItems(data.items);
 
             final sections = _visibleSections(groups);
@@ -94,6 +102,16 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
                     style: data.style,
                     personalColorProfile: widget.personalColorProfile,
                     skeletonProfile: widget.skeletonProfile,
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: OutlinedButton.icon(
+                      onPressed: () => setState(() => _loadRecommendations(refresh: true)),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('재추천 받기'),
+                    ),
                   ),
                 ),
                 if (data.source == 'product_catalog')
@@ -119,6 +137,16 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
                         sections.map((section) {
                           return _CategorySection(section: section);
                         }).toList(),
+                      ),
+                    ),
+                  ),
+                if (data.shortages.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                      child: Text(
+                        '${data.shortages.keys.join('·')} 상품이 부족해 카테고리별 7개를 모두 제공하지 못했어요.',
+                        style: const TextStyle(color: AppColors.muted, fontSize: 12),
                       ),
                     ),
                   ),
@@ -185,7 +213,7 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
       ),
     ];
 
-    return sections.where((section) => section.items.isNotEmpty).toList();
+    return sections;
   }
 
   bool _matchesSelectedGender(OutfitItem item) {
@@ -193,7 +221,6 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
       item.title,
       item.category,
       item.itemType,
-      item.sourceQuery,
     ].join(' ').toLowerCase();
 
     if (text.contains('남녀공용') ||
@@ -451,6 +478,13 @@ class _CategorySection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 11),
+          if (section.items.isEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              child: Text('현재 추천할 수 있는 유효한 상품이 없어요.',
+                  style: TextStyle(color: AppColors.muted, fontSize: 12)),
+            )
+          else
           SizedBox(
             height: 174,
             child: ListView.separated(

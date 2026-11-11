@@ -19,6 +19,10 @@ foreach ($file in @('personal_color_model.joblib', 'personal_color_model_female.
 }
 Copy-Item -LiteralPath (Join-Path $root 'backend/data/style_recommendation_ruleset.json') -Destination (Join-Path $backendDestination 'data') -Force
 Copy-Item -LiteralPath (Join-Path $root 'backend/structured_clothes_data.csv') -Destination $backendDestination -Force
+$auditPath = Join-Path $root 'backend/data/product_image_audit.json'
+if (Test-Path -LiteralPath $auditPath) {
+    Copy-Item -LiteralPath $auditPath -Destination (Join-Path $backendDestination 'data') -Force
+}
 # Checkpoints stay byte-identical in model storage, outside source uploads.
 # Credentials are set as server environment variables, never copied as files.
 Write-Host "Prepared existing FastAPI backend: $destination"

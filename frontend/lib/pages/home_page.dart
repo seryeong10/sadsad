@@ -138,6 +138,7 @@ class _WeatherCardState extends State<_WeatherCard> {
       if (mounted)
         setState(() {
           _error = error.toString();
+          _weather = null;
           _loading = false;
         });
     }

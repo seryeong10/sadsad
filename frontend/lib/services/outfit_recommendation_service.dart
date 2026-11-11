@@ -14,6 +14,8 @@ class OutfitRecommendationService {
     String personalColorType = '',
     String skeletonType = '',
     int limit = 30,
+    String refreshSeed = '',
+    List<String> excludeIds = const [],
   }) async {
     if (_useMockDemo) {
       return OutfitRecommendationResponse(
@@ -32,6 +34,9 @@ class OutfitRecommendationService {
         if (personalColorType.isNotEmpty) 'personal_color': personalColorType,
         if (skeletonType.isNotEmpty) 'skeleton_type': skeletonType,
         'limit': '$limit',
+        'per_category_limit': '7',
+        if (refreshSeed.isNotEmpty) 'refresh_seed': refreshSeed,
+        if (excludeIds.isNotEmpty) 'exclude_ids': excludeIds.join(','),
       },
     );
 
@@ -52,12 +57,14 @@ class OutfitRecommendationResponse {
   final String style;
   final String source;
   final List<OutfitItem> items;
+  final Map<String, int> shortages;
 
   const OutfitRecommendationResponse({
     required this.situation,
     required this.style,
     required this.source,
     required this.items,
+    this.shortages = const {},
   });
 
   factory OutfitRecommendationResponse.fromJson(
@@ -78,6 +85,8 @@ class OutfitRecommendationResponse {
       style: json['style'] as String? ?? '',
       source: json['source'] as String? ?? '',
       items: items,
+      shortages: (json['shortages'] as Map<String, dynamic>? ?? const {})
+          .map((key, value) => MapEntry(key, (value as num).toInt())),
     );
   }
 }
@@ -87,6 +96,8 @@ class OutfitItem {
         'image_id': imageId,
         'title': title,
         'image_url': imageUrl,
+        'photo_type': photoType,
+        'single_garment': singleGarment,
         'link': link,
         'price': price,
         'mall_name': mallName,
@@ -109,6 +120,8 @@ class OutfitItem {
   final String imageId;
   final String title;
   final String imageUrl;
+  final String photoType;
+  final bool singleGarment;
   final String link;
   final String price;
   final String mallName;
@@ -132,6 +145,8 @@ class OutfitItem {
     required this.imageId,
     required this.title,
     required this.imageUrl,
+    this.photoType = 'auto',
+    this.singleGarment = false,
     required this.link,
     required this.price,
     required this.mallName,
@@ -205,6 +220,8 @@ class OutfitItem {
       imageId: json['image_id'] as String? ?? '',
       title: json['title'] as String? ?? '',
       imageUrl: ApiConfig.productImage(imageUrl),
+      photoType: json['photo_type'] as String? ?? 'auto',
+      singleGarment: json['single_garment'] == true,
       link: json['link'] as String? ?? '',
       price: json['price']?.toString() ?? '',
       mallName: json['mall_name'] as String? ?? '',

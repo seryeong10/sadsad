@@ -81,12 +81,12 @@ class WeatherService {
     if (!refresh &&
         _cached != null &&
         _cachedAt != null &&
-        DateTime.now().difference(_cachedAt!) < const Duration(minutes: 20)) {
+        DateTime.now().difference(_cachedAt!) < const Duration(minutes: 5)) {
       return _cached!;
     }
 
-    var latitude = 37.5665;
-    var longitude = 126.9780;
+    double? latitude;
+    double? longitude;
     try {
       final position = await (() async {
         if (!await Geolocator.isLocationServiceEnabled()) return null;
@@ -99,22 +99,27 @@ class WeatherService {
           return null;
         }
         return Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low,
-          timeLimit: const Duration(seconds: 6),
+          desiredAccuracy: LocationAccuracy.high,
+          timeLimit: const Duration(seconds: 20),
         );
       })()
-          .timeout(const Duration(seconds: 8));
+          .timeout(const Duration(seconds: 25));
       if (position != null) {
         latitude = position.latitude;
         longitude = position.longitude;
       }
     } catch (_) {
-      // Fall back to Seoul when location access is unavailable or declined.
+      // Do not present another city's weather as the user's current location.
+    }
+    if (latitude == null || longitude == null) {
+      _cached = null;
+      _cachedAt = null;
+      throw Exception('현재 위치를 확인하지 못했어요. 브라우저의 위치 권한을 허용한 뒤 새로고침해주세요.');
     }
 
     final uri = ApiConfig.uri('api/weather').replace(queryParameters: {
-      'lat': latitude.toStringAsFixed(5),
-      'lon': longitude.toStringAsFixed(5),
+      'lat': latitude.toStringAsFixed(2),
+      'lon': longitude.toStringAsFixed(2),
     });
     final response = await http.get(uri, headers: await ApiConfig.headers()).timeout(const Duration(seconds: 15));
     if (response.statusCode != 200) {

@@ -1,0 +1,807 @@
+{
+  "https://shopping-phinf.pstatic.net/main_8999981/89999810643.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8686671/86866713391.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5819263/58192631206.20251218220332.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8693330/86933309693.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8905871/89058716636.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8572442/85724421620.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8898325/88983251916.jpg": {
+    "category": "상의",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8752375/87523759896.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8752358/87523581448.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8905871/89058716637.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8725226/87252261572.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8714623/87146233747.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8494680/84946804399.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5824438/58244387194.20251223153303.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8887676/88876769812.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8753334/87533348048.1.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8374775/83747754670.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8764920/87649201264.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8850992/88509921191.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8973387/89733877865.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5977698/59776983574.20260424005202.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5981034/59810341394.20260426234128.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5325193/53251934128.20250509004633.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_4633943/46339434444.20240312173934.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5995998/59959984456.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5343276/53432761414.20250308204209.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5995919/59959192146.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_5996006/59960060991.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8169920/81699209230.11.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8927540/89275402553.4.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8382085/83820853826.3.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8779849/87798497057.110.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8878040/88780408620.11.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9051610/90516105554.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9061367/90613670505.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8770810/87708106931.3.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8840012/88400128818.1.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_5929176/59291763463.20260317223928.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5962926/59629268769.20260411235333.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8250609/82506090976.6.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_5903356/59033568393.20260225012449.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_5463091/54630916465.20250507183134.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5586537/55865370227.20250719182007.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8842347/88423476820.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8895919/88959196140.1.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8569849/85698499869.3.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5954713/59547135653.20260421023819.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8941419/89414193400.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8195283/81952831078.46.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8695971/86959716994.6.jpg": {
+    "category": "하의",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8173905/81739052266.jpg": {
+    "category": "하의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8221793/82217933192.9.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5952278/59522785691.20260404010350.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5531049/55310492594.20250906073758.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8600926/86009265378.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8463166/84631660138.1.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5984767/59847679626.20260429233554.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8585960/85859605923.9.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8621402/86214023183.jpg": {
+    "category": "하의",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5937890/59378903180.20260401061048.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_3574276/35742765116.20250226025325.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8762225/87622257431.2.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5978999/59789990684.20260424201237.jpg": {
+    "category": "하의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8314808/83148088840.1.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5953761/59537611186.20260404220242.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5263249/52632499918.20250908175040.jpg": {
+    "category": "하의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8751777/87517771539.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8286791/82867917360.2.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5834248/58342488741.20251231161536.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8427766/84277664112.3.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8163621/81636214293.11.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8208551/82085517041.3.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8748407/87484073416.2.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8769954/8769954519.21.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8660462/86604621916.2.jpg": {
+    "category": "상의",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8309860/83098606979.1.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8551828/85518282378.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_1137084/11370848627.11.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_1026728/10267287520.5.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8871938/88719386333.1.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8309863/83098635750.1.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8342981/83429813242.1.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8763402/87634028647.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8222150/82221505708.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8704063/87040635542.1.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8375599/83755990880.2.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8760936/87609367454.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_3567534/35675340544.20221107103948.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_9098793/90987931713.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9104339/91043394619.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8986019/89860198794.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8992633/89926332772.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9084531/90845310685.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_4136182/41361825894.20230722202115.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9027933/90279330493.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8982479/89824799548.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9000068/90000683453.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8745359/87453593129.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9025346/90253468717.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8745359/87453594726.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9028330/90283304048.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9048560/90485600386.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9079321/90793210823.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9007242/90072424472.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8996581/89965817123.jpg": {
+    "category": "하의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9077349/90773497352.jpg": {
+    "category": "하의",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5090031/50900313919.20241018015027.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8483450/84834504392.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8349609/83496095094.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5846998/58469983278.20260111203705.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5088120/50881205628.20241016221130.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8311582/83115829979.2.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_2517208/25172083010.20201210201227.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9027860/90278604904.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8693601/86936013217.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8434133/84341339424.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_5841240/58412402176.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8913838/89138388260.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8913838/89138384008.jpg": {
+    "category": "상의",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8913353/89133533296.jpg": {
+    "category": "상의",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8570537/85705374026.1.jpg": {
+    "category": "아우터",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8245999/82459998724.24.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8357286/83572863818.21.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8479953/84799534459.102.jpg": {
+    "category": "원피스",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8235707/82357073756.58.jpg": {
+    "category": "원피스",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8769370/87693701527.7.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8384647/83846470773.4.jpg": {
+    "category": "원피스",
+    "photo_type": "mixed",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8868733/88687332581.18.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8610092/86100924317.9.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8312722/83127224809.7.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8843481/88434817097.2.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8745459/87454592901.14.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8897563/88975634480.7.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8958048/89580485207.1.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_5581872/55818723549.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8922665/89226652369.4.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8209474/82094742200.14.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8223854/82238540471.4.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8854282/88542825745.2.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_5673020/56730202527.20250915011637.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8618576/86185768404.1.jpg": {
+    "category": "원피스",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8571743/85717439295.7.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8301144/83011442056.3.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_1145053/11450534248.8.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8454810/84548108409.6.jpg": {
+    "category": "아우터",
+    "photo_type": "model",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8767443/87674435768.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8408361/84083614959.2.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8228612/82286128596.6.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8237267/82372678315.4.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8811891/88118918021.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5761101/57611017410.20251106134741.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8315672/83156724192.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8957967/89579679400.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5487609/54876091333.20251222114854.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_8579911/85799111313.jpg": {
+    "category": "아우터",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8293607/82936073452.3.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_5587790/55877903459.20250922144425.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": true
+  },
+  "https://shopping-phinf.pstatic.net/main_9007473/90074730922.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8322402/83224029695.2.jpg": {
+    "category": "아우터",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_9086393/90863933441.jpg": {
+    "category": "아우터",
+    "photo_type": "model",
+    "single_garment": false
+  },
+  "https://shopping-phinf.pstatic.net/main_8596612/85966127560.2.jpg": {
+    "category": "아우터",
+    "photo_type": "flat-lay",
+    "single_garment": false
+  }
+}

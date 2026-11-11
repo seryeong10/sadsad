@@ -1,0 +1,12 @@
+backend/
+deployment/vercel_backend/
+frontend/api/
+.env*
+**/.env*
+.tmp/
+.tmp-*
+.tools/
+.vercel-backend/
+output/
+**/__pycache__/
+**/*.pyc

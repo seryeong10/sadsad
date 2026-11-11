@@ -12,8 +12,8 @@
 저장소 최상위 `vercel.json`이 Flutter 빌드와 출력 폴더를 지정한다.
 
 - Root Directory: 저장소 최상위 (`.`)
-- Framework Preset: Other (설정 파일의 `framework: null`)
-- Build Command: `bash deployment/build-frontend-vercel.sh`
+- 저장소의 명시적인 `@vercel/static-build` 대상만 빌드한다. Python 함수를 자동 생성하지 않는다.
+- Build Command: `package.json`의 `vercel-build` → `bash deployment/build-frontend-vercel.sh`
 - Output Directory: `frontend/build/web`
 - Flutter: 검증한 3.47.2 커밋으로 고정
 - API: 기본값 `https://a-vata-api.vercel.app`, `API_BASE_URL`로 변경 가능

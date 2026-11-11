@@ -1,0 +1,9 @@
+{
+  "name": "a-vata-web-deployment",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "bash deployment/build-frontend-vercel.sh",
+    "vercel-build": "bash deployment/build-frontend-vercel.sh"
+  }
+}

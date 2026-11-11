@@ -29,6 +29,10 @@ from pydantic import BaseModel, Field
 import requests
 
 from app.personal_color_palette import get_personal_color_palette
+from app.avatar_face_edit import (
+    PROMPT_PATH, prepare_face_edit, composite_face_edit,
+    clean_avatar_alpha as _clean_avatar_alpha,
+)
 from app.closet_image_processor import prepare_closet_image
 from app.personal_color_model import COLOR_RESULTS, predict_personal_color
 from app.season_style_rules import resolve_season
@@ -715,63 +719,21 @@ async def generate_avatar(
     if client is None:
         raise RuntimeError("OPENAI_API_KEY가 설정되어 있지 않습니다.")
 
-    prompt = """
-    Edit the first image using the second image as a face reference.
-
-    The first image is the base full-body avatar already placed on the final canvas.
-    The second image is the user's face reference.
-
-    Your task is NOT to create a new avatar.
-    Your task is to keep the first image almost identical and only replace the face and hairstyle.
-    A mask is provided; edit only the transparent masked area around the head and hair.
-
-    Strictly preserve the first image:
-    - exact canvas dimensions
-    - exact avatar scale and placement on the canvas
-    - same full-body composition
-    - same body shape
-    - same pose
-    - same clothing
-    - same arms, hands, legs, and feet
-    - same canvas size
-    - same framing
-    - same background style
-
-    Do not crop the image.
-    Do not zoom in.
-    Do not shift the avatar up, down, left, or right.
-    Do not cut off the feet.
-    Do not cut off the top of the head or hair.
-    Do not redraw the body.
-    Do not change the outfit.
-    Do not make the result look like a different person’s body.
-
-    Only modify:
-    - face shape
-    - eyes
-    - nose
-    - lips
-    - facial impression
-    - hairstyle around the head
-
-    Make the avatar's face naturally resemble the second image.
-    Keep the result as a high-quality semi-realistic 3D avatar, not a real photograph.
-    The final image must show the full body from head to feet.
-    """
-
+    prompt = PROMPT_PATH.read_text(encoding="utf-8").strip()
     base_bytes = await base_avatar.read()
     user_bytes = await user_face.read()
-    output_size = _parse_image_size(os.getenv("OPENAI_IMAGE_SIZE", "1024x1536"))
-    prepared_base_bytes, mask_bytes = _prepare_avatar_edit_inputs(
-        base_bytes,
-        output_size,
-    )
+    try:
+        inputs = await asyncio.to_thread(prepare_face_edit, base_bytes)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (RuntimeError, ImportError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    base_file = BytesIO(prepared_base_bytes)
+    base_file = BytesIO(inputs.api_base)
     base_file.name = "base_avatar.png"
 
-    mask_file = BytesIO(mask_bytes)
-    mask_file.name = "avatar_head_mask.png"
+    mask_file = BytesIO(inputs.api_mask)
+    mask_file.name = "avatar_face_only_mask.png"
 
     user_photo = ImageOps.exif_transpose(Image.open(BytesIO(user_bytes))).convert("RGB")
     user_output = BytesIO()
@@ -784,25 +746,22 @@ async def generate_avatar(
         image=[base_file, user_file],
         mask=mask_file,
         prompt=prompt,
-        size=f"{output_size[0]}x{output_size[1]}",
+        size=f"{inputs.api_size[0]}x{inputs.api_size[1]}",
         quality="high",
         input_fidelity="high",
         output_format="png",
-        background=os.getenv("OPENAI_IMAGE_BACKGROUND", "transparent"),
+        background="transparent",
     )
 
-    image_base64 = result.data[0].b64_json
-    image_base64 = _remove_light_edge_background(image_base64)
-    # Remove detached background debris without changing the generated face/body.
-    generated = Image.open(BytesIO(base64.b64decode(image_base64))).convert("RGBA")
-    composed = _clean_avatar_alpha(generated)
-    output = BytesIO()
-    composed.save(output, format="PNG")
-    image_base64 = base64.b64encode(output.getvalue()).decode()
-
-    return {
-        "image": f"data:image/png;base64,{image_base64}"
-    }
+    if not result.data or not result.data[0].b64_json:
+        raise HTTPException(status_code=502, detail="얼굴 합성 이미지가 반환되지 않았습니다.")
+    try:
+        output = await asyncio.to_thread(
+            composite_face_edit, inputs, base64.b64decode(result.data[0].b64_json)
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return {"image": "data:image/png;base64," + base64.b64encode(output).decode()}
 
 
 @app.post("/virtual-try-on")
@@ -946,117 +905,6 @@ def _fashn_category(item_type: str) -> str:
     if item_type == "onepiece":
         return "one-pieces"
     return "tops"
-
-
-def _parse_image_size(value: str) -> tuple[int, int]:
-    match = re.fullmatch(r"\s*(\d+)x(\d+)\s*", value or "")
-    if not match:
-        return 1024, 1536
-    width, height = int(match.group(1)), int(match.group(2))
-    if width <= 0 or height <= 0:
-        return 1024, 1536
-    return width, height
-
-
-def _prepare_avatar_edit_inputs(
-    base_bytes: bytes,
-    output_size: tuple[int, int],
-) -> tuple[bytes, bytes]:
-    canvas_width, canvas_height = output_size
-    avatar = _clean_avatar_alpha(Image.open(BytesIO(base_bytes)).convert("RGBA"))
-    bbox = avatar.getchannel("A").getbbox() or (0, 0, avatar.width, avatar.height)
-    avatar = avatar.crop(bbox)
-
-    scale = min(
-        canvas_width * 0.66 / avatar.width,
-        canvas_height * 0.90 / avatar.height,
-    )
-    target_width = max(1, round(avatar.width * scale))
-    target_height = max(1, round(avatar.height * scale))
-    resampling = getattr(getattr(Image, "Resampling", Image), "LANCZOS")
-    avatar = avatar.resize((target_width, target_height), resampling)
-
-    left = round((canvas_width - target_width) / 2)
-    top = round((canvas_height - target_height) / 2)
-    canvas = Image.new("RGBA", output_size, (255, 255, 255, 0))
-    canvas.alpha_composite(avatar, (left, top))
-
-    mask = Image.new("RGBA", output_size, (0, 0, 0, 255))
-    edit_left = max(0, round(left + target_width * 0.10))
-    edit_top = max(0, round(top - target_height * 0.03))
-    edit_right = min(canvas_width, round(left + target_width * 0.90))
-    edit_bottom = min(canvas_height, round(top + target_height * 0.34))
-    mask_pixels = mask.load()
-    for y in range(edit_top, edit_bottom):
-        for x in range(edit_left, edit_right):
-            mask_pixels[x, y] = (0, 0, 0, 0)
-
-    base_output = BytesIO()
-    canvas.save(base_output, format="PNG")
-
-    mask_output = BytesIO()
-    mask.save(mask_output, format="PNG")
-    return base_output.getvalue(), mask_output.getvalue()
-
-
-def _clean_avatar_alpha(image: Image.Image) -> Image.Image:
-    """Keep the connected person and antialiased edges, discard detached specks."""
-    import numpy as np
-    from scipy import ndimage
-    rgba = np.array(image.convert("RGBA"))
-    # Thin, nearly transparent bridges can connect background residue to the
-    # silhouette. Open the solid-alpha core before selecting the person.
-    core = ndimage.binary_opening(rgba[:, :, 3] > 128, iterations=2)
-    labels, count = ndimage.label(core)
-    if not count:
-        return image
-    sizes = np.bincount(labels.ravel())
-    sizes[0] = 0
-    person = labels == sizes.argmax()
-    keep = ndimage.binary_dilation(person, iterations=3)
-    rgba[:, :, 3][~keep] = 0
-    return Image.fromarray(rgba)
-
-
-def _remove_light_edge_background(image_base64: str) -> str:
-    image_bytes = base64.b64decode(image_base64)
-    image = Image.open(BytesIO(image_bytes)).convert("RGBA")
-    pixels = image.load()
-    width, height = image.size
-    visited = set()
-    stack = []
-
-    for x in range(width):
-        stack.append((x, 0))
-        stack.append((x, height - 1))
-    for y in range(height):
-        stack.append((0, y))
-        stack.append((width - 1, y))
-
-    def is_background(pixel):
-        red, green, blue, alpha = pixel
-        if alpha == 0:
-            return True
-        is_light = red >= 235 and green >= 235 and blue >= 235
-        is_neutral = max(red, green, blue) - min(red, green, blue) <= 24
-        return is_light and is_neutral
-
-    while stack:
-        x, y = stack.pop()
-        if (x, y) in visited or x < 0 or y < 0 or x >= width or y >= height:
-            continue
-        visited.add((x, y))
-
-        if not is_background(pixels[x, y]):
-            continue
-
-        red, green, blue, _ = pixels[x, y]
-        pixels[x, y] = (red, green, blue, 0)
-        stack.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
-
-    output = BytesIO()
-    image.save(output, format="PNG")
-    return base64.b64encode(output.getvalue()).decode("utf-8")
 
 
 def _recommend_naver_outfits(

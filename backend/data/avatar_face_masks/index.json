@@ -1,0 +1,82 @@
+{
+  "60c5eec4599cd5946c8036e4234bd00e9c4b5f0340acb6341a40d04624cc2445": {
+    "asset": "female_natural_plus.png",
+    "mask": "female_natural_plus_face.png"
+  },
+  "a343e50d64ea03e661d214f29317dcca2d615ea3078bec21c71d7d2270efdf78": {
+    "asset": "female_natural_slim.png",
+    "mask": "female_natural_slim_face.png"
+  },
+  "efaa95a84669b22cb4c1b0632f9ab17702c2f920c9c3b174628cd1c2424252d5": {
+    "asset": "female_natural_standard.png",
+    "mask": "female_natural_standard_face.png"
+  },
+  "725f5726fccbec0e2d85ba952f93ad15520623ea1bafdc615a59db02df4f6051": {
+    "asset": "female_straight_plus.png",
+    "mask": "female_straight_plus_face.png"
+  },
+  "c8aad9fd7cf64d273d42b5a6ef88a5acb524e5f39a662ac25639f88a97a1a252": {
+    "asset": "female_straight_slim.png",
+    "mask": "female_straight_slim_face.png"
+  },
+  "e52235850d32c2df9fa9701f4afb3a926249ff34d0e5d9558761d07c4ebdc312": {
+    "asset": "female_straight_standard.png",
+    "mask": "female_straight_standard_face.png"
+  },
+  "21a49605a8be8c23fbc4f64b9684e0b0b0750fccd789899b798cbe159474a662": {
+    "asset": "female_wave_plus.png",
+    "mask": "female_wave_plus_face.png"
+  },
+  "22b57f09fc54999b2864c373a82e3f17c6424e04cc238c1335a8e3f0fa06f2b5": {
+    "asset": "female_wave_slim.png",
+    "mask": "female_wave_slim_face.png"
+  },
+  "a5b44e0656a8e8a2e623fee5fa633a8ad8fedccf331fb8203edd385ab456ae9a": {
+    "asset": "female_wave_standard.png",
+    "mask": "female_wave_standard_face.png"
+  },
+  "87f7e7f1bb20b4f1466483973ee3bce5bb4d767e2ac5231ff2a9a4b961f4e1ba": {
+    "asset": "male_natural_plus.png",
+    "mask": "male_natural_plus_face.png"
+  },
+  "e795f607036bfa928075ae5d797161dcf3c91a73002d94a22725cb8d5b18b52f": {
+    "asset": "male_natural_slim.png",
+    "mask": "male_natural_slim_face.png"
+  },
+  "8a68a3c67cf9bc2e8b6516242dd31be6a662851f44405724c499d717d6e0a971": {
+    "asset": "male_natural_standard.png",
+    "mask": "male_natural_standard_face.png"
+  },
+  "f662cd4ed5e4efc75507dc40e54870290feb0dabcf40ccdda8d2d046b58432e8": {
+    "asset": "male_straight_plus.png",
+    "mask": "male_straight_plus_face.png"
+  },
+  "c15ff18e372135df7dfae0225daf222afb64cfb5a925fa1aa104697a810a41d6": {
+    "asset": "male_straight_slim.png",
+    "mask": "male_straight_slim_face.png"
+  },
+  "2796f5bdb0b6f0af8121f48de20b6047e3fdba95f5fce8fc1a682e1008748d42": {
+    "asset": "male_straight_standard.png",
+    "mask": "male_straight_standard_face.png"
+  },
+  "add6af4d2f7a542e56a36b8fd22dc48342bb0f5ed815034d8a1d1adc600d0e68": {
+    "asset": "male_wave_plus.png",
+    "mask": "male_wave_plus_face.png"
+  },
+  "8fcbf100678d17eedecdc1eac8df0021ab8d513a9eb45a634b7af76e8065c9fc": {
+    "asset": "male_wave_slim.png",
+    "mask": "male_wave_slim_face.png"
+  },
+  "0de5863f332e19dbf9f7b627071855f80813dcf3d552c27f17b2622d8ded5f62": {
+    "asset": "male_wave_standard.png",
+    "mask": "male_wave_standard_face.png"
+  },
+  "a9e0040b2bccf5af17f27bbfce3646eeea7849810e78e28aa7d797fccd89d3d7": {
+    "asset": "female_base.png",
+    "mask": "female_base_face.png"
+  },
+  "221f73dbf4e0cd5b8996ed9f0409882fc36e3d49b5ee9686c60006ce3f37a25e": {
+    "asset": "male_base.png",
+    "mask": "male_base_face.png"
+  }
+}

@@ -23,6 +23,10 @@ $auditPath = Join-Path $root 'backend/data/product_image_audit.json'
 if (Test-Path -LiteralPath $auditPath) {
     Copy-Item -LiteralPath $auditPath -Destination (Join-Path $backendDestination 'data') -Force
 }
+$faceMasks = Join-Path $root 'backend/data/avatar_face_masks'
+if (Test-Path -LiteralPath $faceMasks) {
+    Copy-Item -LiteralPath $faceMasks -Destination (Join-Path $backendDestination 'data') -Recurse -Force
+}
 # Checkpoints stay byte-identical in model storage, outside source uploads.
 # Credentials are set as server environment variables, never copied as files.
 Write-Host "Prepared existing FastAPI backend: $destination"

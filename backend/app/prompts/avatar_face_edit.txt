@@ -7,6 +7,7 @@ You are an expert AI artist specializing in identity-preserving facial integrati
 This is the original full-body avatar selected by the user.
 
 It is the absolute reference for:
+
 - Body shape and proportions
 - Skeletal structure and body type
 - Hairstyle, hair length, hair color, and hair arrangement
@@ -62,6 +63,7 @@ The user's face must be the dominant and authoritative facial reference.
 The hairstyle must remain exactly as shown in Image 1.
 
 Preserve:
+
 - Original hair length
 - Original hairstyle and silhouette
 - Original bangs and hairline arrangement
@@ -81,6 +83,7 @@ Only adjust the facial features underneath the existing hairstyle.
 The body in Image 1 must remain completely unchanged.
 
 Preserve exactly:
+
 - Body proportions and silhouette
 - Shoulder width
 - Chest and waist dimensions
@@ -101,6 +104,7 @@ Do not regenerate, reshape, slim, enlarge, or otherwise modify any body part.
 Integrate the user's facial identity naturally into the existing avatar.
 
 The face must:
+
 - Match the avatar's semi-realistic 3D rendering style
 - Maintain realistic facial depth and proportions
 - Match the original lighting direction
@@ -127,6 +131,7 @@ The complete body, including the top of the head and both feet, must remain visi
 Maintain a fully transparent background with clean, smooth edges.
 
 Do not generate:
+
 - Black dots or speckles
 - Colored artifacts
 - White halos
@@ -162,4 +167,4 @@ The final result must look like the SAME original avatar, with the SAME hairstyl
 
 Facial identity accuracy is the highest priority within the editable facial region.
 
-Do not sacrifice facial resemblance for attractiveness or stylistic consistency.
+Do not sacrifice facial resemblance for attractiveness or stylistic consistency..  결과물 보여줘봐.

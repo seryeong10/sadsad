@@ -103,33 +103,33 @@ class FaceOnlyEditTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             edit.composite_face_edit(self.prepare(), edit.png_bytes(Image.new("RGBA", (10, 10))))
 
-    def test_endpoint_sends_prompt_and_face_mask_and_returns_original_resolution(self):
-        inputs = self.prepare()
-        generated = edit.png_bytes(Image.new("RGBA", inputs.api_size, (200, 150, 120, 255)))
+    def test_endpoint_generates_whole_image_without_mask_or_pasting(self):
+        generated = edit.png_bytes(Image.new("RGBA", main.API_SIZE, (200, 150, 120, 255)))
         call = Mock(return_value=SimpleNamespace(data=[SimpleNamespace(b64_json=base64.b64encode(generated).decode())]))
-        with patch.object(main, "prepare_face_edit", return_value=inputs), patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
+        with patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
             result = asyncio.run(main.generate_avatar(
                 UploadFile(filename="chosen_body_type.png", file=BytesIO(edit.png_bytes(Image.fromarray(self.base)))),
                 UploadFile(filename="user.png", file=BytesIO(edit.png_bytes(Image.new("RGB", (100, 100), "white")))),
             ))
         sent = call.call_args.kwargs
-        self.assertEqual(sent["prompt"], edit.face_edit_prompt())
-        self.assertNotIn("The complete body, including", sent["prompt"])
+        self.assertEqual(sent["prompt"], edit.PROMPT_PATH.read_text(encoding="utf8").strip())
+        self.assertIn("The complete body, including", sent["prompt"])
         self.assertIn("Do NOT copy the hairstyle from Image 2.", sent["prompt"])
-        self.assertIn("Reconstruct these features as a newly rendered 3D illustrated face", sent["prompt"])
-        self.assertNotIn("Do not beautify, idealize, stylize", sent["prompt"])
-        self.assertEqual(sent["mask"].getvalue(), inputs.api_mask)
+        self.assertNotIn("mask", sent)
         self.assertEqual(sent["input_fidelity"], "high")
         self.assertEqual(sent["background"], "transparent")
-        image = Image.open(BytesIO(base64.b64decode(result["image"].split(",", 1)[1])))
-        self.assertEqual(image.size, inputs.original.size)
+        self.assertEqual(base64.b64decode(result["image"].split(",", 1)[1]), generated)
+        self.assertEqual(result["generation_method"], "full_image_generation")
+        canvas = Image.open(BytesIO(sent["image"][0].getvalue()))
+        self.assertEqual(canvas.size, main.API_SIZE)
+        self.assertGreater(canvas.getchannel("A").getbbox()[1], 0)
 
     def test_provider_rejection_returns_readable_error_with_cors_without_retry(self):
         error = BadRequestError("safety rejection", response=httpx.Response(
             400, request=httpx.Request("POST", "https://api.openai.com/v1/images/edits")), body={})
         call = Mock(side_effect=error)
         photo = edit.png_bytes(Image.new("RGB", (100, 100), "white"))
-        with patch.dict(os.environ, {"REQUIRE_FIREBASE_AUTH": "false"}), patch.object(main, "prepare_face_edit", return_value=self.prepare()), patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
+        with patch.dict(os.environ, {"REQUIRE_FIREBASE_AUTH": "false"}), patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
             response = TestClient(main.app).post("/generate-avatar",
                 headers={"Origin": "https://a-vata-demo.vercel.app"},
                 files={"base_avatar": ("base.png", photo, "image/png"), "user_face": ("face.png", photo, "image/png")})
@@ -144,7 +144,7 @@ class FaceOnlyEditTests(unittest.TestCase):
             body={"code": "credit_balance_exhausted", "type": "insufficient_quota"})
         call = Mock(side_effect=error)
         photo = edit.png_bytes(Image.new("RGB", (100, 100), "white"))
-        with patch.object(main, "prepare_face_edit", return_value=self.prepare()), patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
+        with patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
             with self.assertRaises(main.HTTPException) as caught:
                 asyncio.run(main.generate_avatar(UploadFile(file=BytesIO(photo)), UploadFile(file=BytesIO(photo))))
         self.assertEqual(caught.exception.status_code, 503)

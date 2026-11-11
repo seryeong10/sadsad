@@ -30,9 +30,10 @@ import requests
 
 from app.personal_color_palette import get_personal_color_palette
 from app.avatar_face_edit import (
-    PROMPT_PATH, prepare_face_edit, composite_face_edit, face_edit_prompt,
+    PROMPT_PATH,
     clean_avatar_alpha as _clean_avatar_alpha,
 )
+from app.avatar_generation import API_SIZE, prepare_avatar_generation, validate_generated_avatar
 from app.closet_image_processor import prepare_closet_image
 from app.personal_color_model import COLOR_RESULTS, predict_personal_color
 from app.season_style_rules import resolve_season
@@ -720,21 +721,18 @@ async def generate_avatar(
     if client is None:
         raise RuntimeError("OPENAI_API_KEY가 설정되어 있지 않습니다.")
 
-    prompt = face_edit_prompt()
+    prompt = PROMPT_PATH.read_text(encoding="utf-8").strip()
     base_bytes = await base_avatar.read()
     user_bytes = await user_face.read()
     try:
-        inputs = await asyncio.to_thread(prepare_face_edit, base_bytes)
+        api_base = await asyncio.to_thread(prepare_avatar_generation, base_bytes)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except (RuntimeError, ImportError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    base_file = BytesIO(inputs.api_base)
+    base_file = BytesIO(api_base)
     base_file.name = "base_avatar.png"
-
-    mask_file = BytesIO(inputs.api_mask)
-    mask_file.name = "avatar_face_only_mask.png"
 
     user_photo = ImageOps.exif_transpose(Image.open(BytesIO(user_bytes))).convert("RGB")
     user_output = BytesIO()
@@ -746,9 +744,8 @@ async def generate_avatar(
         result = await asyncio.to_thread(client.images.edit,
             model=os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5"),
             image=[base_file, user_file],
-            mask=mask_file,
             prompt=prompt,
-            size=f"{inputs.api_size[0]}x{inputs.api_size[1]}",
+            size=f"{API_SIZE[0]}x{API_SIZE[1]}",
             quality="high",
             input_fidelity="high",
             output_format="png",
@@ -778,11 +775,12 @@ async def generate_avatar(
         raise HTTPException(status_code=502, detail="얼굴 합성 이미지가 반환되지 않았습니다.")
     try:
         output = await asyncio.to_thread(
-            composite_face_edit, inputs, base64.b64decode(result.data[0].b64_json)
+            validate_generated_avatar, base64.b64decode(result.data[0].b64_json)
         )
     except ValueError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    return {"image": "data:image/png;base64," + base64.b64encode(output).decode()}
+    return {"image": "data:image/png;base64," + base64.b64encode(output).decode(),
+            "generation_method": "full_image_generation"}
 
 
 @app.post("/virtual-try-on")

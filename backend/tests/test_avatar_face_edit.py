@@ -54,8 +54,9 @@ class FaceOnlyEditTests(unittest.TestCase):
         self.assertEqual(mask.mode, "RGBA")
         self.assertEqual(set(np.unique(np.array(mask)[:, :, 3])), {0, 255})
         self.assertEqual(inputs.api_size, (1024, 1024))
-        # No neck or body is sent to the provider for a facial edit.
-        self.assertLessEqual(inputs.source_box[3], 85)
+        # Fixed upper-neck context is visible, but the torso is never sent.
+        self.assertGreater(inputs.source_box[3], 85)
+        self.assertLess(inputs.source_box[3], 110)
 
     def test_adversarial_redraw_cannot_modify_non_face_pixels_or_alpha(self):
         inputs = self.prepare()
@@ -74,6 +75,16 @@ class FaceOnlyEditTests(unittest.TestCase):
         redraw = Image.new("RGBA", inputs.api_size, (0, 0, 0, 0))
         result = Image.open(BytesIO(edit.composite_face_edit(inputs, edit.png_bytes(redraw))))
         np.testing.assert_array_equal(np.array(result), np.array(inputs.original))
+
+    def test_skin_color_cast_matches_base_without_erasing_facial_detail(self):
+        inputs = self.prepare()
+        original = np.array(inputs.original)
+        edited = original.copy()
+        edited[inputs.support, :3] = [180, 150, 140]
+        edited[60:64, 85:95, :3] = [145, 110, 100]
+        corrected = edit.match_face_skin(original, edited, inputs.support)
+        np.testing.assert_allclose(corrected[75, 90], original[75, 90, :3])
+        self.assertGreater(corrected[75, 90, 0] - corrected[61, 90, 0], 25)
 
     def test_missing_face_fails_closed(self):
         with patch.object(edit, "parse_avatar_face", return_value=np.zeros_like(self.labels)):
@@ -105,6 +116,8 @@ class FaceOnlyEditTests(unittest.TestCase):
         self.assertEqual(sent["prompt"], edit.face_edit_prompt())
         self.assertNotIn("The complete body, including", sent["prompt"])
         self.assertIn("Do NOT copy the hairstyle from Image 2.", sent["prompt"])
+        self.assertIn("Reconstruct these features as a newly rendered 3D illustrated face", sent["prompt"])
+        self.assertNotIn("Do not beautify, idealize, stylize", sent["prompt"])
         self.assertEqual(sent["mask"].getvalue(), inputs.api_mask)
         self.assertEqual(sent["input_fidelity"], "high")
         self.assertEqual(sent["background"], "transparent")

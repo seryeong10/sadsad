@@ -23,7 +23,19 @@ def face_edit_prompt() -> str:
         "This is a tightly cropped facial portrait of the avatar selected by the user. The full body is stored separately and preserved by local compositing.")
     prompt = prompt.replace("The complete body, including the top of the head and both feet, must remain visible.",
         "Only the face already present in this portrait crop must remain visible at exactly the same scale and position. Never draw a miniature person, body, torso, clothes or feet inside the facial region.")
-    return prompt + "\n\nOUTPUT SCOPE: Edit the existing large face in Image 1 at its current scale. Return the same facial portrait crop, never a full-body image. Body preservation is performed outside this API."
+    prompt = prompt.replace("Do not beautify, idealize, stylize, or reinterpret the user's facial features.",
+        "Do not beautify or idealize the user's facial anatomy. Re-render that same anatomy in Image 1's semi-realistic 3D illustration style.")
+    return prompt + "\n\n" + """
+
+RENDERING CONTRACT FOR THIS PORTRAIT EDIT:
+Image 2 supplies facial geometry and identity ONLY: eyes, nose, lips, cheek and jaw proportions, and characteristic asymmetry.
+Reconstruct these features as a newly rendered 3D illustrated face using Image 1's material, soft shading, skin color, texture frequency and lighting.
+Do not paste, project, or retain photographic pixels or photographic skin texture from Image 2. Do not copy its white balance, makeup, skin brightness, shadows or exposure.
+The face must have the same warm skin material and light direction as the fixed ears and neck visible in Image 1. A pale or pink photographic face on a warm illustrated neck is incorrect.
+Preserve recognizable identity through feature shapes and proportions, not through a photographic patch. Keep the existing face scale, viewpoint, eye line and expression alignment.
+Render continuous shading into the fixed facial boundary, with no cutout rim, separate face plate or visible change of material at the jaw and temples.
+OUTPUT SCOPE: Edit the existing large face in Image 1 at its current scale. Return the same facial portrait crop, never a full-body image. Hair, neck and all unmasked pixels are fixed context. Body preservation is performed outside this API.
+""".strip()
 
 
 def png_bytes(image: Image.Image) -> bytes:
@@ -156,9 +168,13 @@ def prepare_face_edit(base_bytes: bytes) -> FaceEditInputs:
     # This is a portrait edit: send only facial context, never the full body.
     # The original body remains local and cannot be redrawn by the image model.
     ys, xs = np.where(support)
-    margin = max(2, round((xs.max() - xs.min() + 1) * .12))
-    source_box = (max(0, int(xs.min()) - margin), max(0, int(ys.min()) - margin),
-                  min(original.width, int(xs.max()) + 1 + margin), int(ys.max()) + 1)
+    margin = max(2, round((xs.max() - xs.min() + 1) * .25))
+    height = int(ys.max() - ys.min() + 1)
+    # Fixed hair/ears/upper-neck context tells the renderer which material and
+    # lighting to match. They remain excluded from the editable mask.
+    source_box = (max(0, int(xs.min()) - margin), max(0, int(ys.min()) - round(height * .45)),
+                  min(original.width, int(xs.max()) + 1 + margin),
+                  min(original.height, int(ys.max()) + 1 + round(height * .30)))
     portrait = original.crop(source_box)
     api_size = (1024, 1024)
     scale = min(api_size[0] / portrait.width, api_size[1] / portrait.height)
@@ -175,6 +191,24 @@ def prepare_face_edit(base_bytes: bytes) -> FaceEditInputs:
                           (left, top, left + size[0], top + size[1]), source_box)
 
 
+def match_face_skin(original: np.ndarray, edited: np.ndarray, support: np.ndarray) -> np.ndarray:
+    """Match the skin cast at the join without replacing facial detail."""
+    distance = ndimage.distance_transform_edt(support)
+    _, xs = np.where(support)
+    width = int(xs.max() - xs.min() + 1)
+    ring = support & (distance <= max(2, width * .12))
+    def skin(rgb):
+        r, g, b = np.moveaxis(rgb.astype(float), -1, 0)
+        return (r > 75) & (g > 45) & (r >= g) & (r > b * 1.06) & ((r-g) < 75)
+    samples = ring & skin(original[:, :, :3]) & skin(edited[:, :, :3]) & (edited[:, :, 3] >= 128)
+    if samples.sum() < 16:
+        return edited[:, :, :3].astype(float)
+    # A robust translation preserves eye/nose/lip contrast and asymmetry;
+    # hair, transparent pixels and saturated lips cannot set the skin color.
+    delta = np.median(original[samples, :3].astype(float) - edited[samples, :3], axis=0)
+    return np.clip(edited[:, :, :3].astype(float) + np.clip(delta, -80, 80), 0, 255)
+
+
 def composite_face_edit(inputs: FaceEditInputs, generated_bytes: bytes) -> bytes:
     generated = Image.open(BytesIO(generated_bytes)).convert("RGBA")
     if generated.size != inputs.api_size:
@@ -183,14 +217,17 @@ def composite_face_edit(inputs: FaceEditInputs, generated_bytes: bytes) -> bytes
     face = inputs.original.copy()
     face.paste(generated.crop(inputs.paste_box).resize((x2-x1, y2-y1), Image.Resampling.LANCZOS), (x1, y1))
     distance = ndimage.distance_transform_edt(inputs.support)
-    feather_width = max(1.0, min(inputs.original.size) * .003)
+    _, face_xs = np.where(inputs.support)
+    feather_width = max(2.0, (face_xs.max() - face_xs.min() + 1) * .08)
     weights = np.minimum(distance / feather_width, 1.0)
+    weights = weights * weights * (3 - 2 * weights)
     original = np.array(inputs.original)
     edited = np.array(face)
+    corrected_rgb = match_face_skin(original, edited, inputs.support)
     # Missing/generated transparency must not punch holes through the original.
     weights *= edited[:, :, 3] / 255.0
     rgb = np.round(original[:, :, :3] * (1 - weights[:, :, None])
-                   + edited[:, :, :3] * weights[:, :, None]).astype(np.uint8)
+                   + corrected_rgb * weights[:, :, None]).astype(np.uint8)
     result = original.copy()
     result[inputs.support, :3] = rgb[inputs.support]
     # Preserve the cleaned original alpha exactly, including inside the face.

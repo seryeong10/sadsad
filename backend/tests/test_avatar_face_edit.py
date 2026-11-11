@@ -13,6 +13,10 @@ from unittest.mock import patch, Mock
 import numpy as np
 from PIL import Image
 from fastapi import UploadFile
+from fastapi.testclient import TestClient
+from openai import BadRequestError
+import httpx
+import os
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from app import avatar_face_edit as edit
@@ -49,6 +53,9 @@ class FaceOnlyEditTests(unittest.TestCase):
         self.assertEqual(base.size, mask.size)
         self.assertEqual(mask.mode, "RGBA")
         self.assertEqual(set(np.unique(np.array(mask)[:, :, 3])), {0, 255})
+        self.assertEqual(inputs.api_size, (1024, 1024))
+        # No neck or body is sent to the provider for a facial edit.
+        self.assertLessEqual(inputs.source_box[3], 85)
 
     def test_adversarial_redraw_cannot_modify_non_face_pixels_or_alpha(self):
         inputs = self.prepare()
@@ -101,6 +108,20 @@ class FaceOnlyEditTests(unittest.TestCase):
         self.assertEqual(sent["background"], "transparent")
         image = Image.open(BytesIO(base64.b64decode(result["image"].split(",", 1)[1])))
         self.assertEqual(image.size, inputs.original.size)
+
+    def test_provider_rejection_returns_readable_error_with_cors_without_retry(self):
+        error = BadRequestError("safety rejection", response=httpx.Response(
+            400, request=httpx.Request("POST", "https://api.openai.com/v1/images/edits")), body={})
+        call = Mock(side_effect=error)
+        photo = edit.png_bytes(Image.new("RGB", (100, 100), "white"))
+        with patch.dict(os.environ, {"REQUIRE_FIREBASE_AUTH": "false"}), patch.object(main, "prepare_face_edit", return_value=self.prepare()), patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
+            response = TestClient(main.app).post("/generate-avatar",
+                headers={"Origin": "https://a-vata-demo.vercel.app"},
+                files={"base_avatar": ("base.png", photo, "image/png"), "user_face": ("face.png", photo, "image/png")})
+        self.assertEqual(response.status_code, 422)
+        self.assertIn("승인하지", response.json()["detail"])
+        self.assertEqual(response.headers["access-control-allow-origin"], "*")
+        call.assert_called_once()
 
     def test_all_twenty_shipped_avatars_have_matching_face_masks(self):
         root = Path(__file__).resolve().parents[2]

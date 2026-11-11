@@ -125,6 +125,7 @@ class FaceEditInputs:
     api_mask: bytes
     api_size: tuple[int, int]
     paste_box: tuple[int, int, int, int]
+    source_box: tuple[int, int, int, int]
 
 
 def prepare_face_edit(base_bytes: bytes) -> FaceEditInputs:
@@ -142,28 +143,35 @@ def prepare_face_edit(base_bytes: bytes) -> FaceEditInputs:
     else:
         labels = parse_avatar_face(original)
         support = face_support(labels, np.array(original.getchannel("A")))
-    # Only the API transport canvas is letterboxed. The final image never uses
-    # this resized base: it is composited onto the untouched original below.
-    api_size = (1024, 1536)
-    scale = min(api_size[0] / original.width, api_size[1] / original.height)
-    size = (max(1, round(original.width * scale)), max(1, round(original.height * scale)))
+    # This is a portrait edit: send only facial context, never the full body.
+    # The original body remains local and cannot be redrawn by the image model.
+    ys, xs = np.where(support)
+    margin = max(2, round((xs.max() - xs.min() + 1) * .12))
+    source_box = (max(0, int(xs.min()) - margin), max(0, int(ys.min()) - margin),
+                  min(original.width, int(xs.max()) + 1 + margin), int(ys.max()) + 1)
+    portrait = original.crop(source_box)
+    api_size = (1024, 1024)
+    scale = min(api_size[0] / portrait.width, api_size[1] / portrait.height)
+    size = (max(1, round(portrait.width * scale)), max(1, round(portrait.height * scale)))
     left, top = (api_size[0] - size[0]) // 2, (api_size[1] - size[1]) // 2
     canvas = Image.new("RGBA", api_size, (255, 255, 255, 0))
-    canvas.paste(original.resize(size, Image.Resampling.LANCZOS), (left, top))
-    edit_region = Image.fromarray(support.astype(np.uint8) * 255).resize(size, Image.Resampling.NEAREST)
+    canvas.paste(portrait.resize(size, Image.Resampling.LANCZOS), (left, top))
+    edit_region = Image.fromarray(support.astype(np.uint8) * 255).crop(source_box).resize(size, Image.Resampling.NEAREST)
     full_region = Image.new("L", api_size, 0)
     full_region.paste(edit_region, (left, top))
     mask = Image.new("RGBA", api_size, (0, 0, 0, 255))
     mask.putalpha(Image.fromarray(255 - np.array(full_region)))
     return FaceEditInputs(original, support, png_bytes(canvas), png_bytes(mask), api_size,
-                          (left, top, left + size[0], top + size[1]))
+                          (left, top, left + size[0], top + size[1]), source_box)
 
 
 def composite_face_edit(inputs: FaceEditInputs, generated_bytes: bytes) -> bytes:
     generated = Image.open(BytesIO(generated_bytes)).convert("RGBA")
     if generated.size != inputs.api_size:
         raise ValueError("얼굴 합성 결과의 캔버스 크기가 요청과 다릅니다.")
-    face = generated.crop(inputs.paste_box).resize(inputs.original.size, Image.Resampling.LANCZOS)
+    x1, y1, x2, y2 = inputs.source_box
+    face = inputs.original.copy()
+    face.paste(generated.crop(inputs.paste_box).resize((x2-x1, y2-y1), Image.Resampling.LANCZOS), (x1, y1))
     distance = ndimage.distance_transform_edt(inputs.support)
     feather_width = max(1.0, min(inputs.original.size) * .003)
     weights = np.minimum(distance / feather_width, 1.0)

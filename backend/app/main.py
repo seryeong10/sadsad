@@ -23,7 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import OpenAI, APIStatusError, APIConnectionError
 from PIL import Image, ImageOps
 from pydantic import BaseModel, Field
 import requests
@@ -742,17 +742,31 @@ async def generate_avatar(
     user_file = BytesIO(user_output.getvalue())
     user_file.name = "user_face.png"
 
-    result = await asyncio.to_thread(client.images.edit,
-        model=os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5"),
-        image=[base_file, user_file],
-        mask=mask_file,
-        prompt=prompt,
-        size=f"{inputs.api_size[0]}x{inputs.api_size[1]}",
-        quality="high",
-        input_fidelity="high",
-        output_format="png",
-        background="transparent",
-    )
+    try:
+        result = await asyncio.to_thread(client.images.edit,
+            model=os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-1.5"),
+            image=[base_file, user_file],
+            mask=mask_file,
+            prompt=prompt,
+            size=f"{inputs.api_size[0]}x{inputs.api_size[1]}",
+            quality="high",
+            input_fidelity="high",
+            output_format="png",
+            background="transparent",
+        )
+    except APIStatusError as exc:
+        # Never retry a safety rejection or expose provider payloads to users.
+        print(f"[avatar] OpenAI status={exc.status_code} request_id={exc.request_id}", flush=True)
+        if exc.status_code == 400:
+            detail = "이미지 서비스가 합성 요청을 승인하지 않았습니다. 얼굴만 선명하게 나온 사진을 사용해주세요. 계속되면 관리자에게 문의해주세요."
+            status = 422
+        elif exc.status_code == 429:
+            detail, status = "이미지 서비스 사용량이 많습니다. 잠시 후 다시 시도해주세요.", 503
+        else:
+            detail, status = "이미지 서비스에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", 502
+        raise HTTPException(status_code=status, detail=detail) from exc
+    except APIConnectionError as exc:
+        raise HTTPException(status_code=503, detail="이미지 서비스 연결이 지연되고 있습니다. 잠시 후 다시 시도해주세요.") from exc
 
     if not result.data or not result.data[0].b64_json:
         raise HTTPException(status_code=502, detail="얼굴 합성 이미지가 반환되지 않았습니다.")

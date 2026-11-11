@@ -16,7 +16,7 @@ Checked: 2026-11-12 (KST). All 60 supplied product detail pages were confirmed: 
 
 ## Images and prices
 
-The supplied JSON contains no images, prices, color information or style tags. No screenshots, product photos or prices have been invented or copied into the active data. Product photographs require confirmed permission for display and AI try-on use, or user-owned matching photos. Until supplied, product links and wishlist work, and fitting shows a missing-photo message without calling fal.ai.
+The original link-only JSON has now been supplemented by the user's ZIP containing 60 matching product photographs. All 60 are shipped as local 512×512 assets and passed as image bytes to fitting. See SHOPPING_IMAGE_REPORT.md for photo review notes. Prices remain absent and are not invented; original product URLs and unverified availability flags are preserved.
 
 ## Verification scope
 

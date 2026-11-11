@@ -16,6 +16,16 @@ PROMPT_PATH = Path(__file__).with_name("prompts") / "avatar_face_edit.txt"
 MASK_ROOT = Path(__file__).resolve().parents[1] / "data/avatar_face_masks"
 
 
+def face_edit_prompt() -> str:
+    """Keep the user's identity instructions; adapt only transport framing."""
+    prompt = PROMPT_PATH.read_text(encoding="utf-8").strip()
+    prompt = prompt.replace("This is the original full-body avatar selected by the user.",
+        "This is a tightly cropped facial portrait of the avatar selected by the user. The full body is stored separately and preserved by local compositing.")
+    prompt = prompt.replace("The complete body, including the top of the head and both feet, must remain visible.",
+        "Only the face already present in this portrait crop must remain visible at exactly the same scale and position. Never draw a miniature person, body, torso, clothes or feet inside the facial region.")
+    return prompt + "\n\nOUTPUT SCOPE: Edit the existing large face in Image 1 at its current scale. Return the same facial portrait crop, never a full-body image. Body preservation is performed outside this API."
+
+
 def png_bytes(image: Image.Image) -> bytes:
     output = BytesIO()
     image.save(output, format="PNG")

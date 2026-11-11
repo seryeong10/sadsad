@@ -102,7 +102,9 @@ class FaceOnlyEditTests(unittest.TestCase):
                 UploadFile(filename="user.png", file=BytesIO(edit.png_bytes(Image.new("RGB", (100, 100), "white")))),
             ))
         sent = call.call_args.kwargs
-        self.assertEqual(sent["prompt"], edit.PROMPT_PATH.read_text(encoding="utf8").strip())
+        self.assertEqual(sent["prompt"], edit.face_edit_prompt())
+        self.assertNotIn("The complete body, including", sent["prompt"])
+        self.assertIn("Do NOT copy the hairstyle from Image 2.", sent["prompt"])
         self.assertEqual(sent["mask"].getvalue(), inputs.api_mask)
         self.assertEqual(sent["input_fidelity"], "high")
         self.assertEqual(sent["background"], "transparent")

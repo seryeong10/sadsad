@@ -30,7 +30,7 @@ import requests
 
 from app.personal_color_palette import get_personal_color_palette
 from app.avatar_face_edit import (
-    PROMPT_PATH, prepare_face_edit, composite_face_edit,
+    PROMPT_PATH, prepare_face_edit, composite_face_edit, face_edit_prompt,
     clean_avatar_alpha as _clean_avatar_alpha,
 )
 from app.closet_image_processor import prepare_closet_image
@@ -720,7 +720,7 @@ async def generate_avatar(
     if client is None:
         raise RuntimeError("OPENAI_API_KEY가 설정되어 있지 않습니다.")
 
-    prompt = PROMPT_PATH.read_text(encoding="utf-8").strip()
+    prompt = face_edit_prompt()
     base_bytes = await base_avatar.read()
     user_bytes = await user_face.read()
     try:

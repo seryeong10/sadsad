@@ -120,7 +120,7 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
                       padding: EdgeInsets.fromLTRB(24, 12, 24, 0),
                       child: Text(
                         data.source == 'curated_products'
-                            ? '등록된 상품 목록으로 추천합니다. 이미지·가격은 미등록이며 판매 여부는 확인되지 않았어요. 현재 가격·재고는 상품 상세 페이지에서 확인해주세요.'
+                            ? '등록된 상품 목록으로 추천합니다. 판매 여부는 확인되지 않았어요. 현재 가격·재고는 상품 상세 페이지에서 확인해주세요.'
                             : '수집된 실제 상품을 프로필에 맞춰 추천합니다. 가격은 수집 당시 정보이며, 현재 가격·재고는 판매 페이지에서 확인해주세요.',
                         style: const TextStyle(color: AppColors.muted, fontSize: 12),
                       ),

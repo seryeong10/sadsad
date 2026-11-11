@@ -30,6 +30,7 @@ flutter:
 
   assets:
     - assets/brand/a_vata_logo.png
+    - assets/shopping_products/
     - assets/avatars/female_base.png
     - assets/avatars/male_base.png
     - assets/avatars/body_types/

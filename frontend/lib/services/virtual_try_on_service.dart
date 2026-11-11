@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:flutter/services.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -70,6 +71,17 @@ class VirtualTryOnService {
     final isRemote =
         imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
 
+    if (imageUrl.startsWith('assets/')) {
+      final asset = await rootBundle.load(imageUrl);
+      final bytes = asset.buffer.asUint8List(asset.offsetInBytes, asset.lengthInBytes);
+      final size = await _imageSize(bytes);
+      return GarmentImageInput(
+        dataUri: 'data:image/png;base64,${base64Encode(bytes)}',
+        width: size.width,
+        height: size.height,
+        isRemote: false,
+      );
+    }
     if (imageUrl.startsWith('data:image/')) {
       final bytes = base64Decode(imageUrl.split(',').last);
       final size = await _imageSize(bytes);

@@ -210,7 +210,8 @@ class OutfitItem {
     required String baseUrl,
   }) {
     final imagePath = json['image_url'] as String? ?? '';
-    final imageUrl = imagePath.isEmpty ? '' : imagePath.startsWith('http') ||
+    final imageUrl = imagePath.isEmpty ? '' : imagePath.startsWith('assets/') ||
+            imagePath.startsWith('http') ||
             imagePath.startsWith('data:') ||
             imagePath.startsWith('blob:')
         ? imagePath

@@ -26,6 +26,10 @@ class OutfitImage extends StatelessWidget {
             Text('이미지 미등록', style: TextStyle(color: AppColors.muted, fontSize: 10)),
           ])));
     }
+    if (value.startsWith('assets/')) {
+      return Image.asset(value, width: width, height: height, fit: fit,
+          errorBuilder: fallback);
+    }
     if (value.startsWith('data:image/')) {
       return Image.memory(base64Decode(value.split(',').last), width: width,
         height: height, fit: fit, errorBuilder: fallback);

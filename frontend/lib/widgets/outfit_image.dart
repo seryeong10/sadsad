@@ -17,6 +17,15 @@ class OutfitImage extends StatelessWidget {
     Widget fallback(BuildContext _, Object __, StackTrace? ___) =>
         const ColoredBox(color: AppColors.canvas,
           child: Icon(Icons.checkroom_outlined, color: AppColors.main));
+    if (value.isEmpty) {
+      return SizedBox(width: width, height: height,
+        child: const ColoredBox(color: AppColors.canvas,
+          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.checkroom_outlined, color: AppColors.main),
+            SizedBox(height: 6),
+            Text('이미지 미등록', style: TextStyle(color: AppColors.muted, fontSize: 10)),
+          ])));
+    }
     if (value.startsWith('data:image/')) {
       return Image.memory(base64Decode(value.split(',').last), width: width,
         height: height, fit: fit, errorBuilder: fallback);

@@ -1,0 +1,487 @@
+{
+  "checked_at": "2026-11-12",
+  "method": "53 public product page retrievals; 7 additional direct browser checks",
+  "note": "All 60 product detail pages were observed. Link checks do not verify availability, stock or image usage rights. Original URLs and availability_verified=false remain unchanged.",
+  "products": [
+    {
+      "id": "female_top_01",
+      "url": "https://www.uniqlo.com/kr/ko/products/E470143-000/00?colorDisplayCode=10",
+      "name": "소프트니트후리스크루넥T",
+      "title": "여성 소프트니트후리스크루넥T | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E470143-000/00?colorDisplayCode=10)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_02",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487595-000/00?colorDisplayCode=41",
+      "name": "립니트후리스V넥T",
+      "title": "여성 립니트후리스V넥T | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487595-000/00?colorDisplayCode=41)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_03",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488298-000/00?colorDisplayCode=03",
+      "name": "후드립T 긴팔",
+      "title": "여성 후드립T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E488298-000/00?colorDisplayCode=03)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_04",
+      "url": "https://www.uniqlo.com/kr/ko/products/E465751-000/00?colorDisplayCode=09",
+      "name": "소프트립T 긴팔",
+      "title": "여성 소프트립T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E465751-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_05",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487908-000/00?colorDisplayCode=30",
+      "name": "립헨리넥T 긴팔",
+      "title": "여성 립헨리넥T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487908-000/00?colorDisplayCode=30)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_06",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487579-000/00?colorDisplayCode=15",
+      "name": "미니T 긴팔",
+      "title": "여성 미니T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487579-000/00?colorDisplayCode=15)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_07",
+      "url": "https://www.uniqlo.com/kr/ko/products/E489372-000/00?colorDisplayCode=69",
+      "name": "미니T 긴팔 래글런",
+      "title": "여성 미니T(긴팔)래글런 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E489372-000/00?colorDisplayCode=69)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_08",
+      "url": "https://www.uniqlo.com/kr/ko/products/E489040-000/00?colorDisplayCode=69",
+      "name": "소프트립T 긴팔 스트라이프",
+      "title": "여성 소프트립T(긴팔)스트라이프 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E489040-000/00?colorDisplayCode=69)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_09",
+      "url": "https://www.uniqlo.com/kr/ko/products/E483536-000/00?colorDisplayCode=69",
+      "name": "소프트립T 긴팔 스트라이프 (다른 제품)",
+      "title": "여성 소프트립T(긴팔)스트라이프 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E483536-000/00?colorDisplayCode=69)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_top_10",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488230-000/00?colorDisplayCode=15",
+      "name": "SUPIMA COTTON T 긴팔",
+      "title": "여성 SUPIMA COTTON T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E488230-000/00?colorDisplayCode=15)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_01",
+      "url": "https://www.uniqlo.com/kr/ko/products/E476209-000/00?colorDisplayCode=69",
+      "name": "스트레이트진",
+      "title": "여성 스트레이트진 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E476209-000/00?colorDisplayCode=69)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_02",
+      "url": "https://www.uniqlo.com/kr/ko/products/E484807-000/00?colorDisplayCode=31",
+      "name": "배기배럴레그진 긴기장",
+      "title": "젠더리스 배기배럴레그진(다리길이80cm·긴기장) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E484807-000/00?colorDisplayCode=31)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_03",
+      "url": "https://www.uniqlo.com/kr/ko/products/E479000-000/00?colorDisplayCode=67",
+      "name": "배기배럴레그진 기본기장",
+      "title": "여성 배기배럴레그진(다리길이75cm) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E479000-000/00?colorDisplayCode=67)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_04",
+      "url": "https://www.uniqlo.com/kr/ko/products/E491104-000/00?colorDisplayCode=02",
+      "name": "하이라이즈와이드진",
+      "title": "여성 하이라이즈와이드진 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E491104-000/00?colorDisplayCode=02)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_05",
+      "url": "https://www.uniqlo.com/kr/ko/products/E482281-000/00?colorDisplayCode=07",
+      "name": "EZY와이드스트레이트진",
+      "title": "여성 EZY와이드스트레이트진 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E482281-000/00?colorDisplayCode=07)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_06",
+      "url": "https://www.uniqlo.com/kr/ko/products/E482658-000/00?colorDisplayCode=09",
+      "name": "와이드플리츠미디스커트",
+      "title": "여성 와이드플리츠미디스커트(치마길이69~73cm) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E482658-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_07",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488083-000/00?colorDisplayCode=09",
+      "name": "플리츠스커트",
+      "title": "여성 플리츠스커트 | UNIQLO KR",
+      "verification": "browser_page_verified",
+      "note": "Product heading was confirmed in browser. Availability, stock, price and image rights remain unverified."
+    },
+    {
+      "id": "female_bottom_08",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487997-000/00?colorDisplayCode=04",
+      "name": "브러시드저지플레어스커트",
+      "title": "여성 브러시드저지플레어스커트 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487997-000/00?colorDisplayCode=04)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_09",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487995-000/00?colorDisplayCode=09",
+      "name": "나일론개더스커트",
+      "title": "여성 나일론개더스커트 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487995-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_bottom_10",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488008-000/00?colorDisplayCode=08",
+      "name": "플리츠스코츠",
+      "title": "여성 플리츠스코츠 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E488008-000/00?colorDisplayCode=08)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_01",
+      "url": "https://www.uniqlo.com/kr/ko/products/E469871-000/00?colorDisplayCode=60",
+      "name": "PUFFTECH파카",
+      "title": "여성 PUFFTECH파카 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E469871-000/00?colorDisplayCode=60)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_02",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487404-000/00?colorDisplayCode=09",
+      "name": "PUFFTECH컴팩트재킷",
+      "title": "여성 PUFFTECH컴팩트재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487404-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_03",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487408-000/00?colorDisplayCode=19",
+      "name": "PUFFTECH재킷",
+      "title": "여성 PUFFTECH재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487408-000/00?colorDisplayCode=19)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_04",
+      "url": "https://www.uniqlo.com/kr/ko/products/E478579-000/00?colorDisplayCode=09",
+      "name": "심리스다운롱코트",
+      "title": "여성 심리스다운롱코트 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E478579-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_05",
+      "url": "https://www.uniqlo.com/kr/ko/products/E478577-000/00?colorDisplayCode=36",
+      "name": "심리스다운파카",
+      "title": "여성 심리스다운파카 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E478577-000/00?colorDisplayCode=36)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_06",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487882-000/00?colorDisplayCode=09",
+      "name": "하이브리드다운쇼트재킷",
+      "title": "여성 하이브리드다운쇼트재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487882-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_07",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487518-000/00?colorDisplayCode=09",
+      "name": "패디드유틸리티쇼트재킷",
+      "title": "여성 패디드유틸리티쇼트재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487518-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_08",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487425-000/00?colorDisplayCode=09",
+      "name": "논퀼팅다운쇼트코트",
+      "title": "여성 논퀼팅다운쇼트코트 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487425-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "female_outer_09",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487424-000/00?colorDisplayCode=01",
+      "name": "리버서블다운쇼트재킷",
+      "title": "젠더리스 리버서블다운쇼트재킷 | UNIQLO KR",
+      "verification": "browser_page_verified",
+      "note": "Product heading was confirmed in browser. Availability, stock, price and image rights remain unverified."
+    },
+    {
+      "id": "female_outer_10",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487517-000/00?colorDisplayCode=31",
+      "name": "후리스스탠드블루종",
+      "title": "젠더리스 후리스스탠드블루종 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487517-000/00?colorDisplayCode=31)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_01",
+      "url": "https://www.uniqlo.com/kr/ko/products/E450179-000/00",
+      "name": "소프트브러시드크루넥T 긴팔",
+      "title": "남성 소프트브러시드크루넥T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E450179-000/00)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_02",
+      "url": "https://www.uniqlo.com/kr/ko/products/E486129-000/00?colorDisplayCode=08",
+      "name": "소프트브러시드터틀넥T 긴팔",
+      "title": "남성 소프트브러시드터틀넥T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E486129-000/00?colorDisplayCode=08)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_03",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487929-000/00?colorDisplayCode=26",
+      "name": "후리스버튼업풀오버",
+      "title": "젠더리스 후리스버튼업풀오버 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487929-000/00?colorDisplayCode=26)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_04",
+      "url": "https://www.uniqlo.com/kr/ko/products/E479791-000/00?colorDisplayCode=18",
+      "name": "소프트니트후리스크루넥T",
+      "title": "젠더리스 소프트니트후리스크루넥T | UNIQLO KR",
+      "verification": "browser_page_verified",
+      "note": "Product heading was confirmed in browser. Availability, stock, price and image rights remain unverified."
+    },
+    {
+      "id": "male_top_05",
+      "url": "https://www.uniqlo.com/kr/ko/products/E465193-000/00?colorDisplayCode=65",
+      "name": "AIRism코튼크루넥T 긴팔",
+      "title": "젠더리스 AIRism코튼크루넥T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E465193-000/00?colorDisplayCode=65)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_06",
+      "url": "https://www.uniqlo.com/kr/ko/products/E486103-000/00?colorDisplayCode=00",
+      "name": "AIRism코튼스트라이프T 긴팔",
+      "title": "젠더리스 AIRism코튼스트라이프T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E486103-000/00?colorDisplayCode=00)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_07",
+      "url": "https://www.uniqlo.com/kr/ko/products/E482766-000/00?colorDisplayCode=01",
+      "name": "와플헨리넥T 긴팔",
+      "title": "젠더리스 와플헨리넥T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E482766-000/00?colorDisplayCode=01)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_08",
+      "url": "https://www.uniqlo.com/kr/ko/products/E484080-000/00?colorDisplayCode=00",
+      "name": "워시코튼크루넥T 긴팔",
+      "title": "남성 워시코튼크루넥T(긴팔) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E484080-000/00?colorDisplayCode=00)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_09",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488751-000/00?colorDisplayCode=01",
+      "name": "러거셔츠",
+      "title": "남성 러거셔츠 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E488751-000/00?colorDisplayCode=01)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_top_10",
+      "url": "https://www.uniqlo.com/kr/ko/products/E471808-000/00?colorDisplayCode=03",
+      "name": "스웨트오버사이즈풀파카",
+      "title": "젠더리스 스웨트오버사이즈풀파카 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E471808-000/00?colorDisplayCode=03)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_bottom_01",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487206-000/00?colorDisplayCode=67",
+      "name": "스트레이트진",
+      "title": "젠더리스 스트레이트진 | UNIQLO KR",
+      "verification": "browser_page_verified",
+      "note": "Product heading was confirmed in browser. Availability, stock, price and image rights remain unverified."
+    },
+    {
+      "id": "male_bottom_02",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488684-000/00?colorDisplayCode=69",
+      "name": "스트레이트진 셀비지",
+      "title": "젠더리스 스트레이트진(셀비지) | UNIQLO KR",
+      "verification": "browser_page_verified",
+      "note": "Product heading was confirmed in browser. Availability, stock, price and image rights remain unverified."
+    },
+    {
+      "id": "male_bottom_03",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487207-000/00?colorDisplayCode=34",
+      "name": "배럴진 코듀로이",
+      "title": "남성 배럴진(코듀로이) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487207-000/00?colorDisplayCode=34)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_bottom_04",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488743-000/00?colorDisplayCode=09",
+      "name": "배럴진",
+      "title": "젠더리스 배럴진 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E488743-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_bottom_05",
+      "url": "https://www.uniqlo.com/kr/ko/products/E470542-000/00?colorDisplayCode=09",
+      "name": "와이드스트레이트진",
+      "title": "남성 와이드스트레이트진 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E470542-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_bottom_06",
+      "url": "https://www.uniqlo.com/kr/ko/products/E482856-000/00?colorDisplayCode=67",
+      "name": "슬림스트레이트진",
+      "title": "남성 슬림스트레이트진 | UNIQLO KR",
+      "verification": "browser_page_verified",
+      "note": "Product heading was confirmed in browser. Availability, stock, price and image rights remain unverified."
+    },
+    {
+      "id": "male_bottom_07",
+      "url": "https://www.uniqlo.com/kr/ko/products/E486471-000/00?colorDisplayCode=69",
+      "name": "코듀로이이지앵클팬츠",
+      "title": "남성 코듀로이이지앵클팬츠 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E486471-000/00?colorDisplayCode=69)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_bottom_08",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487261-000/00?colorDisplayCode=09",
+      "name": "웜이지팬츠",
+      "title": "남성 웜이지팬츠(다리길이71~77cm) | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487261-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_bottom_09",
+      "url": "https://www.uniqlo.com/kr/ko/products/E487214-000/00?colorDisplayCode=35",
+      "name": "배럴치노팬츠",
+      "title": "젠더리스 배럴치노팬츠 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E487214-000/00?colorDisplayCode=35)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_bottom_10",
+      "url": "https://www.uniqlo.com/kr/ko/products/E486042-000/00?colorDisplayCode=31",
+      "name": "파라슈트팬츠",
+      "title": "젠더리스 파라슈트팬츠 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E486042-000/00?colorDisplayCode=31)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_01",
+      "url": "https://www.uniqlo.com/kr/ko/products/E489110-000/00?colorDisplayCode=27",
+      "name": "PUFFTECH파카",
+      "title": "남성 PUFFTECH파카 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E489110-000/00?colorDisplayCode=27)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_02",
+      "url": "https://www.uniqlo.com/kr/ko/products/E486171-000/00?colorDisplayCode=19",
+      "name": "PUFFTECH재킷",
+      "title": "남성 PUFFTECH재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E486171-000/00?colorDisplayCode=19)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_03",
+      "url": "https://www.uniqlo.com/kr/ko/products/E486819-000/00?colorDisplayCode=08",
+      "name": "PUFFTECH컴팩트재킷",
+      "title": "남성 PUFFTECH컴팩트재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E486819-000/00?colorDisplayCode=08)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_04",
+      "url": "https://www.uniqlo.com/kr/ko/products/E492561-000/00?colorDisplayCode=09",
+      "name": "심리스다운재킷",
+      "title": "남성 심리스다운재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E492561-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_05",
+      "url": "https://www.uniqlo.com/kr/ko/products/E492179-000/00?colorDisplayCode=56",
+      "name": "라이트다운볼륨재킷",
+      "title": "젠더리스 라이트다운볼륨재킷 | UNIQLO KR",
+      "verification": "browser_page_verified",
+      "note": "Product heading was confirmed in browser. Availability, stock, price and image rights remain unverified."
+    },
+    {
+      "id": "male_outer_06",
+      "url": "https://www.uniqlo.com/kr/ko/products/E486176-000/00?colorDisplayCode=05",
+      "name": "심리스다운파카",
+      "title": "남성 심리스다운파카 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E486176-000/00?colorDisplayCode=05)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_07",
+      "url": "https://www.uniqlo.com/kr/ko/products/E478277-000/00?colorDisplayCode=32",
+      "name": "하이브리드다운파카",
+      "title": "젠더리스 하이브리드다운파카 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E478277-000/00?colorDisplayCode=32)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_08",
+      "url": "https://www.uniqlo.com/kr/ko/products/E491292-000/00?colorDisplayCode=09",
+      "name": "MA-1블루종",
+      "title": "젠더리스 MA-1블루종 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E491292-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_09",
+      "url": "https://www.uniqlo.com/kr/ko/products/E484610-000/00?colorDisplayCode=09",
+      "name": "해링턴재킷",
+      "title": "젠더리스 해링턴재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E484610-000/00?colorDisplayCode=09)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    },
+    {
+      "id": "male_outer_10",
+      "url": "https://www.uniqlo.com/kr/ko/products/E488726-000/00?colorDisplayCode=69",
+      "name": "데님트러커재킷",
+      "title": "젠더리스 데님트러커재킷 | UNIQLO KR (https://www.uniqlo.com/kr/ko/products/E488726-000/00?colorDisplayCode=69)",
+      "verification": "page_content_retrieved",
+      "note": "Product page title retrieved; sales, price and image rights unverified"
+    }
+  ]
+}

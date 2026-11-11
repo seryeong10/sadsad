@@ -300,16 +300,17 @@ async def recommend_outfits(
 ):
     gender = _normalize_gender_input(gender)
     personal_color = _normalize_personal_color_input(personal_color)
-    if os.getenv("SHOPPING_PROVIDER") == "product_catalog":
+    if (ROOT_DIR / "data/shopping_products.json").is_file() or os.getenv("SHOPPING_PROVIDER") == "product_catalog":
         items = await asyncio.to_thread(
             _recommend_catalog_outfits, situation, style, gender, personal_color,
             skeleton_type, season, per_category_limit * (3 if gender == "male" else 4),
             per_category_limit,
             refresh_seed, set(exclude_ids.split(",")) if exclude_ids else set(),
         )
-        categories = ["상의", "하의", "아우터"] + ([] if gender == "male" else ["원피스"])
+        json_catalog = (ROOT_DIR / "data/shopping_products.json").is_file()
+        categories = ["상의", "하의", "아우터"] + ([] if gender == "male" or json_catalog else ["원피스"])
         counts = {category: sum(item["item_type"] == category for item in items) for category in categories}
-        return {"source": "product_catalog", "situation": situation, "style": style,
+        return {"source": "curated_products" if json_catalog else "product_catalog", "situation": situation, "style": style,
                 "season": resolve_season(season) if season.strip() else "", "items": items,
                 "count": len(items), "per_category_limit": per_category_limit,
                 "category_counts": counts,
@@ -405,7 +406,7 @@ async def recommend_products(request: ProductRecommendationRequest):
             {
                 "name": item.get("title", ""),
                 "image": item.get("image_url", ""),
-                "price": _parse_price(item.get("price", "")),
+                "price": _parse_price(item.get("price", "")) if item.get("price") not in (None, "") else None,
                 "mallName": item.get("mall_name", ""),
                 "link": item.get("link", ""),
                 "category": item.get("category_path") or item.get("category", ""),
@@ -916,6 +917,9 @@ def _recommend_naver_outfits(
     season: str,
     limit: int,
 ) -> list[dict[str, object]]:
+    if (ROOT_DIR / "data/shopping_products.json").is_file():
+        return _recommend_json_outfits(situation, style, gender, personal_color,
+                                       skeleton_type, season, limit)
     if os.getenv("SHOPPING_PROVIDER") == "product_catalog":
         return _recommend_catalog_outfits(situation, style, gender, personal_color,
                                           skeleton_type, season, limit)
@@ -1065,6 +1069,10 @@ def _recommend_naver_outfits(
 def _recommend_catalog_outfits(situation, style, gender, personal_color,
                               skeleton_type, season, limit, per_category_limit=7,
                               refresh_seed="", exclude_ids=None):
+    if (ROOT_DIR / "data/shopping_products.json").is_file():
+        return _recommend_json_outfits(situation, style, gender, personal_color,
+                                       skeleton_type, season, limit, per_category_limit,
+                                       refresh_seed, exclude_ids)
     """Rank collected real products; prices/availability are NOT live quotes."""
     path = ROOT_DIR / "structured_clothes_data.csv"
     if not path.is_file():
@@ -1127,6 +1135,58 @@ def _recommend_catalog_outfits(situation, style, gender, personal_color,
         if not valid or counts.get(category, 0) >= per_category_limit:
             continue
         selected.append(_public_naver_item(item))
+        counts[category] = counts.get(category, 0) + 1
+    return selected[:limit]
+
+
+def _recommend_json_outfits(situation, style, gender, personal_color,
+                            skeleton_type, season, limit, per_category_limit=7,
+                            refresh_seed="", exclude_ids=None):
+    """Rank only supplied products. Null photos/prices remain unknown."""
+    products = json.loads((ROOT_DIR / "data/shopping_products.json").read_text(encoding="utf-8-sig"))
+    categories = {"top": "상의", "bottom": "하의", "outer": "아우터"}
+    context = retrieve_style_context(gender=gender, personal_color=personal_color,
+                                    skeleton_type=skeleton_type, situation=situation,
+                                    mood=style, season=season)
+    candidates, seen_ids, seen_urls = [], set(), set()
+    for product in products:
+        if product.get("gender") != gender or product.get("category") not in categories:
+            continue
+        product_id, url = str(product.get("id") or ""), str(product.get("product_url") or "")
+        parsed = urlparse(url)
+        if (not product_id or product_id in seen_ids or url in seen_urls
+                or parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password):
+            continue
+        category = categories[product["category"]]
+        tags = [str(tag) for tag in product.get("style_tags", [])]
+        item = _naver_public_item({"title": product["name"], "category3": category,
+                                   "image": product.get("image_url") or "", "link": url,
+                                   "lprice": product.get("price") if product.get("price") is not None else "",
+                                   "mallName": "UNIQLO" if parsed.hostname.endswith("uniqlo.com") else parsed.hostname}, "")
+        item.update(image_id=product_id, item_type=category, category=category,
+                    color=product.get("color") or "", style=" ".join(tags),
+                    search_text=" ".join([product["name"], *tags]),
+                    source_query="curated_products")
+        item.update(_score_naver_item(item, situation, style, gender,
+                                     personal_color, skeleton_type, context))
+        # Link reachability is separate from stock/availability verification.
+        item["availability_verified"] = product.get("availability_verified") is True
+        item["product_url"] = url
+        seen_ids.add(product_id); seen_urls.add(url); candidates.append(item)
+    excluded = exclude_ids or set()
+    candidates.sort(key=lambda item: (
+        item["image_id"] in excluded,
+        -int(item["recommendation_score"]),
+        hashlib.sha256((refresh_seed + item["image_id"]).encode()).hexdigest(),
+    ))
+    selected, counts = [], {}
+    for item in candidates:
+        category = item["item_type"]
+        if counts.get(category, 0) >= per_category_limit:
+            continue
+        selected.append({**_public_naver_item(item),
+                         "product_url": item["product_url"],
+                         "availability_verified": item["availability_verified"]})
         counts[category] = counts.get(category, 0) + 1
     return selected[:limit]
 

@@ -64,6 +64,9 @@ class VirtualTryOnService {
 
   static Future<GarmentImageInput> garmentImageInput(OutfitItem item) async {
     final imageUrl = item.imageUrl;
+    if (imageUrl.isEmpty) {
+      throw Exception('이 상품에는 피팅에 사용할 옷 사진이 아직 없어요. 상품 상세 링크는 이용할 수 있어요.');
+    }
     final isRemote =
         imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
 

@@ -114,13 +114,15 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
                     ),
                   ),
                 ),
-                if (data.source == 'product_catalog')
-                  const SliverToBoxAdapter(
+                if (data.source == 'product_catalog' || data.source == 'curated_products')
+                  SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(24, 12, 24, 0),
                       child: Text(
-                        '수집된 실제 상품을 프로필에 맞춰 추천합니다. 가격은 수집 당시 정보이며, 현재 가격·재고는 판매 페이지에서 확인해주세요.',
-                        style: TextStyle(color: AppColors.muted, fontSize: 12),
+                        data.source == 'curated_products'
+                            ? '등록된 상품 목록으로 추천합니다. 이미지·가격은 미등록이며 판매 여부는 확인되지 않았어요. 현재 가격·재고는 상품 상세 페이지에서 확인해주세요.'
+                            : '수집된 실제 상품을 프로필에 맞춰 추천합니다. 가격은 수집 당시 정보이며, 현재 가격·재고는 판매 페이지에서 확인해주세요.',
+                        style: const TextStyle(color: AppColors.muted, fontSize: 12),
                       ),
                     ),
                   ),
@@ -213,7 +215,7 @@ class _OutfitRecommendationPageState extends State<OutfitRecommendationPage> {
       ),
     ];
 
-    return sections;
+    return sections.where((section) => section.itemType != '원피스' || section.items.isNotEmpty).toList();
   }
 
   bool _matchesSelectedGender(OutfitItem item) {
@@ -569,7 +571,7 @@ class _OutfitPickCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _ColorDot(item.color),
+                          if (item.color.isNotEmpty) _ColorDot(item.color),
                           if (item.subColor.isNotEmpty) ...[
                             const SizedBox(width: 5),
                             _ColorDot(item.subColor),

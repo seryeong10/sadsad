@@ -19,6 +19,7 @@ foreach ($file in @('personal_color_model.joblib', 'personal_color_model_female.
 }
 Copy-Item -LiteralPath (Join-Path $root 'backend/data/style_recommendation_ruleset.json') -Destination (Join-Path $backendDestination 'data') -Force
 Copy-Item -LiteralPath (Join-Path $root 'backend/structured_clothes_data.csv') -Destination $backendDestination -Force
+Copy-Item -LiteralPath (Join-Path $root 'backend/data/shopping_products.json') -Destination (Join-Path $backendDestination 'data') -Force
 $auditPath = Join-Path $root 'backend/data/product_image_audit.json'
 if (Test-Path -LiteralPath $auditPath) {
     Copy-Item -LiteralPath $auditPath -Destination (Join-Path $backendDestination 'data') -Force

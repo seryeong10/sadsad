@@ -1354,14 +1354,20 @@ class _StoredItemsPage extends StatelessWidget {
               final item = items[index];
               return Tooltip(
                   message: item.title,
-                  child: Container(
+                  child: GestureDetector(
+                    onTap: item.link.isEmpty ? null : () async {
+                      final uri = Uri.tryParse(item.link);
+                      if (uri == null || !['https', 'http'].contains(uri.scheme)) return;
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    },
+                    child: Container(
                     clipBehavior: Clip.antiAlias,
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                         color: AppColors.chip,
                         borderRadius: BorderRadius.circular(14)),
                     child: _OutfitItemImage(item: item, fit: BoxFit.contain),
-                  ));
+                  )));
             },
           );
         },

@@ -210,7 +210,7 @@ class OutfitItem {
     required String baseUrl,
   }) {
     final imagePath = json['image_url'] as String? ?? '';
-    final imageUrl = imagePath.startsWith('http') ||
+    final imageUrl = imagePath.isEmpty ? '' : imagePath.startsWith('http') ||
             imagePath.startsWith('data:') ||
             imagePath.startsWith('blob:')
         ? imagePath
@@ -222,7 +222,7 @@ class OutfitItem {
       imageUrl: ApiConfig.productImage(imageUrl),
       photoType: json['photo_type'] as String? ?? 'auto',
       singleGarment: json['single_garment'] == true,
-      link: json['link'] as String? ?? '',
+      link: json['product_url'] as String? ?? json['link'] as String? ?? '',
       price: json['price']?.toString() ?? '',
       mallName: json['mall_name'] as String? ?? '',
       style: json['style'] as String? ?? '',

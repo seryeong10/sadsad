@@ -761,7 +761,13 @@ async def generate_avatar(
             detail = "이미지 서비스가 합성 요청을 승인하지 않았습니다. 얼굴만 선명하게 나온 사진을 사용해주세요. 계속되면 관리자에게 문의해주세요."
             status = 422
         elif exc.status_code == 429:
-            detail, status = "이미지 서비스 사용량이 많습니다. 잠시 후 다시 시도해주세요.", 503
+            error = exc.body if isinstance(exc.body, dict) else {}
+            error = error.get("error", error)
+            if error.get("code") in {"credit_balance_exhausted", "insufficient_quota", "billing_hard_limit_reached"} or error.get("type") == "insufficient_quota":
+                detail = "OpenAI API 크레딧 또는 결제 한도가 소진됐습니다. 프로젝트 관리자가 OpenAI API 결제 설정을 확인해야 합니다."
+            else:
+                detail = "이미지 서비스 사용량이 많습니다. 잠시 후 다시 시도해주세요."
+            status = 503
         else:
             detail, status = "이미지 서비스에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", 502
         raise HTTPException(status_code=status, detail=detail) from exc

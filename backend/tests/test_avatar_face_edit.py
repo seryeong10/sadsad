@@ -14,7 +14,7 @@ import numpy as np
 from PIL import Image
 from fastapi import UploadFile
 from fastapi.testclient import TestClient
-from openai import BadRequestError
+from openai import BadRequestError, RateLimitError
 import httpx
 import os
 
@@ -123,6 +123,20 @@ class FaceOnlyEditTests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertIn("승인하지", response.json()["detail"])
         self.assertEqual(response.headers["access-control-allow-origin"], "*")
+        call.assert_called_once()
+
+    def test_exhausted_credit_is_not_reported_as_temporary_traffic(self):
+        error = RateLimitError("no credits", response=httpx.Response(
+            429, request=httpx.Request("POST", "https://api.openai.com/v1/images/edits")),
+            body={"code": "credit_balance_exhausted", "type": "insufficient_quota"})
+        call = Mock(side_effect=error)
+        photo = edit.png_bytes(Image.new("RGB", (100, 100), "white"))
+        with patch.object(main, "prepare_face_edit", return_value=self.prepare()), patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
+            with self.assertRaises(main.HTTPException) as caught:
+                asyncio.run(main.generate_avatar(UploadFile(file=BytesIO(photo)), UploadFile(file=BytesIO(photo))))
+        self.assertEqual(caught.exception.status_code, 503)
+        self.assertIn("크레딧", caught.exception.detail)
+        self.assertNotIn("잠시 후", caught.exception.detail)
         call.assert_called_once()
 
     def test_all_twenty_shipped_avatars_have_matching_face_masks(self):

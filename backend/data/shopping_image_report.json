@@ -1,365 +1,848 @@
 {
-  "checked_at": "2026-11-11T15:32:48.982466+00:00",
+  "source": "user-provided archive",
+  "archive_sha256": "c5df46d861a91b6555b5f3e2adf31a5c8a9fb9fec1c874ed470e9ba3ef8f3edb",
   "products": [
     {
       "id": "female_top_01",
       "name": "소프트니트후리스크루넥T",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E470143-000/00?colorDisplayCode=10",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_01.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "a3fce4677cbd336c756524b79a2775cbc0b215aa64edfb7690a9397097ae4e05",
+      "sha256": "43ebd19cf3ac2d1f7dc325f9ccc6732434d35413f40d0af3c106b5e93f6f11e5",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_02",
       "name": "립니트후리스V넥T",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487595-000/00?colorDisplayCode=41",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_02.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "749d3f46e1ff74e385554cdf6e25d1bdaf2cc8cc54894351b2a45da22570b64f",
+      "sha256": "8c57c1dd8152c22d6c2b0769bba042cceca2df50ba71c23bf1aa15281b842753",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_03",
       "name": "후드립T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488298-000/00?colorDisplayCode=03",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_03.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "e0596f3eabb156a3cf3c089c8f26ad7e683c53cc27910da2b7795d714e20dd52",
+      "sha256": "a3b19abaaee8673396e1548569c1a6003b011eb50cc4ffcf5e7da87051aa9bb1",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_04",
       "name": "소프트립T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E465751-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_04.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "244744aaf0875d5cd6a51e3c4545b0fcf3995fe7bc1930a2912922cdae8c8d12",
+      "sha256": "cba1afcb01a9c2995c5e07af479850086498354fcebe891d35232e47a4cfff45",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_05",
       "name": "립헨리넥T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487908-000/00?colorDisplayCode=30",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_05.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "6feee663c3664dc2144ce5bca595e32ff2db05cbe5e4f6c944a220a864296b64",
+      "sha256": "707800e6e5c5f3e8f75ae4fff835300e9d00caf710bb88216f327ac703e7b626",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_06",
       "name": "미니T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487579-000/00?colorDisplayCode=15",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_06.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "b9e9ca25c9de322edee9c95ed48c1d7814e5639098f8443e3e6fc1084c9a4713",
+      "sha256": "b86d60cddb2cb12af54918f25417416161fc244baa3a75cfeb576e92ce25bc1b",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_07",
       "name": "미니T 긴팔 래글런",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E489372-000/00?colorDisplayCode=69",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_07.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "83f6fcae055771875b8d80087d2c0f59681a2507081675019331b936e6166d70",
+      "sha256": "695716d69317566052284ffa805c445bcc5f1f46bcdb2e5eaf7fb9894696206c",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_08",
       "name": "소프트립T 긴팔 스트라이프",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E489040-000/00?colorDisplayCode=69",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_08.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "1e7e913e19453bda967add6e72762e9a88a2f0d04d46f0398ea7c361cd7a883a",
+      "sha256": "0421ddd2728408470871ebd0cf9eef38cf7a5637ab45869eb7448d8ef194a49a",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_top_09",
       "name": "소프트립T 긴팔 스트라이프 (다른 제품)",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E483536-000/00?colorDisplayCode=69",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_09.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "6976d4f8f52d726bfb8dfa5e3113183e5c0e3267b10a0da484eb9128306ed915",
+      "sha256": "dec061afdd3dd2aae742a137e5d4c2ddfc025256760524e2f84f17d17eb57a58",
+      "photo_type": "flat-lay",
+      "visual_note": "Provided image appears plain or has very subtle stripes; retain supplied ID mapping and review pattern before presentation."
     },
     {
       "id": "female_top_10",
       "name": "SUPIMA COTTON T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488230-000/00?colorDisplayCode=15",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_top_10.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "069d9f085302670e5c7fd01aa06bb5c68468104ab9f68f32946db943dc62dbd7",
+      "sha256": "350fb77d6fdf0d44548dbe0a70117f7e62961dddfb8b525f2438355772eed571",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_01",
       "name": "스트레이트진",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E476209-000/00?colorDisplayCode=69",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_01.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "bb1e3f202d20a1a0640716b2b9da43829509d1052ab10f45143502eaa883bb88",
+      "sha256": "76cce1bba53103ccc69e175b64032d5723bd611031439dd6a33f3f826eb4e75d",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_02",
       "name": "배기배럴레그진 긴기장",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E484807-000/00?colorDisplayCode=31",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_02.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "1ddf3e0ff6e7646137a890afb92e67bbd70bdf874a92bf4bfcb3b23912970c78",
+      "sha256": "eb10bde16323a3a1deef0a805ac8258c0a118025ef4f7329280e162cd64988a8",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_03",
       "name": "배기배럴레그진 기본기장",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E479000-000/00?colorDisplayCode=67",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_03.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "a3b23331d242ac111774a8920d2e809ef9a62e13ccc6db620796828393f004d3",
+      "sha256": "83ba46542eae8f3c2e9d2ee0b4b9cf4b4cf511b1fd93c484aff15ea14de0a3e0",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_04",
       "name": "하이라이즈와이드진",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E491104-000/00?colorDisplayCode=02",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_04.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "585bf06c36bed4dfd1172f07a7505949687418a9a3f40b82545c286849c15733",
+      "sha256": "e07be1c9d7e8f4147465be5d58e2e4eb1a8dccbe27b1b7468875d2aa3e65e663",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_05",
       "name": "EZY와이드스트레이트진",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E482281-000/00?colorDisplayCode=07",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_05.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "b683e4165380d859730b9770a66dc2d1f03925a2f5ba079c1bd7e405701d8d94",
+      "sha256": "18443185f657a275157ae9943538c704bfd2829c0ca2ff742ef6bbadf773b1e0",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_06",
       "name": "와이드플리츠미디스커트",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E482658-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_06.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "8d474318ed8c85fddc78257113d4a7fc8579098c3e03ec3af46130391c061f09",
+      "sha256": "e63c7d7086f33703f4e1348646a5a0c1841bc4427d782ae7831d4d69ee478bce",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_07",
       "name": "플리츠스커트",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488083-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_07.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "827bb697aaf5039b589e1002472c28d310514184e3b698e56946116bc1526873",
+      "sha256": "7de5048b5523e914d53d73caf1cb64dd99a0c2e82079da514abe926485ead992",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_08",
       "name": "브러시드저지플레어스커트",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487997-000/00?colorDisplayCode=04",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_08.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "ed4c2a17fa825532b14936d112f1ccbece8d508582b58113e7a325b9db74545a",
+      "sha256": "7e4f9db56ace8d34bc7bad6e9d60fd2c3227ec74f6278fa5da19ed41c22aeaf4",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_09",
       "name": "나일론개더스커트",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487995-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_09.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "aeb0ee8f24d46a82b968374fb6d693d71a2dbfff3491a99158f01bebbd837e48",
+      "sha256": "7077bfe9b15edbd32396fc4ad3992af0e703c3acef5dba493b0b23d6b4387ed1",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_bottom_10",
       "name": "플리츠스코츠",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488008-000/00?colorDisplayCode=08",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_bottom_10.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "443a88b11db00eda5ddbde4645328d64d367fd5b791b4493d1fca172b2656ead",
+      "sha256": "04769a1a9c46456d4deeb2468b0c8100d80b386a9b0ee2cb7c187824ce7c3f2b",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_01",
       "name": "PUFFTECH파카",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E469871-000/00?colorDisplayCode=60",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_01.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "041913643fd431a90abc48052874e7a933eabc3451bb2a6f1b289daf66fd0a83",
+      "sha256": "d2b35db45450aac0d1c840bdc23c3841ac4c060705a284fe36ffe592ac1ecfe9",
+      "photo_type": "model"
     },
     {
       "id": "female_outer_02",
       "name": "PUFFTECH컴팩트재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487404-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_02.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "b6040a1e4f2177cf8b682018ea0fe283d406c2a87360848f5e9567ef30028d7e",
+      "sha256": "e70954575740645e2a9b85392348295e426f66b2df547337dbacd00e4429c678",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_03",
       "name": "PUFFTECH재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487408-000/00?colorDisplayCode=19",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_03.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "874ee456f3480bf8e4ba790b4f1ffd75e59804dbc989822bcbdcaac97210c276",
+      "sha256": "1ab89c0b6d46f2ea5e4d0d62eac218edbccc07c76a2f444c61b0e119aba0a752",
+      "photo_type": "model"
     },
     {
       "id": "female_outer_04",
       "name": "심리스다운롱코트",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E478579-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_04.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "ca2d01b536955d04a67ab7db73551e0323f38ee220f8c2d30a1bf957c496f5d4",
+      "sha256": "031f9185fe30cf0767149f753d9898031b192758a9398b4ca0f1fd111a3891da",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_05",
       "name": "심리스다운파카",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E478577-000/00?colorDisplayCode=36",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_05.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "90ae23b9efc7219f0ed992525f575ee445df1d125c6c9480d13d60c7e20c4070",
+      "sha256": "053716792d34219ea5db56a86b020a7adff99a07ac244a801a20712a46ab2ccd",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_06",
       "name": "하이브리드다운쇼트재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487882-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_06.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "7216ab5864946a763e8bf8bc8be1ef2ede639d711bbed50bcce28126b7db9520",
+      "sha256": "96d4a5177349a974fad06fbbaf252d331b16fe0c693d17bae2716c0985c542ff",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_07",
       "name": "패디드유틸리티쇼트재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487518-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_07.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "35b521079f84332f375b68f0dff19d0ff6bbcb85b413e8429d917d6d7d3f3a9d",
+      "sha256": "4816abf54a452c7957f99dcd19e69f9f12592c727a3c839b427209d924464e44",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_08",
       "name": "논퀼팅다운쇼트코트",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487425-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_08.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "2ab89a00245154f857e81b1af79f1a8f9484fa8ee50cfdb68920c90870ef9c14",
+      "sha256": "1776db5617b17e9cb151e591153a3199ab7ef17b7a11655f343e76ae7e812d5b",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_09",
       "name": "리버서블다운쇼트재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487424-000/00?colorDisplayCode=01",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_09.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "a3706d7657f3224962793827bc124d37a921b47a1de453263236dbfc8b39b969",
+      "sha256": "92e08ff240da8f1cd9150b2aff5e1cec1c2eca646d56d9e1d3f82cc3a48b7a6c",
+      "photo_type": "flat-lay"
     },
     {
       "id": "female_outer_10",
       "name": "후리스스탠드블루종",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487517-000/00?colorDisplayCode=31",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/female_outer_10.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "b7466c62a1dfee7337f8ed0fa2334c7f9d0b0292a376bf52301a481620ccecfa",
+      "sha256": "51182903a944576eef8fe4202ce608cead2107f410973b8571ba961e80164331",
+      "photo_type": "model"
     },
     {
       "id": "male_top_01",
       "name": "소프트브러시드크루넥T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E450179-000/00",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_01.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "8449e44651c7dc6336cbc10fee2ae3fa56e56e0694ec42f46efda9c2e7376de7",
+      "sha256": "706521b86c06c12a8a3ffd99f0dc8e2c81d30677965fbe255d4f9a54fe5e18fa",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_top_02",
       "name": "소프트브러시드터틀넥T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E486129-000/00?colorDisplayCode=08",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_02.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "0d84fd884c3cd25ecf028490d104d98a7c9102b94225a7632eca1a0633e0da44",
+      "sha256": "49074de3effab63bbcf37df1dfa5a0caee6e21bc24f9b63babf901f5ad868775",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_top_03",
       "name": "후리스버튼업풀오버",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487929-000/00?colorDisplayCode=26",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_03.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "f615830a7a6be3828ecbe3e303020ba7e84d568aa1d932e954eacd51b6e73a66",
+      "sha256": "357eea400140fff0d47231405b5e887696ccf1f40b8bf230e00a5cf056d749bf",
+      "photo_type": "model"
     },
     {
       "id": "male_top_04",
       "name": "소프트니트후리스크루넥T",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E479791-000/00?colorDisplayCode=18",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_04.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "ee316af4520371c8913fbe2b3ba2dec1ee20539fdf7f630165e3dbe9bcef6459",
+      "sha256": "d2e4448a5046990f568d1da509ec18946ad392cec661a619489cd7d2557088f2",
+      "photo_type": "mixed"
     },
     {
       "id": "male_top_05",
       "name": "AIRism코튼크루넥T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E465193-000/00?colorDisplayCode=65",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_05.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "5d79c368ffc458c04d8dc3940565a1dc4a93d18b95a1ee8e8dc8a1b7b67b4ebc",
+      "sha256": "376f067082c9c03687455cd5e6a6d4cdd9706a6e704c1b7b7942bef0125d0e6c",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_top_06",
       "name": "AIRism코튼스트라이프T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E486103-000/00?colorDisplayCode=00",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_06.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "da36f1f2eba65da7b67ff5ba94bdd89cb8dfb21b9391348e8587176e82afc741",
+      "sha256": "a690691633e5e0bd8139fe30977248b4f3fdd7d2ebe40af1aba35dcff3496a1d",
+      "photo_type": "mixed",
+      "visual_note": "Provided image appears plain or has very subtle stripes; retain supplied ID mapping and review pattern before presentation."
     },
     {
       "id": "male_top_07",
       "name": "와플헨리넥T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E482766-000/00?colorDisplayCode=01",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_07.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "27c97f3620ba3c090d204fe0ff6d512b306f85e0bdba84e636a580057e70fc6b",
+      "sha256": "b4e48a09cd2d3437c11283de7503b60cde9be3394ff9cf947a05d1a48d503b57",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_top_08",
       "name": "워시코튼크루넥T 긴팔",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E484080-000/00?colorDisplayCode=00",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_08.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "a3fb1d65a7401ba6b8cc898620e53679aa949da09976d5e126bb6530f73c39bf",
+      "sha256": "a7ef9b2ef464101e5bc4879b4b91be533d35f078b01fc480c086d7f0f332b9ca",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_top_09",
       "name": "러거셔츠",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488751-000/00?colorDisplayCode=01",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_09.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "f7792057a7174fc37adf525da92eee6c32cc730f1bd85cf846e70272fdcc292e",
+      "sha256": "bdcca1d004d703da4a3fa9cd5c782326b4c9dfc0254e8349561afa54c08e19eb",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_top_10",
       "name": "스웨트오버사이즈풀파카",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E471808-000/00?colorDisplayCode=03",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_top_10.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "e02a9561e2df4555ca5808acba13d19f7b6a5fdeafd9e8dcdf3abf751bac2db0",
+      "sha256": "d9148468a9e9be9ba558e89f8e8d066683228c0ac29db016f3e5a17bf2f71911",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_01",
       "name": "스트레이트진",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487206-000/00?colorDisplayCode=67",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_01.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "c52933f446e43034734b27649a62f918c1c0788b8c39f8732ef8683fae71147b",
+      "sha256": "2eb511e418b809357040fc2584c3b18f3ab447eb88f0344ab886958e8f58ede1",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_02",
       "name": "스트레이트진 셀비지",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488684-000/00?colorDisplayCode=69",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_02.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "22e174684be45e38b5b534e4e9d70438a91319f1404f321de9a30a5bc2ff221b",
+      "sha256": "77d1acdde29935bab72587bf7087238e602d1b4bf01155c6c4f075a23ee7823f",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_03",
       "name": "배럴진 코듀로이",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487207-000/00?colorDisplayCode=34",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_03.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "ee652f53d59c3b8453e53b09d69678d6f2e9391af67d22a3822e85b835b0ca3c",
+      "sha256": "92b2fdeeb1f4746cd30b96962a9a1791eb3a3e8f49d5f1b2f7bc73248c78e3ef",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_04",
       "name": "배럴진",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488743-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_04.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "a1d77f863306c3ab926e818a859e7bffd20409785f60209e343ef74594b35935",
+      "sha256": "b1c2d5d1541ecfdd9ef4c1f522611286dd45a6658f58089fd1a9af84d76ac122",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_05",
       "name": "와이드스트레이트진",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E470542-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_05.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "206e9bdd8e6b35b4974a018be3e782131ca22c2efe190a9b3af2f2db7d2b6162",
+      "sha256": "28f974710fbe6384537316a0676db6ae3d044f5499fde6b7abe72eb64b25a465",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_06",
       "name": "슬림스트레이트진",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E482856-000/00?colorDisplayCode=67",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_06.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "d1ab2d9519ede8867b25bdb2c6cad34648420e8001625620dc328a1ac6b50c00",
+      "sha256": "349766940e2100b37cb8c3ff6badb3abf1ea1f320dd4eef25b16e825acbe4c64",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_07",
       "name": "코듀로이이지앵클팬츠",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E486471-000/00?colorDisplayCode=69",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_07.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "bee0463af4b8b5b0c341537fd8ed7fde95e6231eb574d97391abb0c9da12c352",
+      "sha256": "1678ae71c7b3bf5206c55a0969aebd3ddccb0b95d621671f160fb00cf72db738",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_08",
       "name": "웜이지팬츠",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487261-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_08.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "2de1e05cdcbd271ef1f397e88e326194bd234bd80342bccbefef17f1c1814e21",
+      "sha256": "7e4496cde2d4d73134d214a638224462c2f0f6afcbd3ec4aeb021d2698748883",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_09",
       "name": "배럴치노팬츠",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E487214-000/00?colorDisplayCode=35",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_09.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "6a31b91bbb776ae4f16d0244fcb3c6f7c5b68c0342ff1b36523f732bae251c6b",
+      "sha256": "1f3d4bcc4110406551c1d8dcbb6b0817e93f9992b80c0b5d8e63a045e7d4caeb",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_bottom_10",
       "name": "파라슈트팬츠",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E486042-000/00?colorDisplayCode=31",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_bottom_10.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "348fc74141587d8f4b631da2d8bd7639e07b3aa46d2c439c88a90cb2612a9839",
+      "sha256": "e64ecc89ee610117f6cb34987c44638f063cda2798618886e93fceb871eaa202",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_01",
       "name": "PUFFTECH파카",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E489110-000/00?colorDisplayCode=27",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_01.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "9fed764c32ebf7cfb3dd0585fc882e5d358dbd667b0b6636f48096edc5fc5466",
+      "sha256": "4bf66adf5561c9b367b291dd7c8854f267608025c765554520cb9b5d8fbe38d8",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_02",
       "name": "PUFFTECH재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E486171-000/00?colorDisplayCode=19",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_02.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "1f26566b21bfbacc281d8bbc9a0b5767e1bb07d348d94dd2cfce7bd36d343114",
+      "sha256": "edbd644454e88bb04c4cc62848454b1e131ce57d6be968286eb5ed6f35bc98e1",
+      "photo_type": "mixed"
     },
     {
       "id": "male_outer_03",
       "name": "PUFFTECH컴팩트재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E486819-000/00?colorDisplayCode=08",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_03.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "13eee36a34dc55c5d7f5054a2754c04a62a5deb3f2581ed444a50393cc2546bc",
+      "sha256": "50bb2b31082347689d03c767cc2223945f58cf79261791b1ca7182189fc230fe",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_04",
       "name": "심리스다운재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E492561-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_04.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "e58f3a7b1292ee8ff903176488c52e8181ba79abffe954946172187f7db88865",
+      "sha256": "92ed76d465628d4abfbde630f0154a45219721403ea68a554d18f7245b878656",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_05",
       "name": "라이트다운볼륨재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E492179-000/00?colorDisplayCode=56",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_05.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "8a05dfd4745714b0e58c41559860850149f1e3cb022f55099d60f8c39e9c9d3f",
+      "sha256": "4d57c949f68c9e7874fb351f76c6da10f42b2f5311e960a0fc05086be93e6f90",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_06",
       "name": "심리스다운파카",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E486176-000/00?colorDisplayCode=05",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_06.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "10909c93e3ffe238f86bdab8cde3d11956ca07c16edfa14fb6b96b90566fc485",
+      "sha256": "efadbf85dd64251d6810978e8ca3c898c89c84607f58f2d657454e2cd2041114",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_07",
       "name": "하이브리드다운파카",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E478277-000/00?colorDisplayCode=32",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_07.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "c70cbc4abc6d33fe07df9f415e28f0e1d0ad31beb15049c29324ddf2a8142134",
+      "sha256": "2c8319f70b83f237c7b51cf64863f641a858521d1a74d3c222eaec3d0028b485",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_08",
       "name": "MA-1블루종",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E491292-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_08.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "bb4a3a9df1b88da1760a030da710f69ecfb4cb0ba2f867321ad8ff9962edd8c8",
+      "sha256": "f9f70d76b23740413971b5878bc5c58f53b570153f02a6768567e178b536aa94",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_09",
       "name": "해링턴재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E484610-000/00?colorDisplayCode=09",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_09.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "898319d6a487815419d528265f68a32be371819b6fe722c4169c40df7009bb8d",
+      "sha256": "25d45189364efe871d07a0806a470882ce536bf682218a7cf8d8e367d755e0fd",
+      "photo_type": "flat-lay"
     },
     {
       "id": "male_outer_10",
       "name": "데님트러커재킷",
       "product_url": "https://www.uniqlo.com/kr/ko/products/E488726-000/00?colorDisplayCode=69",
-      "status": "permission_not_confirmed"
+      "image_url": "assets/shopping_products/male_outer_10.png",
+      "status": "user_supplied_archive_imported",
+      "size": [
+        512,
+        512
+      ],
+      "source_sha256": "bbb0291c326c1bcb7599624a8a74d0cc5845d96928bea1c0e34a3a7a833503e2",
+      "sha256": "b2167c772b0cbfdc73afbfe853a340342931a7589f258902f8251242c3a74b96",
+      "photo_type": "flat-lay"
     }
   ]
 }

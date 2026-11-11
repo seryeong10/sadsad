@@ -1165,6 +1165,8 @@ def _recommend_json_outfits(situation, style, gender, personal_color,
                                    "mallName": "UNIQLO" if parsed.hostname.endswith("uniqlo.com") else parsed.hostname}, "")
         item.update(image_id=product_id, item_type=category, category=category,
                     color=product.get("color") or "", style=" ".join(tags),
+                    photo_type=product.get("photo_type", "auto"),
+                    single_garment=product.get("single_garment") is True,
                     search_text=" ".join([product["name"], *tags]),
                     source_query="curated_products")
         item.update(_score_naver_item(item, situation, style, gender,
@@ -1176,6 +1178,7 @@ def _recommend_json_outfits(situation, style, gender, personal_color,
     excluded = exclude_ids or set()
     candidates.sort(key=lambda item: (
         item["image_id"] in excluded,
+        item.get("photo_type") != "flat-lay",
         -int(item["recommendation_score"]),
         hashlib.sha256((refresh_seed + item["image_id"]).encode()).hexdigest(),
     ))

@@ -4,13 +4,11 @@ The actual catalog is `backend/data/shopping_products.json`, copied from the
 supplied `avata_shopping_products.json`. Its original product links, null prices,
 and `availability_verified: false` are retained.
 
-No product photos have been acquired. UNIQLO's online-store terms, article 22(1),
-require prior consent for use of product photographs. The provided data contains
-no consent record. A public image URL or a screenshot is not treated here as a
-license. The request specifically requires permitted use and no access bypass.
-
-Terms checked in the browser on 2026-11-12:
-https://faq-kr.uniqlo.com/pkb_Home_UQ_KR?id=kA0Ie000000TO0f&l=ko
+The current 60 product photographs were supplied directly in the user's ZIP and
+imported into Flutter assets. No external product-image download was performed.
+The previous permission-not-confirmed report is superseded by the archive import
+report. `import-shopping-images.py` remains available for future external/local
+imports that need separate source and permission records.
 
 ## Once matching photographs are authorized
 

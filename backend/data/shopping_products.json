@@ -5,11 +5,13 @@
     "category": "top",
     "name": "소프트니트후리스크루넥T",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E470143-000/00?colorDisplayCode=10",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_01.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_02",
@@ -17,11 +19,13 @@
     "category": "top",
     "name": "립니트후리스V넥T",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487595-000/00?colorDisplayCode=41",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_02.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_03",
@@ -29,11 +33,13 @@
     "category": "top",
     "name": "후드립T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488298-000/00?colorDisplayCode=03",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_03.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_04",
@@ -41,11 +47,13 @@
     "category": "top",
     "name": "소프트립T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E465751-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_04.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_05",
@@ -53,11 +61,13 @@
     "category": "top",
     "name": "립헨리넥T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487908-000/00?colorDisplayCode=30",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_05.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_06",
@@ -65,11 +75,13 @@
     "category": "top",
     "name": "미니T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487579-000/00?colorDisplayCode=15",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_06.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_07",
@@ -77,11 +89,13 @@
     "category": "top",
     "name": "미니T 긴팔 래글런",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E489372-000/00?colorDisplayCode=69",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_07.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_08",
@@ -89,11 +103,13 @@
     "category": "top",
     "name": "소프트립T 긴팔 스트라이프",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E489040-000/00?colorDisplayCode=69",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_08.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_09",
@@ -101,11 +117,13 @@
     "category": "top",
     "name": "소프트립T 긴팔 스트라이프 (다른 제품)",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E483536-000/00?colorDisplayCode=69",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_09.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_top_10",
@@ -113,11 +131,13 @@
     "category": "top",
     "name": "SUPIMA COTTON T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488230-000/00?colorDisplayCode=15",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_top_10.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_01",
@@ -125,11 +145,13 @@
     "category": "bottom",
     "name": "스트레이트진",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E476209-000/00?colorDisplayCode=69",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_01.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_02",
@@ -137,11 +159,13 @@
     "category": "bottom",
     "name": "배기배럴레그진 긴기장",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E484807-000/00?colorDisplayCode=31",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_02.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_03",
@@ -149,11 +173,13 @@
     "category": "bottom",
     "name": "배기배럴레그진 기본기장",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E479000-000/00?colorDisplayCode=67",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_03.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_04",
@@ -161,11 +187,13 @@
     "category": "bottom",
     "name": "하이라이즈와이드진",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E491104-000/00?colorDisplayCode=02",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_04.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_05",
@@ -173,11 +201,13 @@
     "category": "bottom",
     "name": "EZY와이드스트레이트진",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E482281-000/00?colorDisplayCode=07",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_05.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_06",
@@ -185,11 +215,13 @@
     "category": "bottom",
     "name": "와이드플리츠미디스커트",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E482658-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_06.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_07",
@@ -197,11 +229,13 @@
     "category": "bottom",
     "name": "플리츠스커트",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488083-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_07.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_08",
@@ -209,11 +243,13 @@
     "category": "bottom",
     "name": "브러시드저지플레어스커트",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487997-000/00?colorDisplayCode=04",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_08.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_09",
@@ -221,11 +257,13 @@
     "category": "bottom",
     "name": "나일론개더스커트",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487995-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_09.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_bottom_10",
@@ -233,11 +271,13 @@
     "category": "bottom",
     "name": "플리츠스코츠",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488008-000/00?colorDisplayCode=08",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_bottom_10.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_01",
@@ -245,11 +285,13 @@
     "category": "outer",
     "name": "PUFFTECH파카",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E469871-000/00?colorDisplayCode=60",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_01.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "model",
+    "single_garment": false
   },
   {
     "id": "female_outer_02",
@@ -257,11 +299,13 @@
     "category": "outer",
     "name": "PUFFTECH컴팩트재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487404-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_02.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_03",
@@ -269,11 +313,13 @@
     "category": "outer",
     "name": "PUFFTECH재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487408-000/00?colorDisplayCode=19",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_03.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "model",
+    "single_garment": false
   },
   {
     "id": "female_outer_04",
@@ -281,11 +327,13 @@
     "category": "outer",
     "name": "심리스다운롱코트",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E478579-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_04.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_05",
@@ -293,11 +341,13 @@
     "category": "outer",
     "name": "심리스다운파카",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E478577-000/00?colorDisplayCode=36",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_05.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_06",
@@ -305,11 +355,13 @@
     "category": "outer",
     "name": "하이브리드다운쇼트재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487882-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_06.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_07",
@@ -317,11 +369,13 @@
     "category": "outer",
     "name": "패디드유틸리티쇼트재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487518-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_07.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_08",
@@ -329,11 +383,13 @@
     "category": "outer",
     "name": "논퀼팅다운쇼트코트",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487425-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_08.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_09",
@@ -341,11 +397,13 @@
     "category": "outer",
     "name": "리버서블다운쇼트재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487424-000/00?colorDisplayCode=01",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_09.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "female_outer_10",
@@ -353,11 +411,13 @@
     "category": "outer",
     "name": "후리스스탠드블루종",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487517-000/00?colorDisplayCode=31",
-    "image_url": null,
+    "image_url": "assets/shopping_products/female_outer_10.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "model",
+    "single_garment": false
   },
   {
     "id": "male_top_01",
@@ -365,11 +425,13 @@
     "category": "top",
     "name": "소프트브러시드크루넥T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E450179-000/00",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_01.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_top_02",
@@ -377,11 +439,13 @@
     "category": "top",
     "name": "소프트브러시드터틀넥T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E486129-000/00?colorDisplayCode=08",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_02.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_top_03",
@@ -389,11 +453,13 @@
     "category": "top",
     "name": "후리스버튼업풀오버",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487929-000/00?colorDisplayCode=26",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_03.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "model",
+    "single_garment": false
   },
   {
     "id": "male_top_04",
@@ -401,11 +467,13 @@
     "category": "top",
     "name": "소프트니트후리스크루넥T",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E479791-000/00?colorDisplayCode=18",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_04.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "mixed",
+    "single_garment": false
   },
   {
     "id": "male_top_05",
@@ -413,11 +481,13 @@
     "category": "top",
     "name": "AIRism코튼크루넥T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E465193-000/00?colorDisplayCode=65",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_05.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_top_06",
@@ -425,11 +495,13 @@
     "category": "top",
     "name": "AIRism코튼스트라이프T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E486103-000/00?colorDisplayCode=00",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_06.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "mixed",
+    "single_garment": false
   },
   {
     "id": "male_top_07",
@@ -437,11 +509,13 @@
     "category": "top",
     "name": "와플헨리넥T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E482766-000/00?colorDisplayCode=01",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_07.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_top_08",
@@ -449,11 +523,13 @@
     "category": "top",
     "name": "워시코튼크루넥T 긴팔",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E484080-000/00?colorDisplayCode=00",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_08.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_top_09",
@@ -461,11 +537,13 @@
     "category": "top",
     "name": "러거셔츠",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488751-000/00?colorDisplayCode=01",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_09.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_top_10",
@@ -473,11 +551,13 @@
     "category": "top",
     "name": "스웨트오버사이즈풀파카",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E471808-000/00?colorDisplayCode=03",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_top_10.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_01",
@@ -485,11 +565,13 @@
     "category": "bottom",
     "name": "스트레이트진",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487206-000/00?colorDisplayCode=67",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_01.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_02",
@@ -497,11 +579,13 @@
     "category": "bottom",
     "name": "스트레이트진 셀비지",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488684-000/00?colorDisplayCode=69",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_02.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_03",
@@ -509,11 +593,13 @@
     "category": "bottom",
     "name": "배럴진 코듀로이",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487207-000/00?colorDisplayCode=34",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_03.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_04",
@@ -521,11 +607,13 @@
     "category": "bottom",
     "name": "배럴진",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488743-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_04.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_05",
@@ -533,11 +621,13 @@
     "category": "bottom",
     "name": "와이드스트레이트진",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E470542-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_05.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_06",
@@ -545,11 +635,13 @@
     "category": "bottom",
     "name": "슬림스트레이트진",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E482856-000/00?colorDisplayCode=67",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_06.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_07",
@@ -557,11 +649,13 @@
     "category": "bottom",
     "name": "코듀로이이지앵클팬츠",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E486471-000/00?colorDisplayCode=69",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_07.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_08",
@@ -569,11 +663,13 @@
     "category": "bottom",
     "name": "웜이지팬츠",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487261-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_08.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_09",
@@ -581,11 +677,13 @@
     "category": "bottom",
     "name": "배럴치노팬츠",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E487214-000/00?colorDisplayCode=35",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_09.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_bottom_10",
@@ -593,11 +691,13 @@
     "category": "bottom",
     "name": "파라슈트팬츠",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E486042-000/00?colorDisplayCode=31",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_bottom_10.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_01",
@@ -605,11 +705,13 @@
     "category": "outer",
     "name": "PUFFTECH파카",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E489110-000/00?colorDisplayCode=27",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_01.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_02",
@@ -617,11 +719,13 @@
     "category": "outer",
     "name": "PUFFTECH재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E486171-000/00?colorDisplayCode=19",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_02.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "mixed",
+    "single_garment": false
   },
   {
     "id": "male_outer_03",
@@ -629,11 +733,13 @@
     "category": "outer",
     "name": "PUFFTECH컴팩트재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E486819-000/00?colorDisplayCode=08",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_03.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_04",
@@ -641,11 +747,13 @@
     "category": "outer",
     "name": "심리스다운재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E492561-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_04.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_05",
@@ -653,11 +761,13 @@
     "category": "outer",
     "name": "라이트다운볼륨재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E492179-000/00?colorDisplayCode=56",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_05.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_06",
@@ -665,11 +775,13 @@
     "category": "outer",
     "name": "심리스다운파카",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E486176-000/00?colorDisplayCode=05",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_06.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_07",
@@ -677,11 +789,13 @@
     "category": "outer",
     "name": "하이브리드다운파카",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E478277-000/00?colorDisplayCode=32",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_07.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_08",
@@ -689,11 +803,13 @@
     "category": "outer",
     "name": "MA-1블루종",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E491292-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_08.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_09",
@@ -701,11 +817,13 @@
     "category": "outer",
     "name": "해링턴재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E484610-000/00?colorDisplayCode=09",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_09.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   },
   {
     "id": "male_outer_10",
@@ -713,10 +831,12 @@
     "category": "outer",
     "name": "데님트러커재킷",
     "product_url": "https://www.uniqlo.com/kr/ko/products/E488726-000/00?colorDisplayCode=69",
-    "image_url": null,
+    "image_url": "assets/shopping_products/male_outer_10.png",
     "price": null,
     "color": null,
     "style_tags": [],
-    "availability_verified": false
+    "availability_verified": false,
+    "photo_type": "flat-lay",
+    "single_garment": true
   }
 ]

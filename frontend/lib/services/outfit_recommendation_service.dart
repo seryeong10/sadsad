@@ -209,7 +209,13 @@ class OutfitItem {
     Map<String, dynamic> json, {
     required String baseUrl,
   }) {
-    final imagePath = json['image_url'] as String? ?? '';
+    var imagePath = json['image_url'] as String? ?? '';
+    final productId = json['image_id'] as String? ?? '';
+    // Restore thumbnails for these same 60 products saved before photos existed.
+    if (imagePath.isEmpty && json['source_query'] == 'curated_products' &&
+        RegExp(r'^(female|male)_(top|bottom|outer)_(0[1-9]|10)$').hasMatch(productId)) {
+      imagePath = 'assets/shopping_products/$productId.png';
+    }
     final imageUrl = imagePath.isEmpty ? '' : imagePath.startsWith('assets/') ||
             imagePath.startsWith('http') ||
             imagePath.startsWith('data:') ||

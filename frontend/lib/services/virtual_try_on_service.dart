@@ -115,6 +115,8 @@ class VirtualTryOnService {
     required GarmentImageInput input,
   }) {
     if (item.photoType == 'flat-lay') return !item.singleGarment;
+    if (item.photoType == 'model' || item.photoType == 'mixed') return true;
+    if (item.imageUrl.startsWith('assets/shopping_products/')) return true;
     final text = [
       item.title,
       item.category,

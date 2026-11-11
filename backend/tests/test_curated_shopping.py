@@ -19,6 +19,7 @@ class CuratedShoppingTests(unittest.TestCase):
             self.assertEqual(Counter(item["item_type"] for item in items), {"상의": 7, "하의": 7, "아우터": 7})
             self.assertTrue(all(item["image_id"].startswith(gender + "_") for item in items))
             self.assertEqual(len({item["link"] for item in items}), 21)
+            self.assertTrue(all(item["photo_type"] == "flat-lay" for item in items))
         self.assertTrue(any("스커트" in item["title"] for item in self.recommend("female")))
 
     def test_refresh_uses_all_three_unseen_products_per_category_first(self):
@@ -36,7 +37,8 @@ class CuratedShoppingTests(unittest.TestCase):
             row = source[item["image_id"]]
             self.assertEqual(item["link"], row["product_url"])
             self.assertEqual(item["product_url"], row["product_url"])
-            self.assertEqual(item["image_url"], "")
+            self.assertEqual(item["image_url"], row["image_url"])
+            self.assertTrue((main.ROOT_DIR.parent / "frontend" / item["image_url"]).is_file())
             self.assertEqual(item["price"], "")
             self.assertEqual(item["color"], "")
             self.assertIs(item["availability_verified"], False)

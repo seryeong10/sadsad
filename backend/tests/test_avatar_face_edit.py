@@ -126,7 +126,7 @@ class FaceOnlyEditTests(unittest.TestCase):
 
     def test_provider_rejection_returns_readable_error_with_cors_without_retry(self):
         error = BadRequestError("safety rejection", response=httpx.Response(
-            400, request=httpx.Request("POST", "https://api.openai.com/v1/images/edits")), body={})
+            400, request=httpx.Request("POST", "https://api.openai.com/v1/images/edits")), body={"code": "moderation_blocked", "message": "Rejected by safety system"})
         call = Mock(side_effect=error)
         photo = edit.png_bytes(Image.new("RGB", (100, 100), "white"))
         with patch.dict(os.environ, {"REQUIRE_FIREBASE_AUTH": "false"}), patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
@@ -134,7 +134,8 @@ class FaceOnlyEditTests(unittest.TestCase):
                 headers={"Origin": "https://a-vata-demo.vercel.app"},
                 files={"base_avatar": ("base.png", photo, "image/png"), "user_face": ("face.png", photo, "image/png")})
         self.assertEqual(response.status_code, 422)
-        self.assertIn("승인하지", response.json()["detail"])
+        self.assertIn("안전 검사", response.json()["detail"])
+        self.assertEqual(response.json()["error_code"], "moderation_blocked")
         self.assertEqual(response.headers["access-control-allow-origin"], "*")
         call.assert_called_once()
 
@@ -145,11 +146,24 @@ class FaceOnlyEditTests(unittest.TestCase):
         call = Mock(side_effect=error)
         photo = edit.png_bytes(Image.new("RGB", (100, 100), "white"))
         with patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
-            with self.assertRaises(main.HTTPException) as caught:
-                asyncio.run(main.generate_avatar(UploadFile(file=BytesIO(photo)), UploadFile(file=BytesIO(photo))))
-        self.assertEqual(caught.exception.status_code, 503)
-        self.assertIn("크레딧", caught.exception.detail)
-        self.assertNotIn("잠시 후", caught.exception.detail)
+            response = asyncio.run(main.generate_avatar(UploadFile(file=BytesIO(photo)), UploadFile(file=BytesIO(photo))))
+        self.assertEqual(response.status_code, 503)
+        detail = json.loads(response.body)["detail"]
+        self.assertIn("크레딧", detail)
+        self.assertNotIn("잠시 후", detail)
+        call.assert_called_once()
+
+    def test_invalid_request_is_not_misreported_as_safety_rejection(self):
+        error = BadRequestError("invalid parameter", response=httpx.Response(
+            400, request=httpx.Request("POST", "https://api.openai.com/v1/images/edits")),
+            body={"code": "invalid_value", "param": "image", "message": "Invalid image format"})
+        call = Mock(side_effect=error)
+        photo = edit.png_bytes(Image.new("RGB", (100, 100), "white"))
+        with patch.object(main, "client", SimpleNamespace(images=SimpleNamespace(edit=call))):
+            response = asyncio.run(main.generate_avatar(UploadFile(file=BytesIO(photo)), UploadFile(file=BytesIO(photo))))
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(json.loads(response.body)["error_code"], "invalid_value")
+        self.assertNotIn("안전 검사", json.loads(response.body)["detail"])
         call.assert_called_once()
 
     def test_all_twenty_shipped_avatars_have_matching_face_masks(self):

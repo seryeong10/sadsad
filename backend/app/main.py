@@ -753,13 +753,26 @@ async def generate_avatar(
         )
     except APIStatusError as exc:
         # Never retry a safety rejection or expose provider payloads to users.
-        print(f"[avatar] OpenAI status={exc.status_code} request_id={exc.request_id}", flush=True)
+        error = exc.body if isinstance(exc.body, dict) else {}
+        error = error.get("error", error)
+        error = error if isinstance(error, dict) else {}
+        message = str(error.get("message", ""))
+        # Keep provider diagnosis, never uploaded photos or authentication values.
+        if os.getenv("OPENAI_API_KEY"):
+            message = message.replace(os.environ["OPENAI_API_KEY"], "[REDACTED]")
+        print(json.dumps({"event": "avatar_provider_error", "status": exc.status_code,
+            "request_id": exc.request_id, "code": error.get("code"), "type": error.get("type"),
+            "param": error.get("param"), "message": message[:1000],
+            "base_sha256": hashlib.sha256(base_bytes).hexdigest()}, ensure_ascii=True), flush=True)
         if exc.status_code == 400:
-            detail = "이미지 서비스가 합성 요청을 승인하지 않았습니다. 얼굴만 선명하게 나온 사진을 사용해주세요. 계속되면 관리자에게 문의해주세요."
-            status = 422
+            blocked = error.get("code") in {"moderation_blocked", "content_policy_violation", "safety_violation"} or "safety" in message.lower()
+            if blocked:
+                detail = "OpenAI 이미지 안전 검사에서 생성 요청이 거절됐습니다. 자동 재시도하지 않았습니다. 관리자에게 문의해주세요."
+                status = 422
+            else:
+                detail = "OpenAI가 이미지 생성 요청을 처리하지 못했습니다. 관리자가 요청 형식과 오류 코드를 확인해야 합니다."
+                status = 502
         elif exc.status_code == 429:
-            error = exc.body if isinstance(exc.body, dict) else {}
-            error = error.get("error", error)
             if error.get("code") in {"credit_balance_exhausted", "insufficient_quota", "billing_hard_limit_reached"} or error.get("type") == "insufficient_quota":
                 detail = "OpenAI API 크레딧 또는 결제 한도가 소진됐습니다. 프로젝트 관리자가 OpenAI API 결제 설정을 확인해야 합니다."
             else:
@@ -767,7 +780,8 @@ async def generate_avatar(
             status = 503
         else:
             detail, status = "이미지 서비스에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.", 502
-        raise HTTPException(status_code=status, detail=detail) from exc
+        return JSONResponse(status_code=status, content={"detail": detail,
+            "error_code": error.get("code") or "image_request_failed", "request_id": exc.request_id})
     except APIConnectionError as exc:
         raise HTTPException(status_code=503, detail="이미지 서비스 연결이 지연되고 있습니다. 잠시 후 다시 시도해주세요.") from exc
 

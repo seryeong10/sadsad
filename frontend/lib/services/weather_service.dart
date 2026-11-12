@@ -1,8 +1,36 @@
 import 'dart:convert';
+import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'api_config.dart';
+
+Future<Position> resolveWeatherPosition({bool isWeb = kIsWeb}) async {
+  if (isWeb) {
+    // Let the browser request permission itself. Permissions.query is not
+    // consistently available, and requestPermission does a second location fix.
+    return Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.medium,
+      timeLimit: const Duration(seconds: 25),
+    );
+  }
+  if (!await Geolocator.isLocationServiceEnabled()) {
+    throw const LocationServiceDisabledException();
+  }
+  var permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+  }
+  if (permission == LocationPermission.denied ||
+      permission == LocationPermission.deniedForever) {
+    throw PermissionDeniedException('위치 권한이 거절됐습니다.');
+  }
+  return Geolocator.getCurrentPosition(
+    desiredAccuracy: LocationAccuracy.medium,
+    timeLimit: const Duration(seconds: 25),
+  );
+}
 
 class WeatherHour {
   final String time;
@@ -85,41 +113,24 @@ class WeatherService {
       return _cached!;
     }
 
-    double? latitude;
-    double? longitude;
+    late Position position;
     try {
-      final position = await (() async {
-        if (!await Geolocator.isLocationServiceEnabled()) return null;
-        var permission = await Geolocator.checkPermission();
-        if (permission == LocationPermission.denied) {
-          permission = await Geolocator.requestPermission();
-        }
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
-          return null;
-        }
-        return Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-          timeLimit: const Duration(seconds: 20),
-        );
-      })()
-          .timeout(const Duration(seconds: 25));
-      if (position != null) {
-        latitude = position.latitude;
-        longitude = position.longitude;
-      }
+      position = await resolveWeatherPosition().timeout(const Duration(seconds: 30));
+    } on PermissionDeniedException {
+      throw Exception('위치 권한이 차단됐어요. 주소창의 사이트 설정에서 위치를 허용하고, PC는 Windows 위치 서비스도 켜주세요.');
+    } on LocationServiceDisabledException {
+      throw Exception('기기의 위치 서비스가 꺼져 있어요. 위치 서비스를 켠 뒤 날씨 새로고침을 눌러주세요.');
+    } on TimeoutException {
+      throw Exception('현재 위치 확인 시간이 초과됐어요. Wi-Fi 연결과 기기의 위치 서비스를 확인한 뒤 다시 시도해주세요.');
+    } on PositionUpdateException {
+      throw Exception('브라우저가 현재 위치를 찾지 못했어요. PC의 위치 서비스와 네트워크 연결을 확인해주세요.');
     } catch (_) {
-      // Do not present another city's weather as the user's current location.
-    }
-    if (latitude == null || longitude == null) {
-      _cached = null;
-      _cachedAt = null;
-      throw Exception('현재 위치를 확인하지 못했어요. 브라우저의 위치 권한을 허용한 뒤 새로고침해주세요.');
+      throw Exception('현재 위치를 확인하지 못했어요. 사이트 위치 권한과 기기의 위치 서비스를 확인해주세요.');
     }
 
     final uri = ApiConfig.uri('api/weather').replace(queryParameters: {
-      'lat': latitude.toStringAsFixed(2),
-      'lon': longitude.toStringAsFixed(2),
+      'lat': position.latitude.toStringAsFixed(2),
+      'lon': position.longitude.toStringAsFixed(2),
     });
     final response = await http.get(uri, headers: await ApiConfig.headers()).timeout(const Duration(seconds: 15));
     if (response.statusCode != 200) {
